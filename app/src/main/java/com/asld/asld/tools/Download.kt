@@ -46,6 +46,7 @@ class Downloader(
     private var partStatus = ArrayList<Partition>()
     private var lastModified: Long? = null
     private var calls = ArrayList<Call>()
+    private var isExec = false
 
     private fun clearCacheState() {
         partStatus = ArrayList()
@@ -53,6 +54,7 @@ class Downloader(
         contentLength = 0
         ifRange = false
         lastModified = null
+        isExec = false
     }
 
     private fun parseDate(date: String): Long =
@@ -85,6 +87,10 @@ class Downloader(
             this.lastModified = lastModified
         }
         checkIfRange(resp)
+        resp.headers["Content-Type"]?.let{
+            if (it == "application/octet-stream")
+                isExec = true
+        }
     }
 
     private fun checkIfRange(resp: Response) {
@@ -109,6 +115,9 @@ class Downloader(
         if (ifRange) {
             saveRandomAccessFile = RandomAccessFile(f.absoluteFile, "rw")
             saveRandomAccessFile!!.setLength(contentLength)
+        }
+        if (isExec){
+            f.setExecutable(true)
         }
     }
 
@@ -195,6 +204,23 @@ class Downloader(
             file.writeBytes(dataSub)
             part.nowAt = end + 1
         }
+    }
+
+    private fun checkIfDown(){
+        synchronized(calls){
+            for (c in calls){
+                if (!c.isExecuted()){
+                    return
+                }
+            }
+        }
+        synchronized(partStatus){
+            for (p in partStatus){
+                if (p.nowAt < p.end)
+                    return
+            }
+        }
+        saveRandomAccessFile?.close()
     }
 
     private fun requestPartition(part: Partition) {
@@ -333,5 +359,5 @@ class Downloader(
 
 fun main() {
     DownloadManager.relativeRoot = "/Users/tobias/projects/ansuld/app/src/main/java/com/asld/asld/tools/"
-    Downloader("http://127.0.0.1:8088/main.go", "test/hello.go", 4).run()
+    Downloader("http://127.0.0.1:8088/h1", "test/hello", 4).run()
 }
