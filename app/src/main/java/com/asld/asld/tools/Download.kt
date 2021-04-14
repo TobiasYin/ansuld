@@ -1,5 +1,6 @@
 package com.asld.asld.tools
 
+import android.util.Log
 import okhttp3.*
 import java.io.File
 import java.io.IOException
@@ -14,14 +15,6 @@ const val RETRY_TIME = 10
 
 object DownloadManager {
     lateinit var relativeRoot: String
-}
-
-class Log{
-    companion object{
-        fun e(t: String, m: String, e: Throwable? = null){
-            println("$t $m ${e?.message ?: ' '}")
-        }
-    }
 }
 
 class Downloader(
@@ -47,6 +40,8 @@ class Downloader(
     private var lastModified: Long? = null
     private var calls = ArrayList<Call>()
     private var isExec = false
+    var isFinish = false
+        private set
 
     private fun clearCacheState() {
         partStatus = ArrayList()
@@ -87,7 +82,7 @@ class Downloader(
             this.lastModified = lastModified
         }
         checkIfRange(resp)
-        resp.headers["Content-Type"]?.let{
+        resp.headers["Content-Type"]?.let {
             if (it == "application/octet-stream")
                 isExec = true
         }
@@ -116,18 +111,19 @@ class Downloader(
             saveRandomAccessFile = RandomAccessFile(f.absoluteFile, "rw")
             saveRandomAccessFile!!.setLength(contentLength)
         }
-        if (isExec){
+        if (isExec) {
             f.setExecutable(true)
         }
+        saveFile = f
     }
 
     private fun partition() {
-        val partitions = if (ifRange && threads > 0 && threads < 100) threads else 1
+        val partitions = if (ifRange && threads > 0) if (threads > 100) 100 else threads else 1
         val partSize = contentLength / partitions
         repeat(partitions) {
             val end = (if (it == partitions - 1) contentLength else (partSize) * (it + 1)) - 1
             partStatus.add(Partition(partSize * it, end, it, lastModified))
-            println("partition: $it ${partStatus[it]}")
+            Log.d(TAG, "partition: $it ${partStatus[it]}")
         }
     }
 
@@ -149,6 +145,7 @@ class Downloader(
     }
 
     private fun cancelAndRetry() {
+        Log.e(TAG, "cancel All calls!")
         synchronized(calls) {
             if (calls.size == 0) return
             for (call in calls) {
@@ -177,7 +174,7 @@ class Downloader(
         if (partStatus.size > 1) {
             if (saveRandomAccessFile != null) {
                 synchronized(saveRandomAccessFile!!) {
-                    if (partStatus.size <= part.partID || partStatus[part.partID].PartVersion != part.PartVersion){
+                    if (partStatus.size <= part.partID || partStatus[part.partID].PartVersion != part.PartVersion) {
                         return
                     }
                     val file = saveRandomAccessFile!!
@@ -188,14 +185,14 @@ class Downloader(
             } else {
                 throw IOException("No File to write!")
             }
-        }else{
-            if (partStatus.size <= part.partID || partStatus[part.partID].PartVersion != part.PartVersion){
+        } else {
+            if (partStatus.size <= part.partID || partStatus[part.partID].PartVersion != part.PartVersion) {
                 return
             }
             val file = saveFile
-            val dataSub = if (data.size == len) data else{
+            val dataSub = if (data.size == len) data else {
                 val arr = ByteArray(len)
-                repeat(len){
+                repeat(len) {
                     arr[it] = data[it]
                 }
                 arr
@@ -206,25 +203,26 @@ class Downloader(
         }
     }
 
-    private fun checkIfDown(){
-        synchronized(calls){
-            for (c in calls){
-                if (!c.isExecuted()){
+    private fun checkIfDown() {
+        synchronized(calls) {
+            for (c in calls) {
+                if (!c.isExecuted()) {
                     return
                 }
             }
         }
-        synchronized(partStatus){
-            for (p in partStatus){
+        synchronized(partStatus) {
+            for (p in partStatus) {
                 if (p.nowAt < p.end)
                     return
             }
         }
         saveRandomAccessFile?.close()
+        isFinish = true
     }
 
     private fun requestPartition(part: Partition) {
-        Log.e(TAG, "call requestPartition , part: ${part.partID}")
+        Log.d(TAG, "call requestPartition , part: ${part.partID}")
         val req = Request.Builder()
             .url(url).addHeader("Range", "bytes=${part.nowAt}-${part.end}").get().build()
         val call = client.newCall(req)
@@ -238,8 +236,8 @@ class Downloader(
                 if (!checkAndHandleTime(modified)) {
                     return
                 }
-                val retry = {info:String ->
-                    Log.e(TAG, "Retry call!, part:${part.partID}, info: $info")
+                val retry = { info: String ->
+                    Log.d(TAG, "Retry call!, part:${part.partID}, info: $info")
                     lastModified = 0
                     cancelAndRetry()
                 }
@@ -300,7 +298,7 @@ class Downloader(
                         retry("not bytes range")
                         return
                     }
-                    if (totalLen != contentLength){
+                    if (totalLen != contentLength) {
                         retry("total length error range: totalLen:$totalLen c: $contentLength")
                         return
                     }
@@ -313,9 +311,12 @@ class Downloader(
                     }
                     length = end - start + 1
                     if (end < partEnd) partEnd = end
-                }else{
-                    if (length != null && length != contentLength){
-                        partReqFail(part, IOException("Part length(${length}) are not same with declare($contentLength)"))
+                } else {
+                    if (length != null && length != contentLength) {
+                        partReqFail(
+                            part,
+                            IOException("Part length(${length}) are not same with declare($contentLength)")
+                        )
                     }
                     length = contentLength
                     partEnd = contentLength - 1
@@ -334,6 +335,7 @@ class Downloader(
                     return
                 }
                 writeToFile(data, partEnd, part)
+                checkIfDown()
             }
         })
         synchronized(calls) {
@@ -350,14 +352,17 @@ class Downloader(
         }
     }
 
+    fun getProgress(): Float {
+        if (contentLength == 0L)
+            return 0.0F
+        var nowTotal = 0L
+        partStatus.forEach { nowTotal += (it.nowAt - it.start) }
+        return nowTotal.toFloat() / contentLength
+    }
+
     fun run() {
         checkHeaders()
         createSaveFile()
         execute()
     }
-}
-
-fun main() {
-    DownloadManager.relativeRoot = "/Users/tobias/projects/ansuld/app/src/main/java/com/asld/asld/tools/"
-    Downloader("http://127.0.0.1:8088/h1", "test/hello", 4).run()
 }
