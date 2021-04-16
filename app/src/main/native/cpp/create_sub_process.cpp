@@ -5,11 +5,11 @@
 #include <malloc.h>
 #include "unistd.h"
 #include "create_sub_process.h"
+#include "log.h"
 #include <android/log.h>
 #include "pthread.h"
 
 #define BUFFER_SIZE 1024 * 10
-
 
 
 inline int circle_add(int i, int size) {
@@ -28,7 +28,7 @@ inline void output(const char *split, int head, int top, int size, int mode) {
     for (int i = head; i < top; i = circle_add(i, size)) {
         buf[index++] = split[i];
     }
-    __android_log_print(ANDROID_LOG_DEBUG, "SUB_PROCESS_OUTPUT", "%s", buf);
+    log_print(LOG_DEBUG, "SUB_PROCESS_OUTPUT", "%s", buf);
     delete[] buf;
 }
 
@@ -68,7 +68,8 @@ pipe_fd create_log_thread(int prio) {
 
     pthread_t id;
     pthread_create(&id, NULL, log_thread, (void *) arg);
-    __android_log_print(ANDROID_LOG_DEBUG, "CREATE_LOG_THREAD_LOG", "create log thread, tid: %ld, type: %d", id, prio);
+    log_print(LOG_DEBUG, "CREATE_LOG_THREAD_LOG", "create log thread, tid: %ld, type: %d", id,
+              prio);
     return fds;
 }
 
@@ -80,8 +81,8 @@ pipe_fd create_std_error_pip() {
     return create_log_thread(STDERR_FILENO);
 }
 
-pid_t create_sub_process(char* path, char** args){
-    __android_log_print(ANDROID_LOG_DEBUG, "NATIVE_LOG", "fork!");
+pid_t create_sub_process(char *path, char **args) {
+    log_print(LOG_DEBUG, "NATIVE_LOG", "fork!");
     pipe_fd out = create_std_out_pipe();
     pipe_fd err = create_std_error_pip();
     pid_t pid = fork();
@@ -91,9 +92,10 @@ pid_t create_sub_process(char* path, char** args){
         close(out.read);
         close(out.read);
         int res = execvp(path, args);
-        __android_log_print(ANDROID_LOG_DEBUG, "NATIVE_LOG", "sub process exec error, code: %d, path: %s", res, path);
+        log_print(LOG_DEBUG, "NATIVE_LOG", "sub process exec error, code: %d, path: %s", res, path);
         for (int i = 0; args[i]; ++i) {
-            __android_log_print(ANDROID_LOG_DEBUG, "NATIVE_LOG", "sub process exec error, args i: %d, value: %s", i, args[i]);
+            log_print(LOG_DEBUG, "NATIVE_LOG", "sub process exec error, args i: %d, value: %s", i,
+                      args[i]);
         }
         // never return
         return pid;
@@ -104,3 +106,40 @@ pid_t create_sub_process(char* path, char** args){
     }
 }
 
+pipe_fd create_pipe() {
+    pipe_fd fds;
+    int ret = pipe((int *) (&fds));
+    if (ret != 0) {
+        return pipe_fd{-1, -1};
+    }
+    return fds;
+}
+
+stdfd create_sub_process_fds(char *path, char **args) {
+    log_print(LOG_DEBUG, "NATIVE_LOG", "fork!");
+    pipe_fd in = create_pipe();
+    pipe_fd out = create_pipe();
+    pipe_fd err = create_pipe();
+    pid_t pid = fork();
+    if (pid == 0) {
+        dup2(in.read, STDIN_FILENO);
+        dup2(out.write, STDOUT_FILENO);
+        dup2(err.write, STDERR_FILENO);
+        close(in.write);
+        close(out.read);
+        close(out.read);
+        int res = execvp(path, args);
+        log_print(LOG_DEBUG, "NATIVE_LOG", "sub process exec error, code: %d, path: %s", res, path);
+        for (int i = 0; args[i]; ++i) {
+            log_print(LOG_DEBUG, "NATIVE_LOG", "sub process exec error, args i: %d, value: %s", i,
+                      args[i]);
+        }
+        // never return
+        // if go hear, exec error, exit with res status
+        _exit(res);
+    }
+    close(in.read);
+    close(out.write);
+    close(err.write);
+    return stdfd{pid, in.write, out.read, err.read};
+}

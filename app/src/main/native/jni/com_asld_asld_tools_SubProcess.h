@@ -21,4 +21,9 @@ JNIEXPORT jint JNICALL Java_com_asld_asld_tools_SubProcess_createSubProcess
 }
 #endif
 
+extern "C"
+JNIEXPORT void JNICALL
+Java_com_asld_asld_tools_SubProcess_createSubProcessFds(JNIEnv *env, jobject thiz, jstring path,
+                                                        jobjectArray argv, jobject fds);
+
 #endif //ANSULD_COM_ASLD_ASLD_TOOLS_SUBPROCESS_H

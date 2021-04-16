@@ -11,6 +11,9 @@ project("SubProcess")
 # if you use prebuild native so
 link_directories(${CMAKE_SOURCE_DIR}/../jniLibs/${ANDROID_ABI})
 
+set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -D ANDROID_RUNTIME")
+set(CMAKE_CXX_FLAGS  "${CMAKE_CXX_FLAGS} -D ANDROID_RUNTIME")
+
 # Creates and names a library, sets it as either STATIC
 # or SHARED, and provides the relative paths to its source code.
 # You can define multiple libraries, and CMake builds them for you.
@@ -23,6 +26,7 @@ add_library( # Sets the name of the library.
         SHARED
 
         # Provides a relative path to your source file(s).
+        cpp/log.h
         cpp/create_sub_process.h
         cpp/create_sub_process.cpp
         jni/com_asld_asld_tools_SubProcess.h
