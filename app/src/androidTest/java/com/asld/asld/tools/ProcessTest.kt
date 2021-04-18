@@ -1,9 +1,10 @@
 package com.asld.asld.tools
 
 import junit.framework.TestCase
+import okhttp3.internal.wait
 
-class ProcessTest : TestCase(){
-    fun testCreateSub(){
+class ProcessTest : TestCase() {
+    fun testCreateSub() {
         println("Run test")
         val process = Process("grep", listOf("h"))
 

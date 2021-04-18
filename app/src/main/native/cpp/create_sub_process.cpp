@@ -7,6 +7,8 @@
 #include "create_sub_process.h"
 #include "log.h"
 #include <android/log.h>
+#include <cstdlib>
+#include <cstring>
 #include "pthread.h"
 
 #define BUFFER_SIZE 1024 * 10
@@ -122,6 +124,57 @@ stdfd create_sub_process_fds(char *path, char **args) {
     pipe_fd err = create_pipe();
     pid_t pid = fork();
     if (pid == 0) {
+        dup2(in.read, STDIN_FILENO);
+        dup2(out.write, STDOUT_FILENO);
+        dup2(err.write, STDERR_FILENO);
+        close(in.write);
+        close(out.read);
+        close(out.read);
+        int res = execvp(path, args);
+        log_print(LOG_DEBUG, "NATIVE_LOG", "sub process exec error, code: %d, path: %s", res, path);
+        for (int i = 0; args[i]; ++i) {
+            log_print(LOG_DEBUG, "NATIVE_LOG", "sub process exec error, args i: %d, value: %s", i,
+                      args[i]);
+        }
+        // never return
+        // if go hear, exec error, exit with res status
+        _exit(res);
+    }
+    close(in.read);
+    close(out.write);
+    close(err.write);
+    return stdfd{pid, in.write, out.read, err.read};
+}
+
+stdfd create_sub_process_env(char *path, char **args, env_item *env) {
+    log_print(LOG_DEBUG, "NATIVE_LOG", "fork!");
+    pipe_fd in = create_pipe();
+    pipe_fd out = create_pipe();
+    pipe_fd err = create_pipe();
+    pid_t pid = fork();
+    if (pid == 0) {
+
+        for (env_item *item = env; item != nullptr; item++) {
+            char *value = getenv(item->key);
+            if (value == nullptr)
+                setenv(item->key, item->value, 1);
+            if (item->mode == ENV_MODE_CONCATENATE) {
+                char sep = env->sep;
+                if (sep == 0)
+                    sep = ':';
+                int addLen = strlen(item->value);
+                int oldLen = strlen(value);
+                char *newValue = new char[addLen + oldLen + 2];
+                strcpy(newValue, value);
+                newValue[oldLen] = sep;
+                strcpy(newValue + oldLen + 1, item->value);
+                newValue[addLen + oldLen + 1] = 0;
+                setenv(item->key, item->value, 1);
+            } else if (item->mode == ENV_MODE_OVERRIDE) {
+                setenv(item->key, item->value, 1);
+            }
+        }
+
         dup2(in.read, STDIN_FILENO);
         dup2(out.write, STDOUT_FILENO);
         dup2(err.write, STDERR_FILENO);

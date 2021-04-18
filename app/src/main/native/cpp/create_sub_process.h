@@ -20,6 +20,17 @@ struct stdfd{
     int err;
 };
 
+#define ENV_MODE_CONCATENATE 1
+#define ENV_MODE_OVERRIDE 2
+#define ENV_MODE_SKIP 3
+
+struct env_item{
+    char * key;
+    char * value;
+    int mode;
+    char sep;
+};
+
 
 #ifdef __cplusplus
 extern "C" {
