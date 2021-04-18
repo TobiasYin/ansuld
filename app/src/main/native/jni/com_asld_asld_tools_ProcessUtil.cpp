@@ -2,12 +2,13 @@
 // Created by 尹瑞涛 on 2021/4/15.
 //
 
-#include "com_asld_asld_tools_SubProcess.h"
+#include "com_asld_asld_tools_ProcessUtil.h"
 #include "../cpp/create_sub_process.h"
 #include <android/log.h>
+#include <wait.h>
+#include "unistd.h"
 
-
-extern "C" JNIEXPORT jint JNICALL Java_com_asld_asld_tools_SubProcess_createSubProcess
+extern "C" JNIEXPORT jint JNICALL Java_com_asld_asld_tools_ProcessUtil_createSubProcess
         (JNIEnv *env, jobject that, jstring path, jobjectArray argv){
 
     char *p = jstringToChar(env, path);
@@ -32,8 +33,8 @@ extern "C" JNIEXPORT jint JNICALL Java_com_asld_asld_tools_SubProcess_createSubP
 }
 
 extern "C" void
-Java_com_asld_asld_tools_SubProcess_createSubProcessFds(JNIEnv *env, jobject thiz, jstring path,
-                                                        jobjectArray argv, jobject fds) {
+Java_com_asld_asld_tools_ProcessUtil_createSubProcessFds(JNIEnv *env, jobject thiz, jstring path,
+                                                         jobjectArray argv, jobject fds) {
     char *p = jstringToChar(env, path);
     __android_log_print(ANDROID_LOG_DEBUG, "NATIVE_LOG", "path: %s", p);
     int array_len = env->GetArrayLength(argv);
@@ -65,4 +66,22 @@ Java_com_asld_asld_tools_SubProcess_createSubProcessFds(JNIEnv *env, jobject thi
         free(args[i]);
     }
     delete []args;
+}
+
+extern "C" jint Java_com_asld_asld_tools_ProcessUtil_waitPid(JNIEnv *env, jobject thiz, jint pid) {
+    int status;
+
+    waitpid(pid, &status, 0);
+    if WIFEXITED(status) {
+        return WEXITSTATUS(status);
+    }
+    if WIFSIGNALED(status){
+        return WSTOPSIG(status);
+    }
+    return -1;
+}
+
+extern "C" jint Java_com_asld_asld_tools_ProcessUtil_closeFd(JNIEnv *env, jobject thiz, jint fd) {
+    close(fd);
+    return 0;
 }

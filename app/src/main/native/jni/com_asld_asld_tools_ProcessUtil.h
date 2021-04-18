@@ -15,7 +15,7 @@ extern "C" {
  * Method:    createSubProcess
  * Signature: (Ljava/lang/String;[Ljava/lang/String;)V
  */
-JNIEXPORT jint JNICALL Java_com_asld_asld_tools_SubProcess_createSubProcess
+JNIEXPORT jint JNICALL Java_com_asld_asld_tools_ProcessUtil_createSubProcess
   (JNIEnv *, jobject, jstring, jobjectArray);
 #ifdef __cplusplus
 }
@@ -23,7 +23,16 @@ JNIEXPORT jint JNICALL Java_com_asld_asld_tools_SubProcess_createSubProcess
 
 extern "C"
 JNIEXPORT void JNICALL
-Java_com_asld_asld_tools_SubProcess_createSubProcessFds(JNIEnv *env, jobject thiz, jstring path,
-                                                        jobjectArray argv, jobject fds);
+Java_com_asld_asld_tools_ProcessUtil_createSubProcessFds(JNIEnv *env, jobject thiz, jstring path,
+                                                         jobjectArray argv, jobject fds);
+
+
+extern "C"
+JNIEXPORT jint JNICALL
+Java_com_asld_asld_tools_ProcessUtil_waitPid(JNIEnv *env, jobject thiz, jint pid);
+
+extern "C"
+JNIEXPORT jint JNICALL
+Java_com_asld_asld_tools_ProcessUtil_closeFd(JNIEnv *env, jobject thiz, jint fd);
 
 #endif //ANSULD_COM_ASLD_ASLD_TOOLS_SUBPROCESS_H

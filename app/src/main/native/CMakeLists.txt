@@ -29,8 +29,8 @@ add_library( # Sets the name of the library.
         cpp/log.h
         cpp/create_sub_process.h
         cpp/create_sub_process.cpp
-        jni/com_asld_asld_tools_SubProcess.h
-        jni/com_asld_asld_tools_SubProcess.cpp
+        jni/com_asld_asld_tools_ProcessUtil.h
+        jni/com_asld_asld_tools_ProcessUtil.cpp
         )
 
 # Searches for a specified prebuilt library and stores the path as a
