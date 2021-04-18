@@ -1,6 +1,7 @@
 package com.asld.asld.tools
 
 import junit.framework.TestCase
+import java.lang.Exception
 
 class ProcessTest : TestCase() {
     fun testGrep() {
@@ -29,20 +30,25 @@ class ProcessTest : TestCase() {
         println("Run test env")
         val process = Process("env")
         process.addEnv(EnvItem("hello", "world"))
+        process.addEnv(EnvItem("PATH", "/mytools", EnvItem.ENV_MODE_CONCATENATE))
         process.exec()
 
         var arr = process.stdout.readBytes()
 
         val s = String(arr)
 
-        var contains = false
+        var containsA = false
+        var containsB = false
         s.split("\n").forEach {
             val items = it.split('=')
             if (items.size == 2) {
                 if (items[0] == "hello" && items[1] == "world")
-                    contains = true
+                    containsA = true
+                if (items[0] == "PATH" && items[1].contains("/mytools"))
+                    containsB = true
             }
         }
-        assert(contains)
+        assert(containsA)
+        assert(containsB)
     }
 }

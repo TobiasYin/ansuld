@@ -173,7 +173,7 @@ stdfd create_sub_process_env(char *path, char **args, env_item **env) {
                 newValue[oldLen] = sep;
                 strcpy(newValue + oldLen + 1, item->value);
                 newValue[addLen + oldLen + 1] = 0;
-                setenv(item->key, item->value, 1);
+                setenv(item->key, newValue, 1);
             } else if (item->mode == ENV_MODE_OVERWRITE) {
                 setenv(item->key, item->value, 1);
             }
