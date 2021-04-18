@@ -35,4 +35,11 @@ extern "C"
 JNIEXPORT jint JNICALL
 Java_com_asld_asld_tools_ProcessUtil_closeFd(JNIEnv *env, jobject thiz, jint fd);
 
+
+extern "C"
+JNIEXPORT void JNICALL
+Java_com_asld_asld_tools_ProcessUtil_createSubProcessEnv(JNIEnv *env, jobject thiz, jstring path,
+                                                         jobjectArray argv, jobjectArray env_1,
+                                                         jobject fds);
+
 #endif //ANSULD_COM_ASLD_ASLD_TOOLS_SUBPROCESS_H

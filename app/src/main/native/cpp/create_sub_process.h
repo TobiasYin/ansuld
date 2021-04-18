@@ -13,7 +13,7 @@ struct pipe_fd {
     int write;
 };
 
-struct stdfd{
+struct stdfd {
     pid_t pid;
     int in;
     int out;
@@ -21,12 +21,12 @@ struct stdfd{
 };
 
 #define ENV_MODE_CONCATENATE 1
-#define ENV_MODE_OVERRIDE 2
+#define ENV_MODE_OVERWRITE 2
 #define ENV_MODE_SKIP 3
 
-struct env_item{
-    char * key;
-    char * value;
+struct env_item {
+    char *key;
+    char *value;
     int mode;
     char sep;
 };
@@ -36,8 +36,9 @@ struct env_item{
 extern "C" {
 #endif
 
-pid_t create_sub_process(char* path, char** args);
+pid_t create_sub_process(char *path, char **args);
 stdfd create_sub_process_fds(char *path, char **args);
+stdfd create_sub_process_env(char *path, char **args, env_item **env);
 
 #ifdef __cplusplus
 }

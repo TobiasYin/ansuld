@@ -3,6 +3,7 @@ package com.asld.asld.tools
 import java.io.*
 
 class CreateProcessException(msg: String = "Create Process Exception") : Exception(msg)
+class ProcessHasBeenExecException(msg: String = "Process Already been Execution") : Exception(msg)
 class ProcessHasNotExecException(msg: String = "Process has not execution yet") : Exception(msg)
 
 class Fds {
@@ -15,7 +16,9 @@ class Fds {
 }
 
 class Process(
-    val path: String, val argv: List<String> = listOf(), val env: Map<String, String> = hashMapOf()
+    val path: String,
+    val argv: List<String> = listOf(),
+    val env: HashMap<String, EnvItem> = hashMapOf()
 ) {
 
     companion object {
@@ -44,19 +47,39 @@ class Process(
     }
 
     var pid: Int = -1
+        private set
     lateinit var stdin: FileOutputStream
+        private set
     lateinit var stdout: InputStream
+        private set
     lateinit var stderr: InputStream
+        private set
     var status = -1
+        private set
     var isEnd = false
         private set
 
     fun hasExec() = pid != -1
 
+    fun addEnv(item: EnvItem) {
+        if (pid != -1)
+            return
+        env[item.key] = item
+    }
+
     fun exec() {
+        if (pid != -1) {
+            throw ProcessHasBeenExecException()
+        }
         val fds = Fds()
         val arrArgv = Array(argv.size) { argv[it] }
-        ProcessUtil.createSubProcessFds(path, arrArgv, fds)
+
+        if (env.size != 0) {
+            ProcessUtil.createSubProcessEnv(path, arrArgv, env, fds)
+        } else {
+            ProcessUtil.createSubProcessFds(path, arrArgv, fds)
+        }
+
         if (fds.isNotValid()) {
             throw CreateProcessException()
         }
@@ -109,7 +132,7 @@ class Process(
             val bis = readFISToBAIS(stdout as FileInputStream)
             closeInput(stdout as FileInputStream)
             stdout = bis
-        } else{
+        } else {
             stdout.close()
         }
     }
@@ -131,6 +154,18 @@ class Process(
     }
 }
 
+class EnvItem(
+    val key: String,
+    val value: String,
+    val mode: Int = ENV_MODE_OVERWRITE,
+    val sep: Char = ':'
+) {
+    companion object {
+        const val ENV_MODE_CONCATENATE = 1
+        const val ENV_MODE_OVERWRITE = 2
+        const val ENV_MODE_SKIP = 3
+    }
+}
 
 object ProcessUtil {
 
@@ -145,8 +180,26 @@ object ProcessUtil {
         return closeFd(rfd)
     }
 
+    fun createSubProcessEnv(
+        path: String,
+        argv: Array<String>,
+        env: HashMap<String, EnvItem>,
+        fds: Fds
+    ) {
+        val envArr = env.entries.map { it.value }.toTypedArray()
+        createSubProcessEnv(path, argv, envArr, fds)
+    }
+
+
     external fun createSubProcess(path: String, argv: Array<String>): Int
     external fun createSubProcessFds(path: String, argv: Array<String>, fds: Fds)
+    external fun createSubProcessEnv(
+        path: String,
+        argv: Array<String>,
+        env: Array<EnvItem>,
+        fds: Fds
+    )
+
     external fun waitPid(pid: Int): Int
     external fun closeFd(fd: Int): Int
 }

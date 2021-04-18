@@ -146,20 +146,24 @@ stdfd create_sub_process_fds(char *path, char **args) {
     return stdfd{pid, in.write, out.read, err.read};
 }
 
-stdfd create_sub_process_env(char *path, char **args, env_item *env) {
+stdfd create_sub_process_env(char *path, char **args, env_item **env) {
     log_print(LOG_DEBUG, "NATIVE_LOG", "fork!");
     pipe_fd in = create_pipe();
     pipe_fd out = create_pipe();
     pipe_fd err = create_pipe();
     pid_t pid = fork();
+
     if (pid == 0) {
 
-        for (env_item *item = env; item != nullptr; item++) {
+        for (env_item **item_ptr = env; *item_ptr != nullptr; item_ptr++) {
+            env_item *item = *item_ptr;
             char *value = getenv(item->key);
-            if (value == nullptr)
+            if (value == nullptr) {
                 setenv(item->key, item->value, 1);
+                continue;
+            }
             if (item->mode == ENV_MODE_CONCATENATE) {
-                char sep = env->sep;
+                char sep = item->sep;
                 if (sep == 0)
                     sep = ':';
                 int addLen = strlen(item->value);
@@ -170,7 +174,7 @@ stdfd create_sub_process_env(char *path, char **args, env_item *env) {
                 strcpy(newValue + oldLen + 1, item->value);
                 newValue[addLen + oldLen + 1] = 0;
                 setenv(item->key, item->value, 1);
-            } else if (item->mode == ENV_MODE_OVERRIDE) {
+            } else if (item->mode == ENV_MODE_OVERWRITE) {
                 setenv(item->key, item->value, 1);
             }
         }
@@ -189,7 +193,7 @@ stdfd create_sub_process_env(char *path, char **args, env_item *env) {
         }
         // never return
         // if go hear, exec error, exit with res status
-        _exit(res);
+        exit(res);
     }
     close(in.read);
     close(out.write);

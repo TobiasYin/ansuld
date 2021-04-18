@@ -1,12 +1,12 @@
 package com.asld.asld.tools
 
 import junit.framework.TestCase
-import okhttp3.internal.wait
 
 class ProcessTest : TestCase() {
-    fun testCreateSub() {
+    fun testGrep() {
         println("Run test")
         val process = Process("grep", listOf("h"))
+        process.addEnv(EnvItem("hello", "world"))
 
         process.exec()
 
@@ -20,8 +20,29 @@ class ProcessTest : TestCase() {
 
         val s = String(arr)
 
+        assertEquals(s, "hello\n")
         assert(s == "hello\n")
 
-        ProcessUtil.createSubProcess("ls", arrayOf())
+    }
+
+    fun testEnv() {
+        println("Run test env")
+        val process = Process("env")
+        process.addEnv(EnvItem("hello", "world"))
+        process.exec()
+
+        var arr = process.stdout.readBytes()
+
+        val s = String(arr)
+
+        var contains = false
+        s.split("\n").forEach {
+            val items = it.split('=')
+            if (items.size == 2) {
+                if (items[0] == "hello" && items[1] == "world")
+                    contains = true
+            }
+        }
+        assert(contains)
     }
 }
