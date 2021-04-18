@@ -12,6 +12,8 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.AnSuLD">
+        <activity android:name=".TerminalActivity"></activity>
+        <activity android:name=".FilesDebuggerActivity" />
         <activity
             android:name=".MainActivity"
             android:label="@string/app_name"

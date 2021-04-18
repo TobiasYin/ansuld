@@ -17,10 +17,10 @@ class Fds {
 
 class Process(
     val path: String,
-    val argv: List<String> = listOf(),
+    argv: List<String> = listOf(),
     val env: HashMap<String, EnvItem> = hashMapOf()
 ) {
-
+    val argv: ArrayList<String> = ArrayList(argv)
     companion object {
         private val runningProcess: HashSet<Process> = HashSet()
         private fun addRunningProcess(p: Process) {
@@ -65,6 +65,12 @@ class Process(
         if (pid != -1)
             return
         env[item.key] = item
+    }
+
+    fun addArg(arg: String){
+        if (pid != -1)
+            return
+        argv.add(arg)
     }
 
     fun exec() {
@@ -123,7 +129,7 @@ class Process(
         ProcessUtil.closeFd(fd)
     }
 
-    fun readFISToBAIS(inp: FileInputStream): ByteArrayInputStream {
+    private fun readFISToBAIS(inp: FileInputStream): ByteArrayInputStream {
         return ByteArrayInputStream(inp.readBytes())
     }
 
