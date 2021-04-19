@@ -81,8 +81,8 @@ class TerminalView(context: Context, attrs: AttributeSet? = null) : View(context
 
     override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {
         super.onMeasure(widthMeasureSpec, heightMeasureSpec)
-        Log.d(TAG, "measure: w: $measuredWidth, h:$measuredHeight")
         text.width = measuredWidth
+        Log.d(TAG, "measure: w: $measuredWidth, h:$measuredHeight, lines: ${text.lines.size}")
         setMeasuredDimension(measuredWidth, ((text.lines.size + 1) * theme.fontSize).toInt())
     }
 
@@ -112,10 +112,18 @@ class Text(view: TerminalView) : Drawable(view) {
     private var lastWidth = 0
     private var lastLineEnd = 0
     private var lastSpace = -1
+
+    var padding = 20f
+    set(value){
+        val diff = value !=field
+        field = value
+        if (diff)
+            cutLines()
+    }
     var lines = ArrayList<String>()
     var width = 0
         set(value) {
-            var diff = value != field
+            val diff = value != field
             field = value
             if (diff)
                 cutLines()
@@ -128,6 +136,7 @@ class Text(view: TerminalView) : Drawable(view) {
         paint.textSize = theme.fontSize
         paint.isAntiAlias = true
         paint.flags = Paint.ANTI_ALIAS_FLAG
+        paint.color = theme.primaryTextColor
     }
 
     fun cutLines() {
@@ -151,7 +160,7 @@ class Text(view: TerminalView) : Drawable(view) {
             lastLineEnd = nowAt + 1
             line.clear()
             true
-        } else if (paint.measureText(line.toString()) > width) {
+        } else if (paint.measureText(line.toString()) > width - padding * 2) {
             lastLineEnd = if (c == ' ' || c == '\n') {
                 nowAt + 1
             } else {
@@ -176,7 +185,7 @@ class Text(view: TerminalView) : Drawable(view) {
             lastLineEnd = nowAt + 1
             line.clear()
             true
-        } else if (paint.measureText(line.toString()) > width) {
+        } else if (paint.measureText(line.toString()) > width - padding * 2) {
             if (c == ' ' || c == '\n') {
                 lastLineEnd = nowAt + 1
             } else if (lastSpace > lastLineEnd) {
@@ -252,7 +261,7 @@ class Text(view: TerminalView) : Drawable(view) {
         val yOffset = 0f
         Log.d(TAG, "draw text: lines: ${lines.size}}")
         lines.forEachIndexed { index, it ->
-            canvas.drawText(it, 10f, (index + 1) * theme.fontSize + yOffset, paint)
+            canvas.drawText(it, padding, (index + 1) * theme.fontSize + yOffset, paint)
         }
     }
 }
@@ -263,6 +272,6 @@ class BackGround(view: TerminalView) : Drawable(view) {
     }
 
     override fun onDraw(canvas: Canvas) {
-        canvas.drawRect(0f, 0f, view.width.toFloat(), view.height.toFloat(), paint)
+        canvas.drawColor(theme.backGroundColor)
     }
 }
