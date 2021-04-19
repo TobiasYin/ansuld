@@ -19,6 +19,10 @@ class MainActivity : AppCompatActivity() {
             val intent = Intent(this, TerminalActivity::class.java)
             startActivity(intent)
         }
+        binding.goToDiy.setOnClickListener {
+            val intent = Intent(this, DiyActivity::class.java)
+            startActivity(intent)
+        }
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
