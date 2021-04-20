@@ -1,13 +1,58 @@
 <?xml version="1.0" encoding="utf-8"?>
-<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
-    android:layout_width="match_parent"
+<LinearLayout android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    tools:context=".DiyActivity">
-
-    <com.asld.asld.view.TerminalView
+    xmlns:android="http://schemas.android.com/apk/res/android">
+    <ScrollView
         android:layout_width="match_parent"
-        android:layout_height="wrap_content" />
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:orientation="vertical"
+        >
 
-</ScrollView>
+        <com.asld.asld.view.TerminalView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/terminal_view"/>
+    </ScrollView>
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        >
+        <Button
+            android:text="⬅️"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/left_button"
+            />
+        <Button
+            android:text="➡️"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/right_button"
+            />
+
+        <Button
+            android:text="⬆️"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/up_button"
+            />
+
+
+        <Button
+            android:text="⬇️️️"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/down_button"
+            />
+
+        <Button
+            android:text="kb"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/keyboard_button"
+            />
+    </LinearLayout>
+</LinearLayout>

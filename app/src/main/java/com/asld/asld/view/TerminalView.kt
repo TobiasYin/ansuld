@@ -7,6 +7,8 @@ import android.graphics.Paint
 import android.util.AttributeSet
 import android.util.Log
 import android.view.View
+import androidx.core.content.res.ResourcesCompat
+import com.asld.asld.R
 import java.lang.StringBuilder
 
 const val TAG = "MYVIEW"
@@ -28,7 +30,9 @@ abstract class Drawable(val view: TerminalView) {
 class TerminalTheme(
     val backGroundColor: Int = Color.BLACK,
     val primaryTextColor: Int = Color.WHITE,
-    val fontSize: Float = 50f
+    val cursorColor: Int = Color.WHITE,
+    val fontSize: Float = 50f,
+    val lineSpace: Float = 10f
 )
 
 class TerminalView(context: Context, attrs: AttributeSet? = null) : View(context, attrs) {
@@ -39,14 +43,16 @@ class TerminalView(context: Context, attrs: AttributeSet? = null) : View(context
             field = value
         }
 
-    private val cursor: Cursor
-    private val text: Text
-    private val backGround: BackGround
+     val cursor: Cursor
+     val text: Text
+     val backGround: BackGround
 
     init {
         backGround = newDrawable()
         text = newDrawable()
         cursor = newDrawable()
+        cursor.text = text
+        text.cursor = cursor
     }
 
     private inline fun <reified T : Drawable> newDrawable(): T {
@@ -61,7 +67,7 @@ class TerminalView(context: Context, attrs: AttributeSet? = null) : View(context
 
     init {
 
-        text.addText(
+        addText(
             "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Integer mattis non felis vitae pretium. Vestibulum lacinia turpis vitae nisl tempus, at consectetur enim consequat. Proin gravida, velit a ultricies egestas, enim purus suscipit diam, a viverra risus diam sed dui. Phasellus consectetur, nisl ac maximus gravida, justo erat accumsan magna, eu pulvinar nunc mi sit amet nisi. Nullam auctor congue tortor, a viverra tortor molestie vehicula. Vestibulum placerat est turpis, vitae rhoncus ex vestibulum eu. Curabitur eu libero quis orci scelerisque sodales eget in quam.\n" +
                     "\n" +
                     "Mauris facilisis nisi lectus, sit amet commodo urna malesuada vitae. Curabitur tortor libero, finibus ut augue eu, pellentesque tincidunt ante. Morbi leo tellus, commodo a mauris dictum, suscipit laoreet felis. Nunc quis lorem ut dolor commodo ultricies a eu mauris. Vivamus molestie mauris at lectus luctus commodo. Suspendisse consectetur molestie auctor. Curabitur dictum efficitur leo, scelerisque cursus magna dignissim non. Nunc ullamcorper nisi risus, at pulvinar turpis fringilla ut. Sed sagittis ac purus ac finibus. Sed porta dolor nec eleifend laoreet. Integer sodales, felis at sagittis ornare, felis purus molestie lacus, molestie ultricies neque augue vitae lacus. Sed bibendum, eros ut imperdiet lobortis, sapien arcu blandit eros, sit amet bibendum mauris lorem eget nisl. In ultrices ornare lacus non suscipit. Nulla id pharetra mi. Proin nec mauris in sapien facilisis bibendum sed vitae lectus.\n" +
@@ -76,14 +82,14 @@ class TerminalView(context: Context, attrs: AttributeSet? = null) : View(context
 
     fun addText(text: String) {
         this.text.addText(text)
-        refreshDrawableState()
+        invalidate()
     }
 
     override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {
         super.onMeasure(widthMeasureSpec, heightMeasureSpec)
         text.width = measuredWidth
         Log.d(TAG, "measure: w: $measuredWidth, h:$measuredHeight, lines: ${text.lines.size}")
-        setMeasuredDimension(measuredWidth, ((text.lines.size + 1) * theme.fontSize).toInt())
+        setMeasuredDimension(measuredWidth, (text.getBottom() + theme.lineSpace).toInt())
     }
 
 
@@ -99,10 +105,74 @@ class TerminalView(context: Context, attrs: AttributeSet? = null) : View(context
 class Cursor(view: TerminalView) : Drawable(view) {
     var line: Int = 0
     var offset: Int = 0
+    var text: Text? = null
 
+    override fun initPaint() {
+        paint.color = theme.cursorColor
+        paint.alpha = (255 * 0.5).toInt()
+    }
+
+    fun flash() {
+        text?.let {
+            line = it.lines.size - 1
+            if (line < 0)
+                line = 0
+            offset = if(line < it.lines.size) it.lines[line].length else 0
+        }
+    }
+
+    fun move(x: Int, y: Int) {
+        Log.d(TAG, "Cursor move: $x $y")
+        text?.let {
+            line += y
+            if (line > it.lines.size - 1){
+                line = it.lines.size - 1
+            }
+            if(line < 0){
+                line = 0
+            }
+            offset += x
+            val realLine = it.lines[line]
+            if (offset >= realLine.length){
+                if (line < it.lines.size - 1){
+                    line += 1
+                    offset = 0
+                }else if (line == it.lines.size - 1){
+                    offset = realLine.length
+                }else{
+                    offset = realLine.length - 1
+                }
+            }
+            if (offset < 0) {
+                line -= 1
+                offset = if (line in 0 until it.lines.size) {
+                    it.lines[line].length - 1
+                } else {
+                    0
+                }
+            }
+        }
+        view.invalidate()
+    }
 
     override fun onDraw(canvas: Canvas) {
+        text?.let {
+            val drawLine =
+                if (line > it.lines.size - 1) it.lines.size - 1 else if (line < 0) 0 else line
+            val drawOffset =
+                if (drawLine > it.lines.size - 1 || drawLine < 0) 0 else if (offset > it.lines[drawLine].length) it.lines[drawLine].length else if (offset < 0) 0 else offset
 
+            val yb = it.getLineBottom(drawLine) + theme.lineSpace / 2
+            val y = yb + it.paint.fontMetrics.ascent
+            var x = it.paint.measureText(it.lines[drawLine].substring(0, drawOffset))
+            var xr = if (drawOffset > it.lines[drawLine].length - 1) 2 * x - it.paint.measureText(it.lines[drawLine].substring(0, drawOffset - 1)) else  it.paint.measureText(it.lines[drawLine].substring(0, drawOffset + 1))
+            x += it.padding
+            xr += it.padding
+
+            Log.d(TAG, "onDraw: Draw Cursor,  x: $x, xr: $xr, y: $y, yb: $yb")
+            Log.d(TAG, "onDraw: Draw Cursor, drawLine: $drawLine, drawOffset: $drawOffset line: $line offset: $offset")
+            canvas.drawRect(x, y, xr, yb, paint)
+        }
     }
 }
 
@@ -112,14 +182,15 @@ class Text(view: TerminalView) : Drawable(view) {
     private var lastWidth = 0
     private var lastLineEnd = 0
     private var lastSpace = -1
+    var cursor: Cursor? = null
 
-    var padding = 20f
-    set(value){
-        val diff = value !=field
-        field = value
-        if (diff)
-            cutLines()
-    }
+    var padding = 30f
+        set(value) {
+            val diff = value != field
+            field = value
+            if (diff)
+                cutLines()
+        }
     var lines = ArrayList<String>()
     var width = 0
         set(value) {
@@ -132,7 +203,17 @@ class Text(view: TerminalView) : Drawable(view) {
     var line = StringBuilder()
     var nextLine = StringBuilder()
 
+    fun getLineBottom(lineNo: Int): Float{
+        return (lineNo + 1) * theme.fontSize + lineNo * theme.lineSpace
+    }
+
+    fun getBottom(): Float{
+        return (lines.size) * theme.fontSize + (lines.size - 1) * theme.lineSpace
+    }
+
     override fun initPaint() {
+        val font = ResourcesCompat.getFont(view.context, R.font.monaco)
+        paint.typeface = font
         paint.textSize = theme.fontSize
         paint.isAntiAlias = true
         paint.flags = Paint.ANTI_ALIAS_FLAG
@@ -222,6 +303,7 @@ class Text(view: TerminalView) : Drawable(view) {
 
 
     fun addText(text: String) {
+
         this.text += text
         var nowAt = 0
 
@@ -239,16 +321,28 @@ class Text(view: TerminalView) : Drawable(view) {
         }
 
         lastWidth = width
-        lines.clear()
+        line.clear()
 
         while (nowAt < text.length) {
             val c = text[nowAt]
             addChar(c, nowAt)
             nowAt++
         }
+
         if (line.isNotEmpty()) {
             lines.add(line.toString())
+            line.append('.')
+            if (paint.measureText(line.toString()) > width - padding * 2){
+                lines.add("")
+                line.clear()
+            }else{
+                line.deleteCharAt(line.length - 1)
+            }
+        }else{
+            lines.add("")
         }
+
+        this.cursor?.flash()
     }
 
 
@@ -258,10 +352,9 @@ class Text(view: TerminalView) : Drawable(view) {
 
 
     override fun onDraw(canvas: Canvas) {
-        val yOffset = 0f
         Log.d(TAG, "draw text: lines: ${lines.size}}")
         lines.forEachIndexed { index, it ->
-            canvas.drawText(it, padding, (index + 1) * theme.fontSize + yOffset, paint)
+            canvas.drawText(it, padding, getLineBottom(index), paint)
         }
     }
 }
