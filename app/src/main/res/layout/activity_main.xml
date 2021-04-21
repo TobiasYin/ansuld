@@ -31,7 +31,12 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="GOTO Terminal"
-            android:id="@+id/go_to_files"/>
+            android:id="@+id/go_to_term"/>
+        <Button
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="GOTO OLD Terminal"
+            android:id="@+id/go_to_oterm"/>
 
 
 

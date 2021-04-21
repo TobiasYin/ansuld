@@ -7,6 +7,7 @@ import android.view.Menu
 import android.view.MenuItem
 import com.asld.asld.databinding.ActivityMainBinding
 import com.asld.asld.vnc.VncActivity
+import com.asld.asld.tools.DownloadManager
 
 class MainActivity : AppCompatActivity() {
 
@@ -16,7 +17,7 @@ class MainActivity : AppCompatActivity() {
         setContentView(binding.root)
         setSupportActionBar(findViewById(R.id.toolbar))
 
-        binding.goToFiles.setOnClickListener {
+        binding.goToTerm.setOnClickListener {
             val intent = Intent(this, TerminalActivity::class.java)
             startActivity(intent)
         }
@@ -26,6 +27,11 @@ class MainActivity : AppCompatActivity() {
             val intent = Intent(this, VncActivity::class.java)
             startActivity(intent)
         }
+        binding.goToOterm.setOnClickListener {
+            val intent = Intent(this, OldTerminalActivity::class.java)
+            startActivity(intent)
+        }
+        DownloadManager.relativeRoot = filesDir.absolutePath
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {

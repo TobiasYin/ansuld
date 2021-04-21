@@ -200,3 +200,67 @@ stdfd create_sub_process_env(char *path, char **args, env_item **env) {
     close(err.write);
     return stdfd{pid, in.write, out.read, err.read};
 }
+
+void setEnv(env_item **env){
+    for (env_item **item_ptr = env; *item_ptr != nullptr; item_ptr++) {
+        env_item *item = *item_ptr;
+        char *value = getenv(item->key);
+        if (value == nullptr) {
+            setenv(item->key, item->value, 1);
+            continue;
+        }
+        if (item->mode == ENV_MODE_CONCATENATE) {
+            char sep = item->sep;
+            if (sep == 0)
+                sep = ':';
+            int addLen = strlen(item->value);
+            int oldLen = strlen(value);
+            char *newValue = new char[addLen + oldLen + 2];
+            strcpy(newValue, value);
+            newValue[oldLen] = sep;
+            strcpy(newValue + oldLen + 1, item->value);
+            newValue[addLen + oldLen + 1] = 0;
+            setenv(item->key, newValue, 1);
+        } else if (item->mode == ENV_MODE_OVERWRITE) {
+            setenv(item->key, item->value, 1);
+        }
+    }
+}
+
+stdfd create_process(startProcessArgs args) {
+    log_print(LOG_DEBUG, "NATIVE_LOG", "fork!");
+    pipe_fd in = create_pipe();
+    pipe_fd out = create_pipe();
+    pipe_fd err = create_pipe();
+    pid_t pid = fork();
+
+    if (pid == 0) {
+
+        if (args.env != nullptr){
+            setEnv(args.env);
+        }
+        if (args.chdir != nullptr){
+            chdir(args.chdir);
+        }
+
+        dup2(in.read, STDIN_FILENO);
+        dup2(out.write, STDOUT_FILENO);
+        dup2(err.write, STDERR_FILENO);
+        close(in.write);
+        close(out.read);
+        close(out.read);
+        int res = execvp(args.path, args.args);
+        log_print(LOG_DEBUG, "NATIVE_LOG", "sub process exec error, code: %d, path: %s", res, args.path);
+        for (int i = 0; args.args[i]; ++i) {
+            log_print(LOG_DEBUG, "NATIVE_LOG", "sub process exec error, args i: %d, value: %s", i,
+                      args.args[i]);
+        }
+        // never return
+        // if go hear, exec error, exit with res status
+        exit(res);
+    }
+    close(in.read);
+    close(out.write);
+    close(err.write);
+    return stdfd{pid, in.write, out.read, err.read};
+}

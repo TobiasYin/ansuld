@@ -42,4 +42,9 @@ Java_com_asld_asld_tools_ProcessUtil_createSubProcessEnv(JNIEnv *env, jobject th
                                                          jobjectArray argv, jobjectArray env_1,
                                                          jobject fds);
 
+extern "C"
+JNIEXPORT void JNICALL
+Java_com_asld_asld_tools_ProcessUtil_createProcess(JNIEnv *env, jobject thiz, jobject args,
+                                                   jobject fds);
+
 #endif //ANSULD_COM_ASLD_ASLD_TOOLS_SUBPROCESS_H
