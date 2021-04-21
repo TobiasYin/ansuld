@@ -18,6 +18,8 @@ android {
         externalNativeBuild {
             cmake {
                 cppFlags "-std=c++17"
+                // exclude the other LibVNCServer targets
+                targets "turbojpeg-static", "vncclient", "vncconn" , "vnccanvas"
             }
         }
     }
@@ -77,4 +79,17 @@ dependencies {
     testImplementation 'org.powermock:powermock-api-mockito2:2.0.9'
     androidTestImplementation 'androidx.test.ext:junit:1.1.1'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.2.0'
+
+
+    // vnc
+    def room_version = "2.2.6"
+
+    implementation "androidx.room:room-runtime:$room_version"
+    annotationProcessor "androidx.room:room-compiler:$room_version"
+    implementation files('libs/com.antlersoft.android.contentxml.jar')
+    implementation 'androidx.lifecycle:lifecycle-extensions:2.2.0'
+    implementation 'androidx.lifecycle:lifecycle-compiler:2.2.0'
+    implementation 'javax.jmdns:jmdns:3.4.1'
+    //end vnc
+
 }
