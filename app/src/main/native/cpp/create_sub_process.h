@@ -3,6 +3,19 @@
 #ifndef _Included_create_sub_process
 #define _Included_create_sub_process
 
+
+#define ENV_MODE_CONCATENATE 1
+#define ENV_MODE_OVERWRITE 2
+#define ENV_MODE_SKIP 3
+
+struct env_item {
+    char *key;
+    char *value;
+    int mode;
+    char sep;
+};
+
+
 struct log_thread_arg {
     int prio;
     int fd;
@@ -20,15 +33,11 @@ struct stdfd {
     int err;
 };
 
-#define ENV_MODE_CONCATENATE 1
-#define ENV_MODE_OVERWRITE 2
-#define ENV_MODE_SKIP 3
-
-struct env_item {
-    char *key;
-    char *value;
-    int mode;
-    char sep;
+struct startProcessArgs{
+    char *path;
+    char **args;
+    env_item **env;
+    char *chdir;
 };
 
 
@@ -39,6 +48,7 @@ extern "C" {
 pid_t create_sub_process(char *path, char **args);
 stdfd create_sub_process_fds(char *path, char **args);
 stdfd create_sub_process_env(char *path, char **args, env_item **env);
+stdfd create_process(startProcessArgs args);
 
 #ifdef __cplusplus
 }

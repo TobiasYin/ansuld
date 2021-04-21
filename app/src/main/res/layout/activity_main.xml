@@ -24,13 +24,19 @@
     <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:orientation="vertical"
         >
 
         <Button
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="GOTO Terminal"
-            android:id="@+id/go_to_files"/>
+            android:id="@+id/go_to_term"/>
+        <Button
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="GOTO OLD Terminal"
+            android:id="@+id/go_to_oterm"/>
 
     </LinearLayout>
 </LinearLayout>

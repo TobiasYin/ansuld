@@ -1,6 +1,14 @@
 package com.asld.asld.tools
 
+import android.util.Log
 import java.io.*
+import java.util.*
+import kotlin.collections.ArrayList
+import kotlin.collections.HashMap
+import kotlin.collections.HashSet
+import kotlin.concurrent.thread
+
+const val PTAG = "ProcessUtil"
 
 class CreateProcessException(msg: String = "Create Process Exception") : Exception(msg)
 class ProcessHasBeenExecException(msg: String = "Process Already been Execution") : Exception(msg)
@@ -18,9 +26,10 @@ class Fds {
 class Process(
     val path: String,
     argv: List<String> = listOf(),
-    val env: HashMap<String, EnvItem> = hashMapOf()
+    val env: ArrayList<EnvItem> = arrayListOf()
 ) {
     val argv: ArrayList<String> = ArrayList(argv)
+
     companion object {
         private val runningProcess: HashSet<Process> = HashSet()
         private fun addRunningProcess(p: Process) {
@@ -58,16 +67,32 @@ class Process(
         private set
     var isEnd = false
         private set
+    var outLogger = false
+    var errLogger = false
+    var chdir = ""
+
+    fun useLogger() {
+        outLogger = true
+        errLogger = true
+    }
+
+    private fun startISLogger(s: InputStream, level: Int) {
+        val scanner = Scanner(s)
+        while (scanner.hasNextLine()) {
+            val line = scanner.nextLine()
+            Log.println(level, PTAG, "$path, $pid: $line")
+        }
+    }
 
     fun hasExec() = pid != -1
 
     fun addEnv(item: EnvItem) {
         if (pid != -1)
             return
-        env[item.key] = item
+        env.add(item)
     }
 
-    fun addArg(arg: String){
+    fun addArg(arg: String) {
         if (pid != -1)
             return
         argv.add(arg)
@@ -77,14 +102,11 @@ class Process(
         if (pid != -1) {
             throw ProcessHasBeenExecException()
         }
+        Log.d(PTAG, "process exec: $path ${argv.joinToString(" ")}")
         val fds = Fds()
         val arrArgv = Array(argv.size) { argv[it] }
 
-        if (env.size != 0) {
-            ProcessUtil.createSubProcessEnv(path, arrArgv, env, fds)
-        } else {
-            ProcessUtil.createSubProcessFds(path, arrArgv, fds)
-        }
+        ProcessUtil.createProcess(CreateProcessArgs(path, arrArgv, env.toTypedArray(), chdir), fds)
 
         if (fds.isNotValid()) {
             throw CreateProcessException()
@@ -103,6 +125,18 @@ class Process(
         stdout = FileInputStream(stdoutFd)
         stderr = FileInputStream(stderrFd)
         addRunningProcess(this)
+        if (outLogger) {
+            Log.d(PTAG, "exec: $path use outlogger")
+            thread(true) {
+                startISLogger(stdout, Log.DEBUG)
+            }
+        }
+        if (errLogger) {
+            Log.d(PTAG, "exec: $path use errlogger")
+            thread(true) {
+                startISLogger(stderr, Log.ERROR)
+            }
+        }
     }
 
     fun kill() {
@@ -173,6 +207,14 @@ class EnvItem(
     }
 }
 
+
+class CreateProcessArgs(
+    val path: String,
+    val argv: Array<String>,
+    val env: Array<EnvItem> = arrayOf(),
+    val chdir: String = ""
+)
+
 object ProcessUtil {
 
     init {
@@ -196,7 +238,7 @@ object ProcessUtil {
         createSubProcessEnv(path, argv, envArr, fds)
     }
 
-
+    external fun createProcess(args: CreateProcessArgs, fds: Fds)
     external fun createSubProcess(path: String, argv: Array<String>): Int
     external fun createSubProcessFds(path: String, argv: Array<String>, fds: Fds)
     external fun createSubProcessEnv(
