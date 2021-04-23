@@ -12,7 +12,16 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.AnSuLD">
-        <activity android:name=".TerminalActivity"></activity>
+        <activity
+            android:name=".vnc.TouchPad"
+            android:screenOrientation="landscape" />
+        <activity
+            android:name=".vnc.VncActivity"
+            android:configChanges="orientation|keyboardHidden|screenSize"
+            android:label="@string/title_activity_vnc"
+            android:screenOrientation="landscape"
+            android:theme="@style/Theme.AnSuLD.Fullscreen" />
+        <activity android:name=".TerminalActivity" />
         <activity android:name=".FilesDebuggerActivity" />
         <activity
             android:name=".MainActivity"

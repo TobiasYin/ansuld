@@ -123,7 +123,7 @@ class Downloader(
         repeat(partitions) {
             val end = (if (it == partitions - 1) contentLength else (partSize) * (it + 1)) - 1
             partStatus.add(Partition(partSize * it, end, it, lastModified))
-            Log.d(TAG, "partition: $it ${partStatus[it]}")
+           Log.d(TAG, "partition: $it ${partStatus[it]}")
         }
     }
 
@@ -222,7 +222,7 @@ class Downloader(
     }
 
     private fun requestPartition(part: Partition) {
-        Log.d(TAG, "call requestPartition , part: ${part.partID}")
+       Log.d(TAG, "call requestPartition , part: ${part.partID}")
         val req = Request.Builder()
             .url(url).addHeader("Range", "bytes=${part.nowAt}-${part.end}").get().build()
         val call = client.newCall(req)
@@ -237,7 +237,7 @@ class Downloader(
                     return
                 }
                 val retry = { info: String ->
-                    Log.d(TAG, "Retry call!, part:${part.partID}, info: $info")
+                   Log.d(TAG, "Retry call!, part:${part.partID}, info: $info")
                     lastModified = 0
                     cancelAndRetry()
                 }

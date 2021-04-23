@@ -19,8 +19,8 @@
 #include <jni.h>
 #include <android/log.h>
 #include <errno.h>
-#include <rfb/rfbclient.h>
-#include "rfb/rfbclient.h"
+#include "../../outerlib/libvncserver/rfb/rfbclient.h"
+//#include "rfb/rfbclient.h"
 
 #define TAG "VNCConn-native"
 

@@ -5,7 +5,9 @@
 
 #include <jni.h>
 #include <GLES/gl.h>
-#include "rfb/rfbclient.h"
+//#include "rfb/rfbclient.h"
+#include "../../outerlib/libvncserver/rfb/rfbclient.h"
+
 
 JNIEXPORT void JNICALL Java_com_asld_asld_vnc_VncCanvas_on_1surface_1created(JNIEnv * env, jclass cls) {
     glClearColor(1.0f, 0.0f, 0.0f, 0.0f);

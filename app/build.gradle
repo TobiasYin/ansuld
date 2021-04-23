@@ -19,8 +19,11 @@ android {
             cmake {
                 cppFlags "-std=c++17"
                 // exclude the other LibVNCServer targets
-                targets "turbojpeg-static", "vncclient", "vncconn" , "vnccanvas"
+                targets "turbojpeg-static", "vncclient", "vncconn" , "vnccanvas", "create-sub-process-lib"
             }
+//            ndk {
+//                abiFilters 'arm64-v8'
+//            }
         }
     }
 
@@ -73,6 +76,9 @@ dependencies {
     implementation 'androidx.navigation:navigation-fragment-ktx:2.2.2'
     implementation 'androidx.navigation:navigation-ui-ktx:2.2.2'
     implementation 'com.squareup.okhttp3:okhttp:4.9.0'
+    implementation 'androidx.annotation:annotation:1.2.0'
+    implementation 'androidx.lifecycle:lifecycle-livedata-ktx:2.3.1'
+    implementation 'androidx.lifecycle:lifecycle-viewmodel-ktx:2.3.1'
     testImplementation 'junit:junit:4.+'
     testImplementation 'org.powermock:powermock:1.6.6'
     testImplementation 'org.powermock:powermock-module-junit4:2.0.9'
@@ -91,5 +97,7 @@ dependencies {
     implementation 'androidx.lifecycle:lifecycle-compiler:2.2.0'
     implementation 'javax.jmdns:jmdns:3.4.1'
     //end vnc
+
+
 
 }

@@ -6,6 +6,7 @@ import androidx.appcompat.app.AppCompatActivity
 import android.view.Menu
 import android.view.MenuItem
 import com.asld.asld.databinding.ActivityMainBinding
+import com.asld.asld.vnc.VncActivity
 
 class MainActivity : AppCompatActivity() {
 
@@ -17,6 +18,12 @@ class MainActivity : AppCompatActivity() {
 
         binding.goToFiles.setOnClickListener {
             val intent = Intent(this, TerminalActivity::class.java)
+            startActivity(intent)
+        }
+
+
+        binding.goToVnc.setOnClickListener {
+            val intent = Intent(this, VncActivity::class.java)
             startActivity(intent)
         }
     }
