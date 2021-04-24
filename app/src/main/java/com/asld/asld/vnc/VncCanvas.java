@@ -597,7 +597,9 @@ public class VncCanvas extends GLSurfaceView {
 		}
 		catch(NullPointerException e) {
 		}
-		Toast.makeText(getContext(), msg, Toast.LENGTH_LONG).show();
+		Log.d(TAG, "msg:"+msg);
+		Log.d(TAG, String.format("text:%s", getContext()));
+//		Toast.makeText(getContext(), msg, Toast.LENGTH_LONG).show();
 	}
 
 

@@ -2,9 +2,10 @@ package com.asld.asld.vnc
 
 import android.annotation.SuppressLint
 import android.content.ClipboardManager
+import android.content.Context
 import android.graphics.Rect
+import android.media.MediaRouter
 import android.os.Bundle
-import android.os.Handler
 import android.util.Log
 import android.view.*
 import androidx.appcompat.app.AppCompatActivity
@@ -23,6 +24,7 @@ class VncActivity : AppCompatActivity() {
 
     private lateinit var mClipboardManager: ClipboardManager
     private lateinit var inputHandler: PointerInputHandler
+    private lateinit var vncPresentation: VncPresentation
 
 
     @SuppressLint("ShowToast")
@@ -58,9 +60,25 @@ class VncActivity : AppCompatActivity() {
             if (paddingBottom > 0 && paddingBottom < contentBottom * .20) return@addOnGlobalLayoutListener
             contentView.setPadding(0, 0, 0, paddingBottom) //Update bottom
         }
-        val binding = VncCanvasBinding.inflate(layoutInflater)
-        setContentView(binding.root)
-        vncCanvas = findViewById<View>(R.id.vnc_canvas) as VncCanvas
+
+        // set the second screen
+        Log.d("vnc", "begin")
+
+        val route = (getSystemService(Context.MEDIA_ROUTER_SERVICE) as MediaRouter).getSelectedRoute(
+            2
+        )
+        Log.d("vnc", route.toString())
+        if (route != null) {
+            val presentationDisplay = route.presentationDisplay
+            Log.d(TAG, "chooseDisplay: height(${presentationDisplay.height}), weight(${presentationDisplay.width})")
+
+            if (presentationDisplay != null) {
+                vncPresentation = VncPresentation(this, presentationDisplay)
+            }
+        }
+        vncPresentation.show()
+
+        vncCanvas = vncPresentation.getVncCanvas()
         mClipboardManager = getSystemService(CLIPBOARD_SERVICE) as ClipboardManager
         inputHandler = PointerInputHandler(this)
         inputHandler.init()
@@ -85,20 +103,23 @@ class VncActivity : AppCompatActivity() {
         // the actual connection init
         conn.init(connection) {}
 
+        setContentView(R.layout.activity_touch_pad)
+        vncCanvas.requestRender()
     }
 
     private fun defaultConnectionBean():ConnectionBean{
         val conn = ConnectionBean()
 
         conn.address = "127.0.0.1"
+//        conn.address = "192.168.2.129"
         conn.id = 0 // is new!!
         try {
             conn.port = 5900
         } catch (nfe: NumberFormatException) {
         }
         conn.userName = "root"
-//        conn.password = "qwe45623"
         conn.password = "qwe123"
+//        conn.password = "qwe123"
         conn.useLocalCursor = true // always enable
 
         conn.colorModel = COLORMODEL.C24bit.toString()
@@ -136,6 +157,10 @@ class VncActivity : AppCompatActivity() {
                     or View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
                     or View.SYSTEM_UI_FLAG_FULLSCREEN)
     }
+    override fun onGenericMotionEvent(event: MotionEvent?): Boolean {
+        return inputHandler.onGenericMotionEvent(event)
+    }
+
 
     companion object {
         /**
