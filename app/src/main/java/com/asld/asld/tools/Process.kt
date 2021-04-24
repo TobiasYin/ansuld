@@ -24,7 +24,7 @@ class Fds {
 }
 
 class Process(
-    val path: String,
+    var path: String,
     argv: List<String> = listOf(),
     val env: ArrayList<EnvItem> = arrayListOf()
 ) {
@@ -46,6 +46,7 @@ class Process(
                     runningProcess.remove(p)
                 }
                 p.closeStreams()
+                Log.d(TAG, "Process [${p.path}|${p.pid}] end status:  ${p.status}")
 
             }.start()
         }
@@ -107,6 +108,8 @@ class Process(
         val arrArgv = Array(argv.size) { argv[it] }
 
         ProcessUtil.createProcess(CreateProcessArgs(path, arrArgv, env.toTypedArray(), chdir), fds)
+
+        Log.d(TAG, "exec: Success create process: ${path}, ${fds.pid}")
 
         if (fds.isNotValid()) {
             throw CreateProcessException()

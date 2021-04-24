@@ -28,7 +28,11 @@ class MainActivity : AppCompatActivity() {
             startActivity(intent)
         }
         binding.goToOterm.setOnClickListener {
-            val intent = Intent(this, OldTerminalActivity::class.java)
+            val intent = Intent(this, OriginShellActivity::class.java)
+            startActivity(intent)
+        }
+        binding.goDownload.setOnClickListener {
+            val intent = Intent(this, DownloadImages::class.java)
             startActivity(intent)
         }
         DownloadManager.relativeRoot = filesDir.absolutePath
