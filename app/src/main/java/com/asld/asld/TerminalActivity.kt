@@ -15,7 +15,6 @@ import android.widget.TextView
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.asld.asld.databinding.ActivityTernimalBinding
-import com.asld.asld.tools.Downloader
 import com.asld.asld.tools.EnvItem
 import com.asld.asld.tools.Process
 import java.io.File
@@ -246,7 +245,7 @@ class TerminalItemAdaptor(val lines: List<Line>) :
                 holder.line.setTextColor(Color.BLACK)
             }
             Line.LineTypeInput -> {
-                holder.line.text = "$" + lines[position].data
+                holder.line.text = "$ " + lines[position].data
                 holder.line.setTextColor(Color.BLACK)
             }
             Line.LineTypeErr -> {
