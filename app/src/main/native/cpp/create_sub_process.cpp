@@ -9,6 +9,7 @@
 #include <android/log.h>
 #include <cstdlib>
 #include <cstring>
+#include <cerrno>
 #include "pthread.h"
 
 #define BUFFER_SIZE 1024 * 10
@@ -201,7 +202,7 @@ stdfd create_sub_process_env(char *path, char **args, env_item **env) {
     return stdfd{pid, in.write, out.read, err.read};
 }
 
-void setEnv(env_item **env){
+void setEnv(env_item **env) {
     for (env_item **item_ptr = env; *item_ptr != nullptr; item_ptr++) {
         env_item *item = *item_ptr;
         char *value = getenv(item->key);
@@ -235,26 +236,35 @@ stdfd create_process(startProcessArgs args) {
     pid_t pid = fork();
 
     if (pid == 0) {
-
-        if (args.env != nullptr){
-            setEnv(args.env);
-        }
-        if (args.chdir != nullptr){
-            chdir(args.chdir);
-        }
-
         dup2(in.read, STDIN_FILENO);
         dup2(out.write, STDOUT_FILENO);
         dup2(err.write, STDERR_FILENO);
         close(in.write);
         close(out.read);
         close(out.read);
-        int res = execvp(args.path, args.args);
-        log_print(LOG_DEBUG, "NATIVE_LOG", "sub process exec error, code: %d, path: %s", res, args.path);
-        for (int i = 0; args.args[i]; ++i) {
-            log_print(LOG_DEBUG, "NATIVE_LOG", "sub process exec error, args i: %d, value: %s", i,
-                      args.args[i]);
+        printf("sub process create!\n");
+        sigset_t signals_to_unblock;
+        sigfillset(&signals_to_unblock);
+        sigprocmask(SIG_UNBLOCK, &signals_to_unblock, nullptr);
+
+        printf("sub process set env!\n");
+        if (args.env != nullptr) {
+            setEnv(args.env);
         }
+        printf("sub process chdir!\n");
+        if (args.chdir != nullptr) {
+            chdir(args.chdir);
+        }
+
+        printf("start to exec path: %s\n", args.path);
+        int res = execvp(args.path, args.args);
+
+        printf("sub process exec error, code: %d, error: %s path: %s\n", res, strerror(errno),
+               args.path);
+//        for (int i = 0; args.args[i]; ++i) {
+//            printf("sub process exec error, args i: %d, value: %s\n", i,
+//                      args.args[i]);
+//        }
         // never return
         // if go hear, exec error, exit with res status
         exit(res);

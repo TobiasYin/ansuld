@@ -24,19 +24,25 @@
     <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:orientation="vertical"
-        >
+        android:orientation="vertical">
 
         <Button
+            android:id="@+id/go_to_term"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="GOTO Terminal"
-            android:id="@+id/go_to_term"/>
+            android:text="GOTO Terminal" />
+
         <Button
+            android:id="@+id/go_to_oterm"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="GOTO OLD Terminal"
-            android:id="@+id/go_to_oterm"/>
+            android:text="GOTO ORIGIN_SHELL Terminal" />
+
+        <Button
+            android:id="@+id/go_download"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="GOTO DOWNLOAD" />
 
     </LinearLayout>
 </LinearLayout>

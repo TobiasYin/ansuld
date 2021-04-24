@@ -71,12 +71,17 @@ Java_com_asld_asld_tools_ProcessUtil_createSubProcessFds(JNIEnv *env, jobject th
 extern "C" jint Java_com_asld_asld_tools_ProcessUtil_waitPid(JNIEnv *env, jobject thiz, jint pid) {
     int status;
 
-    waitpid(pid, &status, 0);
+    int r = waitpid(pid, &status, 0);
+    if (r == 0){
+        return -10000;
+    }
     if WIFEXITED(status) {
+        __android_log_print(ANDROID_LOG_DEBUG, "NATIVE_LOG", "[%d] EXITED, %d", pid, WEXITSTATUS(status));
         return WEXITSTATUS(status);
     }
     if WIFSIGNALED(status) {
-        return WSTOPSIG(status);
+        __android_log_print(ANDROID_LOG_DEBUG, "NATIVE_LOG", "[%d] SIGNALED, %d", pid, WTERMSIG(status));
+        return WTERMSIG(status);
     }
     return -1;
 }
@@ -215,7 +220,7 @@ Java_com_asld_asld_tools_ProcessUtil_createProcess(JNIEnv *env, jobject thiz, jo
     for (int i = 0; i < array_len; ++i) {
         jstring s = (jstring) env->GetObjectArrayElement(argv, i);
         argstr[i + 1] = jstringToChar(env, s);
-        __android_log_print(ANDROID_LOG_DEBUG, "NATIVE_LOG", "argv: %d: %s", i, args[i + 1]);
+        __android_log_print(ANDROID_LOG_DEBUG, "NATIVE_LOG", "argv: %d: %s", i, argstr[i + 1]);
 
     }
     argstr[array_len + 1] = nullptr;

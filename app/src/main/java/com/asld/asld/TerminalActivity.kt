@@ -1,5 +1,6 @@
 package com.asld.asld
 
+import android.content.Intent
 import android.graphics.Color
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
@@ -20,13 +21,52 @@ import com.asld.asld.tools.Process
 import java.io.File
 import java.util.*
 import kotlin.collections.ArrayList
+import kotlin.concurrent.thread
 
 const val TAG = "TerminalActivityTAG"
 val downloadURL = "http://192.168.2.190:8088/runtime.tar.gz"
 
+fun initProotProcess(proc: Process, baseDir: String, relaDir: String) {
+    proc.path = "$baseDir/proot"
+    proc.chdir = baseDir
+    val tempDir = File("$baseDir/temp")
+    if (!tempDir.exists()) {
+        tempDir.mkdir()
+    }
+    proc.addEnv(EnvItem("PROOT_TMP_DIR", tempDir.absolutePath))
+    proc.argv.addAll(
+        listOf(
+            "--link2symlink",
+            "-0",
+            "-r",
+            relaDir,
+            "-b",
+            "/dev",
+            "-b",
+            "/proc",
+            "-b",
+            "$relaDir/root:/dev/shm",
+            "-w",
+            "/root",
+            "/usr/bin/env",
+            "-i",
+            "HOME=/root",
+            "PATH=/usr/local/sbin:/usr/local/bin:/bin:/usr/bin:/sbin:/usr/sbin:/usr/games:/usr/local/games",
+            "TERM=\$TERM",
+            "LANG=C.UTF-8",
+            "/bin/bash",
+            "--login"
+        )
+    )
+}
+
 class TerminalActivity : AppCompatActivity() {
-    val proc = Process("usr/bin/bash")
-    val lines = ArrayList<Line>()
+
+    var checkFiles = hashSetOf("proot", "lubuntu-desktop.tar.gz")
+
+
+    var proc = Process("")
+    var lines = ArrayList<Line>()
     val adaptor = TerminalItemAdaptor(lines)
     lateinit var linesView: RecyclerView
     val handler = Handler(Looper.getMainLooper()) {
@@ -34,6 +74,8 @@ class TerminalActivity : AppCompatActivity() {
         addLine(line)
         true
     }
+    var out: Thread? = null
+    var err: Thread? = null
 
     fun addLine(line: Line) {
         lines.add(line)
@@ -42,6 +84,54 @@ class TerminalActivity : AppCompatActivity() {
     }
 
     var initStatus = false
+
+
+    override fun onStart() {
+        super.onStart()
+        var notExisted = false
+        downloadFiles.forEach {
+            if (checkFiles.contains(it.fileName)) {
+                if (!it.checkStatus(filesDir.absoluteFile)) {
+                    notExisted = true
+                }
+            }
+        }
+        if (notExisted) {
+            val intent = Intent(this, DownloadImages::class.java)
+            startActivity(intent)
+        } else if (!proc.hasExec()) {
+            initProotProcess(proc, filesDir.absolutePath, "lubuntu")
+            proc.exec()
+            initStatus = true
+            litsenOutput()
+        }
+    }
+
+    fun litsenOutput() {
+        thread {
+            Log.d(TAG, "Success Init bash")
+            out = thread {
+                val scanner = Scanner(proc.stdout)
+                while (scanner.hasNextLine()) {
+                    val line = scanner.nextLine()
+                    val m = Message()
+                    m.obj = Line(line, Line.LineTypeNorm)
+                    handler.sendMessage(m)
+                }
+
+            }
+            err = thread {
+                val scanner = Scanner(proc.stderr)
+                while (scanner.hasNextLine()) {
+                    val line = scanner.nextLine()
+                    val m = Message()
+                    m.obj = Line(line, Line.LineTypeErr)
+                    handler.sendMessage(m)
+                }
+
+            }
+        }
+    }
 
     fun initBash() {
         val usrDir = File(filesDir.absolutePath, "usr")
@@ -89,7 +179,13 @@ class TerminalActivity : AppCompatActivity() {
                 EnvItem.ENV_MODE_OVERWRITE
             )
         )
-        proc.addEnv(EnvItem("LD_LIBRARY_PATH", "${filesDir.absolutePath}/usr/lib", EnvItem.ENV_MODE_CONCATENATE))
+        proc.addEnv(
+            EnvItem(
+                "LD_LIBRARY_PATH",
+                "${filesDir.absolutePath}/usr/lib",
+                EnvItem.ENV_MODE_CONCATENATE
+            )
+        )
 
         proc.exec()
         proc.stdin.write("cd ${filesDir.absolutePath} \n".toByteArray())
@@ -98,37 +194,13 @@ class TerminalActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
         val binding = ActivityTernimalBinding.inflate(layoutInflater)
         setContentView(binding.root)
         linesView = binding.linesList
         binding.linesList.layoutManager = LinearLayoutManager(this)
         binding.linesList.adapter = adaptor
 
-        Thread {
-            initBash()
-
-            Log.d(TAG, "Success Init bash")
-            Thread {
-                val scanner = Scanner(proc.stdout)
-                while (scanner.hasNextLine()) {
-                    val line = scanner.nextLine()
-                    val m = Message()
-                    m.obj = Line(line, Line.LineTypeNorm)
-                    handler.sendMessage(m)
-                }
-
-            }.start()
-            Thread {
-                val scanner = Scanner(proc.stderr)
-                while (scanner.hasNextLine()) {
-                    val line = scanner.nextLine()
-                    val m = Message()
-                    m.obj = Line(line, Line.LineTypeErr)
-                    handler.sendMessage(m)
-                }
-
-            }.start()
-        }.start()
 
         binding.execCmdButton.setOnClickListener {
             val text = binding.commandInput.text.toString().trim()
