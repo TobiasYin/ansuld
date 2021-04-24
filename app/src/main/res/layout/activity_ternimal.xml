@@ -5,28 +5,92 @@
     android:layout_height="match_parent"
     android:orientation="vertical"
     tools:context=".TerminalActivity">
+
     <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/lines_list"
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_weight="1"
-        android:id="@+id/lines_list"
-        />
+        android:layout_weight="1" />
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        >
-        <EditText
+        android:layout_gravity="center"
+        android:orientation="horizontal">
+
+        <LinearLayout
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:id="@+id/command_input"/>
+            android:layout_gravity="center"
+            android:layout_weight="1">
+
+            <Button
+                android:id="@+id/lastInput"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="⬆️" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:layout_weight="1">
+
+
+            <Button
+                android:id="@+id/nextInput"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="⬇️️" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:layout_weight="1">
+
+            <Button
+                android:id="@+id/kill_vnc"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textSize="12sp"
+                android:text="kill vnc️️" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:layout_weight="1">
+
+            <Button
+                android:id="@+id/start_vnc"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textSize="12sp"
+                android:text="start vnc" />
+        </LinearLayout>
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+
+        <EditText
+            android:id="@+id/command_input"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1" />
+
         <Button
+            android:id="@+id/exec_cmd_button"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Run"
-            android:id="@+id/exec_cmd_button"/>
+            android:text="Run" />
     </LinearLayout>
 
 </LinearLayout>

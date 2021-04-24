@@ -24,7 +24,6 @@ import kotlin.collections.ArrayList
 import kotlin.concurrent.thread
 
 const val TAG = "TerminalActivityTAG"
-val downloadURL = "http://192.168.2.190:8088/runtime.tar.gz"
 
 fun initProotProcess(proc: Process, baseDir: String, relaDir: String) {
     proc.path = "$baseDir/proot"
@@ -64,9 +63,21 @@ class TerminalActivity : AppCompatActivity() {
 
     var checkFiles = hashSetOf("proot", "lubuntu-desktop.tar.gz")
 
+    companion object {
+        var proc = Process("")
+        var lines = ArrayList<Line>()
+        var history = ArrayList<Line>()
 
-    var proc = Process("")
-    var lines = ArrayList<Line>()
+        fun clearState() {
+            proc = Process("")
+            lines = ArrayList()
+            history = ArrayList()
+        }
+    }
+
+    var curOffset = 0
+    var nowInput = ""
+
     val adaptor = TerminalItemAdaptor(lines)
     lateinit var linesView: RecyclerView
     val handler = Handler(Looper.getMainLooper()) {
@@ -99,10 +110,15 @@ class TerminalActivity : AppCompatActivity() {
         if (notExisted) {
             val intent = Intent(this, DownloadImages::class.java)
             startActivity(intent)
-        } else if (!proc.hasExec()) {
+            return
+        }
+        if (proc.hasExec() && !proc.isRunning()) {
+            clearState()
+        }
+        initStatus = true
+        if (!proc.hasExec()) {
             initProotProcess(proc, filesDir.absolutePath, "lubuntu")
             proc.exec()
-            initStatus = true
             litsenOutput()
         }
     }
@@ -133,63 +149,13 @@ class TerminalActivity : AppCompatActivity() {
         }
     }
 
-    fun initBash() {
-        val usrDir = File(filesDir.absolutePath, "usr")
-        if (!usrDir.exists()) {
-            val downloader = Downloader(downloadURL, "runtime.tar.gz")
-            downloader.run()
-            while (!downloader.isFinish) {
-                Thread.sleep(100)
-            }
 
-            val untar = Process("tar", listOf("-xvzf", "runtime.tar.gz"))
-            untar.chdir = filesDir.absolutePath
-            untar.useLogger()
-            untar.exec()
-            untar.waitProcess()
-        }
-
-        proc.addEnv(
-            EnvItem(
-                "PATH",
-                "${filesDir.absolutePath}/usr/bin",
-                EnvItem.ENV_MODE_CONCATENATE
-            )
-        )
-        proc.addEnv(
-            EnvItem(
-                "PATH",
-                "${filesDir.absolutePath}/usr/libexec",
-                EnvItem.ENV_MODE_CONCATENATE
-            )
-        )
-        proc.addEnv(
-            EnvItem(
-                "SHELL",
-                "${filesDir.absolutePath}/usr/bin/bash",
-                EnvItem.ENV_MODE_OVERWRITE
-            )
-        )
-        proc.addEnv(EnvItem("PREFIX", "${filesDir.absolutePath}/usr", EnvItem.ENV_MODE_OVERWRITE))
-        proc.addEnv(EnvItem("ANDROID_ROOT", "/system", EnvItem.ENV_MODE_OVERWRITE))
-        proc.addEnv(
-            EnvItem(
-                "LD_PRELOAD",
-                "${filesDir.absolutePath}/usr/lib/libtermux-exec.so",
-                EnvItem.ENV_MODE_OVERWRITE
-            )
-        )
-        proc.addEnv(
-            EnvItem(
-                "LD_LIBRARY_PATH",
-                "${filesDir.absolutePath}/usr/lib",
-                EnvItem.ENV_MODE_CONCATENATE
-            )
-        )
-
-        proc.exec()
-        proc.stdin.write("cd ${filesDir.absolutePath} \n".toByteArray())
-        initStatus = true
+    fun execCmd(cmd: String) {
+        proc.stdin.write((cmd + "\n").toByteArray())
+        val inp = Line(cmd, Line.LineTypeInput)
+        addLine(inp)
+        history.add(inp)
+        curOffset = 0
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -206,15 +172,46 @@ class TerminalActivity : AppCompatActivity() {
             val text = binding.commandInput.text.toString().trim()
             if (text.isNotEmpty() && initStatus) {
                 binding.commandInput.text.clear()
-                proc.stdin.write((text + "\n").toByteArray())
-                addLine(Line(text, Line.LineTypeInput))
+                nowInput = ""
+                execCmd(text)
             }
+        }
+        binding.startVnc.setOnClickListener {
+            execCmd("./run_vnc.sh")
+        }
+        binding.killVnc.setOnClickListener {
+            execCmd("vncserver -kill :1")
+        }
+        binding.lastInput.setOnClickListener {
+            if (curOffset == 0) {
+                nowInput = binding.commandInput.text.toString()
+            }
+            if (history.size - curOffset - 1 < 0) {
+                return@setOnClickListener
+            }
+            curOffset += 1
+            binding.commandInput.setText(history[history.size - curOffset].data)
+        }
+        binding.nextInput.setOnClickListener {
+            if (curOffset == 0) {
+                return@setOnClickListener
+            }
+            curOffset -= 1
+            if (curOffset == 0) {
+                binding.commandInput.text.clear()
+                binding.commandInput.setText(nowInput)
+                return@setOnClickListener
+            }
+            if (history.size - curOffset < 0) {
+                return@setOnClickListener
+            }
+            binding.commandInput.setText(history[history.size - curOffset].data)
         }
 
     }
 
     override fun onDestroy() {
-        proc.kill()
+//        proc.kill()
         super.onDestroy()
     }
 }

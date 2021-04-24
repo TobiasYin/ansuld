@@ -31,19 +31,19 @@ class Process(
     val argv: ArrayList<String> = ArrayList(argv)
 
     companion object {
-        private val runningProcess: HashSet<Process> = HashSet()
+        private val runningProcess: HashMap<Int, Process> = HashMap()
         private fun addRunningProcess(p: Process) {
             if (!p.hasExec()) return
 
             synchronized(runningProcess) {
-                runningProcess.add(p)
+                runningProcess[p.pid] = p
             }
 
             Thread {
                 p.status = ProcessUtil.waitPid(p.pid)
                 p.isEnd = true
                 synchronized(runningProcess) {
-                    runningProcess.remove(p)
+                    runningProcess.remove(p.pid)
                 }
                 p.closeStreams()
                 Log.d(TAG, "Process [${p.path}|${p.pid}] end status:  ${p.status}")
@@ -51,8 +51,15 @@ class Process(
             }.start()
         }
 
+        fun isRunning(pid: Int): Boolean {
+            return runningProcess.containsKey(pid)
+        }
+
         fun killAll() {
-            runningProcess.forEach { it.kill() }
+            synchronized(runningProcess) {
+                runningProcess.entries.forEach { it.value.kill() }
+                runningProcess.clear()
+            }
         }
     }
 
@@ -189,6 +196,8 @@ class Process(
             stdout.close()
         }
     }
+
+    fun isRunning(): Boolean = Process.isRunning(pid)
 
     fun closeStreams() {
         closeStdin()
