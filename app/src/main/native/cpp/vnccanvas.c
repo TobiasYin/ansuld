@@ -5,6 +5,8 @@
 
 #include <jni.h>
 #include <GLES/gl.h>
+#include <android/log.h>
+#include "stdio.h"
 //#include "rfb/rfbclient.h"
 #include "../../outerlib/libvncserver/rfb/rfbclient.h"
 
@@ -26,6 +28,11 @@ JNIEXPORT void JNICALL Java_com_asld_asld_vnc_VncCanvas_prepareTexture(JNIEnv *e
     rfbClient *client = (rfbClient *) rfbClientPtr;
 
     if (client && client->frameBuffer) {
+//        __android_log_print(ANDROID_LOG_ERROR, "canvas-native", "buffer:%s", client->frameBuffer);
+//        FILE* f = fopen("/data/data/com.asld.asld/files/frame", "w");
+//        fwrite(client->frameBuffer, sizeof(uint8_t), client->width * client->height * 4, f);
+//        fclose(f);
+
         glTexImage2D(GL_TEXTURE_2D,
                      0,
                      GL_RGBA,

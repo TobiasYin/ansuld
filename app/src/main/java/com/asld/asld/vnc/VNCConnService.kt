@@ -9,8 +9,11 @@ import android.content.Intent
 import android.os.Build
 import android.os.IBinder
 import android.util.Log
+import android.widget.ProgressBar
 import androidx.core.app.NotificationCompat
+import com.asld.asld.DownloadImages
 import com.asld.asld.R
+import com.asld.asld.tools.ProgressBarDialog
 import kotlinx.coroutines.*
 
 /**
@@ -62,17 +65,17 @@ class VNCConnService : Service() {
 
     override fun onBind(intent: Intent?): IBinder? = null
 
-    
+
     override fun onCreate() {
-       Log.d(TAG, "onCreate")
+        Log.d(TAG, "onCreate")
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             /*
                 Create notification channel, needed for for Oreo and newer
              */
             val serviceChannel = NotificationChannel(
-                    packageName,
-                    "AnsuldVNC Connection Service Channel",
-                    NotificationManager.IMPORTANCE_LOW
+                packageName,
+                "AnsuldVNC Connection Service Channel",
+                NotificationManager.IMPORTANCE_LOW
             ).apply { setSound(null, null) }
 
             val manager = getSystemService(NotificationManager::class.java)
@@ -82,7 +85,7 @@ class VNCConnService : Service() {
 
 
     override fun onDestroy() {
-       Log.d(TAG, "onDestroy")
+        Log.d(TAG, "onDestroy")
     }
 
 
@@ -100,17 +103,17 @@ class VNCConnService : Service() {
                     hosts += getString(R.string.host_and, conn.connSettings.nickname)
                 }
             }
-           Log.d(TAG, "onStartCommand: notifying with " + getString(R.string.connected_to, hosts))
+            Log.d(TAG, "onStartCommand: notifying with " + getString(R.string.connected_to, hosts))
             val notificationIntent = Intent(this, VncActivity::class.java)
             val pendingIntent = PendingIntent.getActivity(this, 0,
                     notificationIntent, 0)
             val notification = NotificationCompat.Builder(this, packageName)
-                    .setSmallIcon(R.drawable.ic_launcher)
-                    .setContentTitle(getString(R.string.app_name))
-                    .setContentText(getString(R.string.connected_to, hosts))
-                    .setContentIntent(pendingIntent)
-                    .setOnlyAlertOnce(true)
-                    .build()
+                .setSmallIcon(R.drawable.ic_launcher)
+                .setContentTitle(getString(R.string.app_name))
+                .setContentText(getString(R.string.connected_to, hosts))
+                .setContentIntent(pendingIntent)
+                .setOnlyAlertOnce(true)
+                .build()
             startForeground(NOTIFICATION_ID, notification)
         }
         // stay until explicitly stopped

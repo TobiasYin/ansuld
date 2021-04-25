@@ -5,78 +5,73 @@ package com.asld.asld.vnc;
 
 import android.content.ContentValues;
 
-import androidx.room.ColumnInfo;
-import androidx.room.Entity;
 import androidx.room.PrimaryKey;
 
 /**
  * @author Michael A. MacDonald
  */
-@Entity(tableName = "CONNECTION_BEAN")
 class ConnectionBean implements Comparable<ConnectionBean> {
 
 	@PrimaryKey(autoGenerate = true)
-	@ColumnInfo(name = "_id")
+	
 	public long id;
 
-	@ColumnInfo(name = "NICKNAME")
+	
 	public String nickname;
 
-	@ColumnInfo(name = "ADDRESS")
+	
 	public String address;
 
-	@ColumnInfo(name = "PORT")
+	
 	public int port;
 
-	@ColumnInfo(name = "PASSWORD")
+	
 	public String password;
 
-	@ColumnInfo(name = "COLORMODEL")
+	
 	public String colorModel;
 
-	@ColumnInfo(name = "FORCEFULL")
+	
 	public long forceFull;
 
-	@ColumnInfo(name = "REPEATERID")
+	
 	public String repeaterId;
 
-	@ColumnInfo(name = "INPUTMODE")
+	
 	public String inputMode;
 
-	@ColumnInfo(name = "SCALEMODE")
+	
 	public String scalemode;
 
-	@ColumnInfo(name = "USELOCALCURSOR")
+	
 	public boolean useLocalCursor;
 
-	@ColumnInfo(name = "KEEPPASSWORD")
+	
 	public boolean keepPassword;
 
-	@ColumnInfo(name = "FOLLOWMOUSE")
+	
 	public boolean followMouse;
 
-	@ColumnInfo(name = "USEREPEATER")
+	
 	public boolean useRepeater;
 
-	@ColumnInfo(name = "METALISTID")
+	
 	public long metaListId;
 
-	@ColumnInfo(name = "LAST_META_KEY_ID")
+	
 	public long lastMetaKeyId;
 
-	@ColumnInfo(name = "FOLLOWPAN", defaultValue = "0")
+	
 	public boolean followPan;
 
-	@ColumnInfo(name = "USERNAME")
+	
 	public String userName;
 
-	@ColumnInfo(name = "SECURECONNECTIONTYPE")
+	
 	public String secureConnectionType;
+	
 
-	@ColumnInfo(name = "SHOWZOOMBUTTONS", defaultValue = "1")
-	public boolean showZoomButtons;
-
-	@ColumnInfo(name = "DOUBLE_TAP_ACTION")
+	
 	public String doubleTapAction;
 
 	ConnectionBean() {
@@ -188,7 +183,6 @@ class ConnectionBean implements Comparable<ConnectionBean> {
 		values.put(GEN_FIELD_FOLLOWPAN, (followPan ? "1" : "0"));
 		values.put(GEN_FIELD_USERNAME, userName);
 		values.put(GEN_FIELD_SECURECONNECTIONTYPE, secureConnectionType);
-		values.put(GEN_FIELD_SHOWZOOMBUTTONS, (showZoomButtons ? "1" : "0"));
 		values.put(GEN_FIELD_DOUBLE_TAP_ACTION, doubleTapAction);
 		return values;
 	}
@@ -216,7 +210,6 @@ class ConnectionBean implements Comparable<ConnectionBean> {
 		followPan = (values.getAsInteger(GEN_FIELD_FOLLOWPAN) != 0);
 		userName = values.getAsString(GEN_FIELD_USERNAME);
 		secureConnectionType = values.getAsString(GEN_FIELD_SECURECONNECTIONTYPE);
-		showZoomButtons = (values.getAsInteger(GEN_FIELD_SHOWZOOMBUTTONS) != 0);
 		doubleTapAction = values.getAsString(GEN_FIELD_DOUBLE_TAP_ACTION);
 	}
 }

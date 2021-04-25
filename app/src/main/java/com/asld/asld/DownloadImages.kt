@@ -44,7 +44,11 @@ val downloadFiles = listOf(
         proc.useLogger()
         proc.exec()
         proc.waitProcess()
-    }
+    },
+    DownloadItem(
+        "$baseURL/fserver",
+        "fserver"
+    )
 )
 
 

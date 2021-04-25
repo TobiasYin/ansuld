@@ -47,6 +47,9 @@ import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputConnection;
 import android.widget.Toast;
 
+import static android.opengl.GLES20.GL_COLOR_BUFFER_BIT;
+import static android.opengl.GLES20.GL_DEPTH_BUFFER_BIT;
+import static android.opengl.GLES20.GL_STENCIL_BUFFER_BIT;
 
 
 public class VncCanvas extends GLSurfaceView {
@@ -210,12 +213,12 @@ public class VncCanvas extends GLSurfaceView {
 				 * is smaller than our viewer window.
 				 *
 				 */
-				mTexCrop[0] = absoluteXPosition >= 0 ? absoluteXPosition : 0; // don't let this be <0
+				mTexCrop[0] = Math.max(absoluteXPosition, 0); // don't let this be <0
 				mTexCrop[1] = absoluteYPosition >= 0 ? (int)(absoluteYPosition + VncCanvas.this.getHeight() / getScale()) : vncConn.getFramebufferHeight();
 				mTexCrop[2] = (int) (VncCanvas.this.getWidth() < vncConn.getFramebufferWidth()*getScale() ? VncCanvas.this.getWidth() / getScale() : vncConn.getFramebufferWidth());
 				mTexCrop[3] = (int) -(VncCanvas.this.getHeight() < vncConn.getFramebufferHeight()*getScale() ? VncCanvas.this.getHeight() / getScale() : vncConn.getFramebufferHeight());
 
-				Log.d(TAG, "cropRect: u:" + mTexCrop[0] + " v:" + mTexCrop[1] + " w:" + mTexCrop[2] + " h:" + mTexCrop[3]);
+				Log.d(TAG, "cropRect: u:" + mTexCrop[0] + " v:" + mTexCrop[1] + " w:" + mTexCrop[2] + " h:" + mTexCrop[3] + " absX:" + absoluteXPosition + " absY:" + absoluteYPosition);
 
 				((GL11) gl).glTexParameteriv(GL10.GL_TEXTURE_2D, GL11Ext.GL_TEXTURE_CROP_RECT_OES, mTexCrop, 0);
 
@@ -597,9 +600,7 @@ public class VncCanvas extends GLSurfaceView {
 		}
 		catch(NullPointerException e) {
 		}
-		Log.d(TAG, "msg:"+msg);
-		Log.d(TAG, String.format("text:%s", getContext()));
-//		Toast.makeText(getContext(), msg, Toast.LENGTH_LONG).show();
+		Toast.makeText(getContext(), msg, Toast.LENGTH_LONG).show();
 	}
 
 

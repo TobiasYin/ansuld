@@ -1,17 +1,22 @@
 package com.asld.asld.vnc
 
 import android.annotation.SuppressLint
+import android.app.ProgressDialog
 import android.content.ClipboardManager
 import android.content.Context
-import android.graphics.Rect
 import android.media.MediaRouter
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
+import android.os.Message
 import android.util.Log
 import android.view.*
-import android.widget.EditText
 import androidx.appcompat.app.AppCompatActivity
 import com.asld.asld.R
 import com.asld.asld.databinding.VncCanvasBinding
+import com.asld.asld.exception.ErrorCode
+import kotlin.math.min
+
 
 /**
  * An example full-screen activity that shows and hides the system UI (i.e.
@@ -21,105 +26,115 @@ class VncActivity : AppCompatActivity() {
     private val TAG = "VncActivity"
     lateinit var vncCanvas: VncCanvas
     private lateinit var connection: ConnectionBean
-
+    private lateinit var resolution: Resolution
+    var port = 5900
 
     private lateinit var mClipboardManager: ClipboardManager
-    private lateinit var inputHandler: PointerInputHandler
+    lateinit var inputHandler: PointerInputHandler
     private lateinit var vncPresentation: VncPresentation
 
+    private val handler = object : Handler(Looper.getMainLooper()) {
+        override fun handleMessage(msg: Message) {
+            super.handleMessage(msg)
+            when (msg.obj as ErrorCode) {
+                ErrorCode.VNC_CONN_TO_CLIENT_BREAK -> {
+                    vncCanvas.vncConn.shutdown()
+                    initVncClient(port)}
+                ErrorCode.VNC_CONN_TO_SERVER_BREAK -> port = initVncServer()
+            }
+        }
+    }
 
     @SuppressLint("ShowToast")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
-        // hide title bar, status bar
-        window.setFlags(
-            WindowManager.LayoutParams.FLAG_FULLSCREEN,
-            WindowManager.LayoutParams.FLAG_FULLSCREEN
-        )
-
-        // hide system ui after softkeyboard close as per https://stackoverflow.com/a/21278040/361413
-        val decorView = window.decorView
-        decorView.setOnSystemUiVisibilityChangeListener { hideSystemUI() }
-
-        // Setup resizing when keyboard is visible.
-        //
-        // Ideally, we would let Android manage resizing but because we are using a fullscreen window,
-        // most of the "normal" options don't work for us.
-        //
-        // We have to hook into layout phase and manually shift our view up by adding appropriate
-        // bottom padding.
-        val contentView = findViewById<View>(android.R.id.content)
-        contentView.viewTreeObserver.addOnGlobalLayoutListener {
-            val frame = Rect()
-            contentView.getWindowVisibleDisplayFrame(frame)
-            val contentBottom = contentView.bottom
-            var paddingBottom = contentBottom - frame.bottom
-            if (paddingBottom < 0) paddingBottom = 0
-
-            //When padding is less then 20% of height, it is most probably navigation bar.
-            if (paddingBottom > 0 && paddingBottom < contentBottom * .20) return@addOnGlobalLayoutListener
-            contentView.setPadding(0, 0, 0, paddingBottom) //Update bottom
-        }
-
+        setContentView(R.layout.activity_touch_pad)
         // set the second screen
         Log.d("vnc", "begin")
 
-        val route = (getSystemService(Context.MEDIA_ROUTER_SERVICE) as MediaRouter).getSelectedRoute(
-            2
-        )
-        Log.d("vnc", route.toString())
-        if (route != null) {
-            val presentationDisplay = route.presentationDisplay
-            Log.d(TAG, "chooseDisplay: height(${presentationDisplay.height}), weight(${presentationDisplay.width})")
+        if (!chooseDisplay()) {
 
-            if (presentationDisplay != null) {
-                vncPresentation = VncPresentation(this, presentationDisplay)
-            }
         }
-        vncPresentation.show()
 
-        vncCanvas = vncPresentation.getVncCanvas()
         mClipboardManager = getSystemService(CLIPBOARD_SERVICE) as ClipboardManager
         inputHandler = PointerInputHandler(this)
         inputHandler.init()
 
 
+    }
+
+    private fun initVncServer():Int {
+        return 5900
+    }
+
+    private fun endVncServer() {}
+    private fun initVncClient(port: Int) {
         /*
 		 * Setup connection bean.
 		 */
-        connection = defaultConnectionBean()
-//        if (connection.port === 0) connection.port = 5900
+        connection = defaultConnectionBean(port)
         Log.d(TAG, "Got raw intent " + connection.toString())
-        // Parse a HOST:PORT entry
-//        connection.parseHostPort(connection.address)
 
 
         /*
-		 * Setup canvas and conn.
-		 */
+         * Setup canvas and conn.
+         */
         val conn = VNCConn()
-        vncCanvas.initializeVncCanvas(this, inputHandler, conn) // add conn to canvas
-        conn.setCanvas(vncCanvas) // add canvas to conn. be sure to call this before init!
+        conn.setHandler(handler)
+        // add conn to canvas
+        vncCanvas.initializeVncCanvas(this, inputHandler, conn)
+        // add canvas to conn. be sure to call this before init!
+        conn.setCanvas(vncCanvas)
         // the actual connection init
         conn.init(connection) {}
 
-        setContentView(R.layout.activity_touch_pad)
-        vncCanvas.requestRender()
     }
 
-    private fun defaultConnectionBean():ConnectionBean{
+
+    private fun chooseDisplay(): Boolean {
+        val route =
+            (getSystemService(Context.MEDIA_ROUTER_SERVICE) as MediaRouter).getSelectedRoute(
+                2
+            )
+        Log.d("vnc", route.toString())
+        if (route != null) {
+            val presentationDisplay = route.presentationDisplay
+
+            if (presentationDisplay != null) {
+                Log.d( TAG,"chooseDisplay: height(${presentationDisplay.height}), weight(${presentationDisplay.width})")
+
+                resolution = buildScaleBy(presentationDisplay)
+                vncPresentation = VncPresentation(this, presentationDisplay)
+            }
+        } else return false
+        return true
+    }
+
+    private fun buildScaleBy(display: Display): Resolution {
+        var width = min(display.width, R.integer.max_resolution_width)
+        var height = min(display.height, R.integer.max_resolution_height)
+        val ratio = (R.integer.max_resolution_height.toFloat()) / R.integer.max_resolution_width
+        if (width * ratio > height) {
+            width = (height / ratio).toInt()
+        } else {
+            height = (width * ratio).toInt()
+        }
+        return Resolution(width, height)
+
+    }
+
+    private fun defaultConnectionBean(port: Int): ConnectionBean {
         val conn = ConnectionBean()
 
         conn.address = "127.0.0.1"
 //        conn.address = "192.168.2.129"
         conn.id = 0 // is new!!
         try {
-            conn.port = 5900
+            conn.port = 5901
         } catch (nfe: NumberFormatException) {
         }
         conn.userName = "root"
-        conn.password = "qwe123"
+        conn.password = "ansuldserver"
 //        conn.password = "qwe123"
         conn.useLocalCursor = true // always enable
 
@@ -128,13 +143,17 @@ class VncActivity : AppCompatActivity() {
         return conn
     }
 
-    @SuppressLint("ClickableViewAccessibility")
-    fun onCreat1e(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        val binding = VncCanvasBinding.inflate(layoutInflater)
-        setContentView(binding.root)
-        supportActionBar?.setDisplayHomeAsUpEnabled(true)
-        vncCanvas = binding.vncCanvas
+    private fun showWaitingDialog(): Unit {
+        /* 等待Dialog具有屏蔽其他控件的交互能力
+         * @setCancelable 为使屏幕不可点击，设置为不可取消(false)
+         * 下载等事件完成后，主动调用函数关闭该Dialog
+         */
+        val waitingDialog = ProgressDialog(this);
+        waitingDialog.setTitle("我是一个等待Dialog");
+        waitingDialog.setMessage("等待中...");
+        waitingDialog.setIndeterminate(true);
+        waitingDialog.setCancelable(false);
+        waitingDialog.show();
     }
 
     // hide systemUI
@@ -158,10 +177,25 @@ class VncActivity : AppCompatActivity() {
                     or View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
                     or View.SYSTEM_UI_FLAG_FULLSCREEN)
     }
+
     override fun onGenericMotionEvent(event: MotionEvent?): Boolean {
         return inputHandler.onGenericMotionEvent(event)
     }
 
+    override fun onStop() {
+        super.onStop()
+//        vncPresentation?.hide()
+    }
+
+    override fun onResume() {
+        super.onResume()
+//        vncPresentation?.show()
+    }
+
+    override fun onBackPressed() {
+        super.onBackPressed()
+
+    }
 
     companion object {
         /**

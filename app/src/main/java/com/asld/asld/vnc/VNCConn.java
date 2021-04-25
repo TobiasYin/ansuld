@@ -17,12 +17,19 @@ import java.util.concurrent.locks.ReentrantLock;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.os.Handler;
 import android.util.Log;
 import android.view.KeyEvent;
 
 import androidx.annotation.Keep;
 
+import com.asld.asld.exception.ClientConnectionBreakException;
+import com.asld.asld.exception.ClientInitFailedException;
+import com.asld.asld.exception.ErrorCode;
+import com.asld.asld.exception.VncException;
 import com.asld.asld.vnc.VNCConnService;
+
+import org.jetbrains.annotations.NotNull;
 
 import static com.asld.asld.vnc.UtilsKt.getActiveNetworkInterface;
 
@@ -58,6 +65,8 @@ public class VNCConn {
 
     private String serverCutText;
 
+    // error handler by vncActivity
+    private Handler handler;
     // VNC Encoding parameters
     private int preferredEncoding = -1;
 
@@ -74,6 +83,8 @@ public class VNCConn {
     public static final int MOUSE_BUTTON_RIGHT = 4;
     public static final int MOUSE_BUTTON_SCROLL_UP = 8;
     public static final int MOUSE_BUTTON_SCROLL_DOWN = 16;
+
+    public void setHandler(@NotNull Handler handler) {}
 
 
     private class OutputEvent {
@@ -194,7 +205,7 @@ public class VNCConn {
                 lockFramebuffer();
                 if (!rfbInit(connSettings.address, connSettings.port, repeaterId, pendingColorModel.bpp())) {
                     unlockFramebuffer();
-                    throw new Exception(); //TODO add some error reoprting here
+                    throw new ClientInitFailedException(null);
                 }
                 colorModel = pendingColorModel;
                 unlockFramebuffer();
@@ -221,59 +232,22 @@ public class VNCConn {
                 // main loop
                 while (maintainConnection) {
                     if (!rfbProcessServerMessage()) {
-                        throw new Exception();
+                        throw new ClientConnectionBreakException(null);
                     }
                 }
-            } catch (Throwable e) {
-                if (maintainConnection) {
-                    Log.e(TAG, e.toString());
-                    e.printStackTrace();
-                    // Ensure we dismiss the progress dialog
-                    // before we fatal error finish
-//					canvas.handler.post(new Runnable() {
-//						public void run() {
-//							try {
-//								if (pd.isShowing())
-//									pd.dismiss();
-//							} catch (Exception e) {
-//								//unused
-//							}
-//						}
-//					});
-                    if (e instanceof OutOfMemoryError) {
-                        // TODO  Not sure if this will happen but...
-                        // figure out how to gracefully notify the user
-                        // Instantiating an alert dialog here doesn't work
-                        // because we are out of memory. :(
-                    } else {
-                        String error = "VNC connection failed!";
-                        if (e.getMessage() != null && (e.getMessage().indexOf("authentication") > -1)) {
-                            error = "VNC authentication failed!";
-                        }
-                        final String error_ = error + "<br>" + ((e.getLocalizedMessage() != null) ? e.getLocalizedMessage() : "");
-//						canvas.handler.post(new Runnable() {
-//							public void run() {
-//								try {
-//									Utils.showFatalErrorMessage(canvas.getContext(), error_);
-//								}
-//								catch(NullPointerException e) {
-//								}
-//							}
-//						});
-                        Log.d(TAG, error_);
-                    }
-                }
+            }catch(VncException e){
+
+            }finally{
+                // we might get here when maintainConnection is set to false or when an exception was thrown
+                lockFramebuffer(); // make sure the native texture drawing is not accessing something invalid
+                rfbShutdown();
+                unlockFramebuffer();
+
+                // deregister connection
+                VNCConnService.deregister(appContext, VNCConn.this);
+
+                Log.d(TAG, "ServerToClientThread done!");
             }
-
-            // we might get here when maintainConnection is set to false or when an exception was thrown
-            lockFramebuffer(); // make sure the native texture drawing is not accessing something invalid
-            rfbShutdown();
-            unlockFramebuffer();
-
-            // deregister connection
-            VNCConnService.deregister(appContext, VNCConn.this);
-
-            Log.d(TAG, "ServerToClientThread done!");
         }
 
     }

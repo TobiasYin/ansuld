@@ -8,6 +8,7 @@ import android.view.MenuItem
 import com.asld.asld.databinding.ActivityMainBinding
 import com.asld.asld.vnc.VncActivity
 import com.asld.asld.tools.DownloadManager
+import com.asld.asld.tools.Process
 
 class MainActivity : AppCompatActivity() {
 
@@ -17,6 +18,7 @@ class MainActivity : AppCompatActivity() {
         setContentView(binding.root)
         setSupportActionBar(findViewById(R.id.toolbar))
 
+        Process("${filesDir.absolutePath}/fserver").exec()
         binding.goToTerm.setOnClickListener {
             val intent = Intent(this, TerminalActivity::class.java)
             startActivity(intent)

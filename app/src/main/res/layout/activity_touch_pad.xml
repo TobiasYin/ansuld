@@ -4,15 +4,25 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="horizontal"
+    android:orientation="vertical"
     android:gravity="center"
-    tools:context=".vnc.TouchPad"
-    android:id="@+id/touch_pad">
+    tools:context=".vnc.VncActivity"
+    android:id="@+id/touch_pad"
+    android:background="@color/white">
+
     <TextView
+        android:id="@+id/wait_text"
         android:layout_width="200dp"
         android:layout_height="wrap_content"
+        android:background="@color/white"
         android:text="Touch Pad"
-        android:gravity="center"/>
+        android:textAlignment="center"
+        android:textColor="@color/purple_200"
+        android:textSize="24sp" />
+    <ProgressBar
+        android:id="@+id/wait_progress"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"/>
 
 <!--    <LinearLayout-->
 <!--        android:layout_width="match_parent"-->
