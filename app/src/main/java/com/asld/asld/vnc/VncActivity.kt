@@ -56,7 +56,6 @@ class VncActivity : AppCompatActivity() {
 //        requestWindowFeature(Window.FEATURE_NO_TITLE)
         setContentView(R.layout.activity_touch_pad)
         // set the second screen
-        touchPad = findViewById(R.id.touch_pad)
 
         Log.d("vnc", "begin")
         if (!chooseDisplay()) {
@@ -73,7 +72,13 @@ class VncActivity : AppCompatActivity() {
             mClipboardManager = getSystemService(CLIPBOARD_SERVICE) as ClipboardManager
             inputHandler = PointerInputHandler(this)
             inputHandler.init()
-
+            //touchpad 范围设定
+            touchPad = findViewById<LinearLayout>(R.id.touch_pad).apply {
+                setOnGenericMotionListener{v,evt->
+                    v.performClick()
+                    inputHandler.onGenericMotionEvent(evt)
+                }
+            }
             ProgressBarDialog.create(this, "Init vnc Server...") {
                 initVncServer()
                 it.updateView { it.textView.text = "Init vnc client..." }
@@ -255,9 +260,9 @@ class VncActivity : AppCompatActivity() {
                     or View.SYSTEM_UI_FLAG_FULLSCREEN)
     }
 
-    override fun onGenericMotionEvent(event: MotionEvent?): Boolean {
-        return inputHandler.onGenericMotionEvent(event)
-    }
+//    override fun onGenericMotionEvent(event: MotionEvent?): Boolean {
+//        return inputHandler.onGenericMotionEvent(event)
+//    }
 
     override fun onStop() {
         super.onStop()
