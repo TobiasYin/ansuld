@@ -110,6 +110,7 @@ object ShellDaemon {
     }
 
     fun execSyncCmd(cmd: String): Int {
+        checkAndRun()
         val standaloneProc = Process()
         initDaemonProcess(standaloneProc, baseDir, relaDir, false)
         standaloneProc.argv.addAll(listOf("-c", "\"$cmd\""))

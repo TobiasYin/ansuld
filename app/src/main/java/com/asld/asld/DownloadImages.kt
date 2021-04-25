@@ -115,7 +115,7 @@ class DownloadItemAdaptor(
         holder.downloadStatus.text = "Status: " +
                 when {
                     item.downloading ->
-                        "Downloading (${item.downloadRate}%)"
+                        "Downloading (${item.downloadRate.format(2)}%)"
                     item.backProcessing ->
                         "Downloaded, Extracting..."
                     item.err->
@@ -141,11 +141,9 @@ class DownloadItemAdaptor(
                 try {
                     downloader.run()
                     while (!downloader.isFinish) {
-                        item.downloadRate = downloader.getProgress() * 100
                         it.updateView {
-                            it.textView.text ="downloadind... (${item.downloadRate}%)"
+                            it.textView.text ="downloadind... (${item.downloadRate.format(2)}%)"
                         }
-                        sendUpdateMessage()
                         Thread.sleep(200)
                     }
                     item.downloading = false
@@ -171,3 +169,5 @@ class DownloadItemAdaptor(
 
     override fun getItemCount(): Int = items.count()
 }
+
+fun Float.format(digits: Int) = "%.${digits}f".format(this)
