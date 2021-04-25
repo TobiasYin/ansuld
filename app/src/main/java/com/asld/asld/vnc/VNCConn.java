@@ -85,7 +85,9 @@ public class VNCConn {
     public static final int MOUSE_BUTTON_SCROLL_UP = 8;
     public static final int MOUSE_BUTTON_SCROLL_DOWN = 16;
 
-    public void setHandler(@NotNull Handler handler) {}
+    public void setHandler(@NotNull Handler handler) {
+        this.handler = handler;
+    }
 
 
     private class OutputEvent {

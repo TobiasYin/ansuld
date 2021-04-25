@@ -1,18 +1,15 @@
 package com.asld.asld.vnc
 
 import android.annotation.SuppressLint
-import android.app.ProgressDialog
 import android.content.ClipboardManager
 import android.content.Context
 import android.graphics.Point
+import android.hardware.display.DisplayManager
 import android.media.MediaRouter
-import android.os.Bundle
-import android.os.Handler
-import android.os.Looper
-import android.os.Message
+import android.os.*
 import android.util.Log
-import android.view.MotionEvent
-import android.view.View
+import android.view.*
+import android.widget.LinearLayout
 import androidx.appcompat.app.AppCompatActivity
 import com.asld.asld.R
 import com.asld.asld.exception.ErrorCode
@@ -36,12 +33,12 @@ class VncActivity : AppCompatActivity() {
     private lateinit var mClipboardManager: ClipboardManager
     lateinit var inputHandler: PointerInputHandler
     private lateinit var vncPresentation: VncPresentation
-
+    lateinit var touchPad: LinearLayout
     private val handler = object : Handler(Looper.getMainLooper()) {
         //todo test error situation
         override fun handleMessage(msg: Message) {
             super.handleMessage(msg)
-            Log.d("vnc", (msg.obj as ErrorCode).toString())
+            Log.d("vncErrorHandler", (msg.obj as ErrorCode).toString())
             when (msg.obj as ErrorCode) {
                 ErrorCode.VNC_CONN_TO_CLIENT_BREAK -> {
                     vncCanvas.vncConn.shutdown()
@@ -55,10 +52,13 @@ class VncActivity : AppCompatActivity() {
     @SuppressLint("ShowToast")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        //todo appbar affect height
+//        requestWindowFeature(Window.FEATURE_NO_TITLE)
         setContentView(R.layout.activity_touch_pad)
         // set the second screen
-        Log.d("vnc", "begin")
+        touchPad = findViewById(R.id.touch_pad)
 
+        Log.d("vnc", "begin")
         if (!chooseDisplay()) {
             Log.d("vnc", "no display")
             val dialog = ProgressBarDialog.create(this, "Failed to find a second display!").apply {
@@ -78,9 +78,28 @@ class VncActivity : AppCompatActivity() {
                 initVncServer()
                 it.updateView { it.textView.text = "Init vnc client..." }
                 initVncClient()
-                it.updateView { it.cancel() }
+                // 自动cancel
+
+                it.updateView {
+                    getMainDisplay()?.let { d ->
+                        Log.d(TAG, "onCreatePoint: ${touchPad.width}, ${touchPad.height}")
+                        val layoutParams = LinearLayout.LayoutParams(touchPad.layoutParams)
+                        val size = Point()
+                        d.getRealSize(size)
+                        val point = buildScaleByRatio(
+                            size,
+                            resolution.y.toFloat() / resolution.x
+                        )
+                        layoutParams.width = point.x
+                        layoutParams.height = point.y
+                        touchPad.layoutParams = layoutParams
+                    }
+
+                }
+
             }
         }
+
     }
 
     private fun initVncServer() {
@@ -158,10 +177,33 @@ class VncActivity : AppCompatActivity() {
         return false
     }
 
+    private fun getMainDisplay(): Display? {
+        val dm = getSystemService(DISPLAY_SERVICE) as DisplayManager
+        val arrayOfDisplays = dm.displays
+        for (d in arrayOfDisplays) {
+            if (d.displayId == 0) {
+                return d
+            }
+        }
+        return null
+    }
+
     private fun buildScaleBy(point: Point): Point {
         var width = min(point.x, R.integer.max_resolution_width)
         var height = min(point.y, R.integer.max_resolution_height)
         val ratio = (point.y.toFloat()) / point.x
+        if (width * ratio > height) {
+            width = (height / ratio).toInt()
+        } else {
+            height = (width * ratio).toInt()
+        }
+        return Point(width, height)
+
+    }
+
+    private fun buildScaleByRatio(point: Point, ratio: Float): Point {
+        var width = point.x
+        var height = point.y
         if (width * ratio > height) {
             width = (height / ratio).toInt()
         } else {

@@ -38,8 +38,10 @@ import javax.microedition.khronos.opengles.GL11;
 import javax.microedition.khronos.opengles.GL11Ext;
 
 import android.content.Context;
+import android.graphics.Matrix;
 import android.opengl.GLSurfaceView;
 import android.os.Handler;
+import android.renderscript.Matrix3f;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.MotionEvent;
@@ -634,6 +636,9 @@ public class VncCanvas extends GLSurfaceView {
 	 * @return true if event was actually sent
 	 */
 	public boolean processPointerEvent(MotionEvent evt,boolean mouseIsDown,boolean useRightButton) {
+		Matrix matrix = new Matrix();
+		matrix.setScale((float)vncConn.getFramebufferWidth()/activity.touchPad.getWidth(), (float)vncConn.getFramebufferHeight()/activity.touchPad.getHeight());
+		evt.transform(matrix);
 		try {
 			int action = evt.getAction();
 			 if (action == MotionEvent.ACTION_DOWN || (mouseIsDown && action == MotionEvent.ACTION_MOVE)) {
