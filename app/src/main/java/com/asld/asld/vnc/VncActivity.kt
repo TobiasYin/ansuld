@@ -4,17 +4,20 @@ import android.annotation.SuppressLint
 import android.app.ProgressDialog
 import android.content.ClipboardManager
 import android.content.Context
+import android.graphics.Point
 import android.media.MediaRouter
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
 import android.os.Message
 import android.util.Log
-import android.view.*
+import android.view.MotionEvent
+import android.view.View
 import androidx.appcompat.app.AppCompatActivity
 import com.asld.asld.R
-import com.asld.asld.databinding.VncCanvasBinding
 import com.asld.asld.exception.ErrorCode
+import com.asld.asld.service.ShellDaemon
+import com.asld.asld.tools.ProgressBarDialog
 import kotlin.math.min
 
 
@@ -26,9 +29,10 @@ class VncActivity : AppCompatActivity() {
     private val TAG = "VncActivity"
     lateinit var vncCanvas: VncCanvas
     private lateinit var connection: ConnectionBean
-    private lateinit var resolution: Resolution
+    private lateinit var resolution: Point
     var port = 5900
-
+    private var initializedServer = false
+    private var initializedClient = false
     private lateinit var mClipboardManager: ClipboardManager
     lateinit var inputHandler: PointerInputHandler
     private lateinit var vncPresentation: VncPresentation
@@ -36,11 +40,13 @@ class VncActivity : AppCompatActivity() {
     private val handler = object : Handler(Looper.getMainLooper()) {
         override fun handleMessage(msg: Message) {
             super.handleMessage(msg)
+            Log.d("vnc", (msg.obj as ErrorCode).toString())
             when (msg.obj as ErrorCode) {
                 ErrorCode.VNC_CONN_TO_CLIENT_BREAK -> {
                     vncCanvas.vncConn.shutdown()
-                    initVncClient(port)}
-                ErrorCode.VNC_CONN_TO_SERVER_BREAK -> port = initVncServer()
+                    initVncClient()
+                }
+                ErrorCode.VNC_CONN_TO_SERVER_BREAK -> initVncServer()
             }
         }
     }
@@ -53,22 +59,42 @@ class VncActivity : AppCompatActivity() {
         Log.d("vnc", "begin")
 
         if (!chooseDisplay()) {
+            Log.d("vnc", "no display")
+            val dialog = ProgressBarDialog.create(this, "Failed to find a second display!").apply {
+                setCancelable(true)
+                setOnCancelListener {
+                    finish()
+                }
+            }
+//            Toast.makeText(this, "Failed to find a second display!", Toast.LENGTH_LONG)
+        } else {
 
+            mClipboardManager = getSystemService(CLIPBOARD_SERVICE) as ClipboardManager
+            inputHandler = PointerInputHandler(this)
+            inputHandler.init()
+
+            ProgressBarDialog.create(this, "Init vnc Server...") {
+                initVncServer()
+                it.updateView { it.textView.text = "Init vnc client..." }
+                initVncClient()
+                it.updateView { it.cancel() }
+            }
         }
-
-        mClipboardManager = getSystemService(CLIPBOARD_SERVICE) as ClipboardManager
-        inputHandler = PointerInputHandler(this)
-        inputHandler.init()
-
-
     }
 
-    private fun initVncServer():Int {
-        return 5900
+    private fun initVncServer() {
+        port = ShellDaemon.startVNC(resolution)
+        initializedServer = true
     }
 
-    private fun endVncServer() {}
-    private fun initVncClient(port: Int) {
+    private fun endVncServer() {
+        if (initializedServer) {
+            ShellDaemon.killVNC()
+            initializedServer = false
+        }
+    }
+
+    private fun initVncClient() {
         /*
 		 * Setup connection bean.
 		 */
@@ -82,14 +108,23 @@ class VncActivity : AppCompatActivity() {
         val conn = VNCConn()
         conn.setHandler(handler)
         // add conn to canvas
+        vncPresentation.show()
+        vncCanvas = vncPresentation.getVncCanvas()
         vncCanvas.initializeVncCanvas(this, inputHandler, conn)
         // add canvas to conn. be sure to call this before init!
         conn.setCanvas(vncCanvas)
         // the actual connection init
         conn.init(connection) {}
+        initializedClient = true
 
     }
 
+    private fun endVncClient() {
+        if (initializedClient) {
+            vncCanvas.vncConn.shutdown()
+            initializedClient = false
+        }
+    }
 
     private fun chooseDisplay(): Boolean {
         val route =
@@ -101,25 +136,33 @@ class VncActivity : AppCompatActivity() {
             val presentationDisplay = route.presentationDisplay
 
             if (presentationDisplay != null) {
-                Log.d( TAG,"chooseDisplay: height(${presentationDisplay.height}), weight(${presentationDisplay.width})")
+                Log.d(
+                    TAG,
+                    "chooseDisplay: height(${presentationDisplay}), width(${presentationDisplay.width})"
+                )
+                val point = Point()
+                presentationDisplay.getRealSize(point)
+                Log.d(TAG, "chooseDisplay: $point")
+                resolution = buildScaleBy(point)
 
-                resolution = buildScaleBy(presentationDisplay)
+                Log.d("vnc", "${resolution.x}x${resolution.y}")
                 vncPresentation = VncPresentation(this, presentationDisplay)
+                return true
             }
-        } else return false
-        return true
+        }
+        return false
     }
 
-    private fun buildScaleBy(display: Display): Resolution {
-        var width = min(display.width, R.integer.max_resolution_width)
-        var height = min(display.height, R.integer.max_resolution_height)
-        val ratio = (R.integer.max_resolution_height.toFloat()) / R.integer.max_resolution_width
+    private fun buildScaleBy(point: Point): Point {
+        var width = min(point.x, R.integer.max_resolution_width)
+        var height = min(point.y, R.integer.max_resolution_height)
+        val ratio = (point.y.toFloat()) / point.x
         if (width * ratio > height) {
             width = (height / ratio).toInt()
         } else {
             height = (width * ratio).toInt()
         }
-        return Resolution(width, height)
+        return Point(width, height)
 
     }
 
@@ -184,17 +227,46 @@ class VncActivity : AppCompatActivity() {
 
     override fun onStop() {
         super.onStop()
-//        vncPresentation?.hide()
+        if (initializedClient) {
+            vncCanvas.disableRepaints()
+            vncPresentation.hide()
+        }
+
     }
 
     override fun onResume() {
         super.onResume()
-//        vncPresentation?.show()
+        if (initializedClient) {
+            vncCanvas.enableRepaints()
+            vncPresentation.show()
+        }
     }
 
     override fun onBackPressed() {
         super.onBackPressed()
+        endVncServer()
+        endVncClient()
+        if (initializedClient) {
+            vncPresentation.dismiss()
+        }
+        finish()
+    }
 
+    override fun onPause() {
+        super.onPause()
+        // needed for the GLSurfaceView
+        if (initializedClient) {
+            vncCanvas.onPause()
+
+            // get VNC cuttext and post to Android
+            if (vncCanvas.vncConn.cutText != null) {
+                try {
+                    mClipboardManager.text = vncCanvas.vncConn.cutText
+                } catch (e: Exception) {
+                    //unused
+                }
+            }
+        }
     }
 
     companion object {

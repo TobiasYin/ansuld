@@ -14,16 +14,21 @@ import android.widget.TextView
 import androidx.appcompat.app.AlertDialog
 import kotlin.concurrent.thread
 
-class ProgressBarDialog(context: Context, text:String="loadding", layoutPadding:Int=30): AlertDialog(context) {
+
+class ProgressBarDialog(context: Context, text: String = "loadding", layoutPadding: Int = 30) :
+    AlertDialog(
+        context
+    ) {
     val layout = LinearLayout(context)
     val progressBar = ProgressBar(context)
     val textView = TextView(context)
     private val handler = Handler(Looper.getMainLooper()) {
-        val updater = it.obj as ()->Unit
+        val updater = it.obj as () -> Unit
         updater()
         true
     }
-    fun updateView(updater: ()->Unit){
+
+    fun updateView(updater: () -> Unit) {
         val m = Message()
         m.obj = updater
         handler.sendMessage(m)
@@ -32,7 +37,7 @@ class ProgressBarDialog(context: Context, text:String="loadding", layoutPadding:
 
     init {
         layout.orientation = LinearLayout.HORIZONTAL
-        layout.setPadding(layoutPadding, layoutPadding, layoutPadding, layoutPadding)
+        layout.setPadding(layoutPadding, layoutPadding* 2, layoutPadding, layoutPadding * 2)
         layout.gravity = Gravity.CENTER
         var layoutParam = LinearLayout.LayoutParams(
             LinearLayout.LayoutParams.WRAP_CONTENT,
@@ -43,7 +48,13 @@ class ProgressBarDialog(context: Context, text:String="loadding", layoutPadding:
         progressBar.isIndeterminate = true
         progressBar.setPadding(0, 0, layoutPadding, 0)
         progressBar.layoutParams = layoutParam
+        layoutParam = LinearLayout.LayoutParams(
+            400,
+            LinearLayout.LayoutParams.WRAP_CONTENT
+        )
         layoutParam.gravity = Gravity.CENTER
+
+
         textView.text = text
         textView.setTextColor(Color.parseColor("#000000"))
         textView.textSize = 20f
@@ -54,12 +65,12 @@ class ProgressBarDialog(context: Context, text:String="loadding", layoutPadding:
         setView(layout)
     }
 
-    companion object{
+    companion object {
         fun create(
             context: Context,
             text: String,
             then: ((ProgressBarDialog) -> Unit)? = null
-        ):ProgressBarDialog{
+        ): ProgressBarDialog {
             val dialog = ProgressBarDialog(context, text)
 
             dialog.show()
@@ -113,7 +124,8 @@ fun create(
     tvText.layoutParams = llParam
     ll.addView(progressBar)
     ll.addView(tvText)
-    val builder: androidx.appcompat.app.AlertDialog.Builder = androidx.appcompat.app.AlertDialog.Builder(context)
+    val builder: androidx.appcompat.app.AlertDialog.Builder =
+        androidx.appcompat.app.AlertDialog.Builder(context)
     builder.setCancelable(false)
     builder.setView(ll)
     val dialog: androidx.appcompat.app.AlertDialog = builder.create()

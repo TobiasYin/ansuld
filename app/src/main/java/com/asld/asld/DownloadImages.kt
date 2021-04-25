@@ -36,10 +36,14 @@ val downloadFiles = listOf(
         "hello"
     ),
     DownloadItem(
+        "$baseURL/fserver",
+        "fserver"
+    ),
+    DownloadItem(
         "$baseURL/lubuntu-desktop.tar.gz",
         "lubuntu.tar.gz"
     ) {
-        val proc = Process("tar", listOf("-xvzf", it.absolutePath))
+        val proc = Process("tar", listOf("-xzf", it.absolutePath))
         proc.chdir = it.parent!!
         proc.useLogger()
         proc.exec()
@@ -115,7 +119,7 @@ class DownloadItemAdaptor(
         holder.downloadStatus.text = "Status: " +
                 when {
                     item.downloading ->
-                        "Downloading (${item.downloadRate}%)"
+                        "Downloading (${item.downloadRate.format(2)}%)"
                     item.backProcessing ->
                         "Downloaded, Extracting..."
                     item.err->
@@ -141,11 +145,9 @@ class DownloadItemAdaptor(
                 try {
                     downloader.run()
                     while (!downloader.isFinish) {
-                        item.downloadRate = downloader.getProgress() * 100
                         it.updateView {
-                            it.textView.text ="downloadind... (${item.downloadRate}%)"
+                            it.textView.text ="downloading... (${item.downloadRate.format(2)}%)"
                         }
-                        sendUpdateMessage()
                         Thread.sleep(200)
                     }
                     item.downloading = false
@@ -171,3 +173,5 @@ class DownloadItemAdaptor(
 
     override fun getItemCount(): Int = items.count()
 }
+
+fun Float.format(digits: Int) = "%.${digits}f".format(this)

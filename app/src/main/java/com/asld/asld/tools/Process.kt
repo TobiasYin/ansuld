@@ -3,9 +3,9 @@ package com.asld.asld.tools
 import android.util.Log
 import java.io.*
 import java.util.*
+import java.util.concurrent.Semaphore
 import kotlin.collections.ArrayList
 import kotlin.collections.HashMap
-import kotlin.collections.HashSet
 import kotlin.concurrent.thread
 
 const val PTAG = "ProcessUtil"
@@ -24,11 +24,12 @@ class Fds {
 }
 
 class Process(
-    var path: String,
+    var path: String = "",
     argv: List<String> = listOf(),
     val env: ArrayList<EnvItem> = arrayListOf()
 ) {
     val argv: ArrayList<String> = ArrayList(argv)
+    var sem: Semaphore = Semaphore(1)
 
     companion object {
         private val runningProcess: HashMap<Int, Process> = HashMap()
@@ -40,11 +41,14 @@ class Process(
             }
 
             Thread {
+                val acc = p.sem.tryAcquire()
                 p.status = ProcessUtil.waitPid(p.pid)
                 p.isEnd = true
                 synchronized(runningProcess) {
                     runningProcess.remove(p.pid)
                 }
+                if (acc)
+                    p.sem.release()
                 p.closeStreams()
                 Log.d(TAG, "Process [${p.path}|${p.pid}] end status:  ${p.status}")
 
@@ -157,7 +161,9 @@ class Process(
     }
 
     fun waitProcess() {
-        ProcessUtil.waitPid(pid)
+        if (!hasExec())
+            throw ProcessHasNotExecException()
+        sem.acquire()
     }
 
 
