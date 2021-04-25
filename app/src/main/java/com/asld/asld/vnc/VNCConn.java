@@ -237,7 +237,10 @@ public class VNCConn {
                     }
                 }
             }catch(VncException e){
-
+                // 失败交给activity处理
+                Message msg = new Message();
+                msg.obj = e.getErrorCode();
+                handler.sendMessage(msg);
             }finally{
                 // we might get here when maintainConnection is set to false or when an exception was thrown
                 lockFramebuffer(); // make sure the native texture drawing is not accessing something invalid

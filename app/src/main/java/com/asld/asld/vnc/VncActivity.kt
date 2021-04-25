@@ -38,6 +38,7 @@ class VncActivity : AppCompatActivity() {
     private lateinit var vncPresentation: VncPresentation
 
     private val handler = object : Handler(Looper.getMainLooper()) {
+        //todo test error situation
         override fun handleMessage(msg: Message) {
             super.handleMessage(msg)
             Log.d("vnc", (msg.obj as ErrorCode).toString())
@@ -188,19 +189,6 @@ class VncActivity : AppCompatActivity() {
         conn.colorModel = COLORMODEL.C24bit.toString()
 
         return conn
-    }
-
-    private fun showWaitingDialog(): Unit {
-        /* 等待Dialog具有屏蔽其他控件的交互能力
-         * @setCancelable 为使屏幕不可点击，设置为不可取消(false)
-         * 下载等事件完成后，主动调用函数关闭该Dialog
-         */
-        val waitingDialog = ProgressDialog(this);
-        waitingDialog.setTitle("我是一个等待Dialog");
-        waitingDialog.setMessage("等待中...");
-        waitingDialog.setIndeterminate(true);
-        waitingDialog.setCancelable(false);
-        waitingDialog.show();
     }
 
     // hide systemUI
