@@ -1,22 +1,26 @@
 package com.asld.asld
 
 import android.annotation.SuppressLint
+import android.content.Context
+import android.graphics.Color
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
 import android.os.Message
-import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
+import android.view.*
 import android.widget.Button
+import android.widget.LinearLayout
+import android.widget.ProgressBar
 import android.widget.TextView
+import androidx.appcompat.app.AlertDialog
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.asld.asld.databinding.ActivityDownloadImagesBinding
 import com.asld.asld.tools.Downloader
 import java.io.File
 import com.asld.asld.tools.Process
+import com.asld.asld.tools.ProgressBarDialog
 import kotlin.concurrent.thread
 
 
@@ -44,6 +48,7 @@ val downloadFiles = listOf(
 )
 
 
+
 class DownloadImages : AppCompatActivity() {
 
 
@@ -58,7 +63,7 @@ class DownloadImages : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         val binding = ActivityDownloadImagesBinding.inflate(layoutInflater)
         setContentView(binding.root)
-        adaptor = DownloadItemAdaptor(downloadFiles, filesDir, handler)
+        adaptor = DownloadItemAdaptor(this, downloadFiles, filesDir, handler)
         binding.downloadList.layoutManager = LinearLayoutManager(this)
         binding.downloadList.adapter = adaptor
 
@@ -69,13 +74,16 @@ class DownloadItem(val url: String, val fileName: String, val backProcess: (f: F
     var downloading = false
     var downloadRate = 0.0f
     var backProcessing = false
+    var err = false
 
     fun checkStatus(filesDir: File): Boolean =
         File(filesDir, fileName).exists()
+
 }
 
 
 class DownloadItemAdaptor(
+    val context: Context,
     val items: List<DownloadItem>,
     val baseDir: File,
     val updateHandler: Handler
@@ -106,6 +114,8 @@ class DownloadItemAdaptor(
                         "Downloading (${item.downloadRate}%)"
                     item.backProcessing ->
                         "Downloaded, Extracting..."
+                    item.err->
+                        "Download Error, Please Try again!"
                     item.checkStatus(baseDir) ->
                         "Existing"
                     else ->
@@ -115,27 +125,41 @@ class DownloadItemAdaptor(
             if (item.downloading)
                 return@setOnClickListener
             item.downloading = true
+            item.backProcessing = false
+            item.err = false
             val downloader = Downloader(item.url, item.fileName, 100)
-            thread {
+            ProgressBarDialog.create(context, "loading...") {
                 val sendUpdateMessage = {
                     val m = Message()
                     m.obj = position
                     updateHandler.sendMessage(m)
                 }
-                downloader.run()
-                while (!downloader.isFinish) {
-                    item.downloadRate = downloader.getProgress() * 100
+                try {
+                    downloader.run()
+                    while (!downloader.isFinish) {
+                        item.downloadRate = downloader.getProgress() * 100
+                        it.updateView {
+                            it.textView.text ="downloadind... (${item.downloadRate}%)"
+                        }
+                        sendUpdateMessage()
+                        Thread.sleep(200)
+                    }
+                    item.downloading = false
+                    item.backProcessing = true
+                    it.updateView {
+                        it.textView.text ="downloaded, extracting..."
+                    }
                     sendUpdateMessage()
-                    Thread.sleep(200)
+                    item.backProcess(File(baseDir, item.fileName))
+                    item.backProcessing = false
+                    sendUpdateMessage()
+                }catch (e: Exception){
+                    item.downloading = false
+                    item.err = true
+                    sendUpdateMessage()
+                    e.printStackTrace()
                 }
-                item.downloading = false
-                item.backProcessing = true
-                sendUpdateMessage()
-                item.backProcess(File(baseDir, item.fileName))
-                item.backProcessing = false
-                sendUpdateMessage()
             }
-
         }
 
     }

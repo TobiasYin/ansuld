@@ -8,6 +8,7 @@ import android.media.MediaRouter
 import android.os.Bundle
 import android.util.Log
 import android.view.*
+import android.widget.EditText
 import androidx.appcompat.app.AppCompatActivity
 import com.asld.asld.R
 import com.asld.asld.databinding.VncCanvasBinding
