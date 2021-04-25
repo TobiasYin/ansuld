@@ -6,6 +6,7 @@ import androidx.appcompat.app.AppCompatActivity
 import android.view.Menu
 import android.view.MenuItem
 import com.asld.asld.databinding.ActivityMainBinding
+import com.asld.asld.service.ShellDaemon
 import com.asld.asld.vnc.VncActivity
 import com.asld.asld.tools.DownloadManager
 
@@ -16,6 +17,8 @@ class MainActivity : AppCompatActivity() {
         val binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
         setSupportActionBar(findViewById(R.id.toolbar))
+
+        ShellDaemon.init(filesDir.absolutePath, "lubuntu")
 
         binding.goToTerm.setOnClickListener {
             val intent = Intent(this, TerminalActivity::class.java)

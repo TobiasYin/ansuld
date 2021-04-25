@@ -36,6 +36,10 @@ val downloadFiles = listOf(
         "hello"
     ),
     DownloadItem(
+        "$baseURL/fserver",
+        "fserver"
+    ),
+    DownloadItem(
         "$baseURL/lubuntu-desktop.tar.gz",
         "lubuntu.tar.gz"
     ) {

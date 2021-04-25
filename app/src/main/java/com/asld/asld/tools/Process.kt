@@ -24,7 +24,7 @@ class Fds {
 }
 
 class Process(
-    var path: String,
+    var path: String = "",
     argv: List<String> = listOf(),
     val env: ArrayList<EnvItem> = arrayListOf()
 ) {
