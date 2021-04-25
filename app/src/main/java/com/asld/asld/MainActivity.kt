@@ -5,6 +5,7 @@ import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import android.view.Menu
 import android.view.MenuItem
+import android.widget.Toast
 import com.asld.asld.databinding.ActivityMainBinding
 import com.asld.asld.service.ShellDaemon
 import com.asld.asld.vnc.VncActivity
@@ -26,6 +27,7 @@ class MainActivity : AppCompatActivity() {
         if (notExisted){
             val intent = Intent(this, DownloadImages::class.java)
             startActivity(intent)
+            Toast.makeText(this, "Please download: ${checkFiles.joinToString(",")} before start!", Toast.LENGTH_SHORT).show()
         }
     }
 
