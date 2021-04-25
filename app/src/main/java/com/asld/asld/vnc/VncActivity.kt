@@ -79,24 +79,6 @@ class VncActivity : AppCompatActivity() {
                 it.updateView { it.textView.text = "Init vnc client..." }
                 initVncClient()
                 // 自动cancel
-
-                it.updateView {
-                    getMainDisplay()?.let { d ->
-                        Log.d(TAG, "onCreatePoint: ${touchPad.width}, ${touchPad.height}")
-                        val layoutParams = LinearLayout.LayoutParams(touchPad.layoutParams)
-                        val size = Point()
-                        d.getRealSize(size)
-                        val point = buildScaleByRatio(
-                            size,
-                            resolution.y.toFloat() / resolution.x
-                        )
-                        layoutParams.width = point.x
-                        layoutParams.height = point.y
-                        touchPad.layoutParams = layoutParams
-                    }
-
-                }
-
             }
         }
 
@@ -130,6 +112,7 @@ class VncActivity : AppCompatActivity() {
         // add conn to canvas
         runOnUiThread {
             vncPresentation.show()
+            // todo canvas scale
             vncCanvas = vncPresentation.getVncCanvas()
             vncCanvas.initializeVncCanvas(this, inputHandler, conn)
             // add canvas to conn. be sure to call this before init!
@@ -273,10 +256,12 @@ class VncActivity : AppCompatActivity() {
         if (initializedClient) {
             vncCanvas.enableRepaints()
             vncPresentation.show()
+            //todo show不成功
         }
     }
 
-    override fun onBackPressed() {
+
+    fun onBackPressedReal() {
         super.onBackPressed()
         endVncServer()
         endVncClient()
@@ -284,6 +269,9 @@ class VncActivity : AppCompatActivity() {
             vncPresentation.dismiss()
         }
         finish()
+    }
+//todo 返回键处理
+    override fun onBackPressed() {
     }
 
     override fun onPause() {

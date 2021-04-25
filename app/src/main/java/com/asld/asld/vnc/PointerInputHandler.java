@@ -57,6 +57,7 @@ public class PointerInputHandler extends GestureDetector.SimpleOnGestureListener
      * @return
      */
     public boolean onGenericMotionEvent(MotionEvent e) {
+        //todo 按下拖动时间传送
         int action = MotionEvent.ACTION_MASK;
         boolean button = false;
         boolean secondary = false;
@@ -73,7 +74,7 @@ public class PointerInputHandler extends GestureDetector.SimpleOnGestureListener
                 button = true;
                 secondary = false;
                 action = MotionEvent.ACTION_DOWN;
-            } else if ((e.getButtonState() & MotionEvent.BUTTON_SECONDARY) != 0) {
+            } else if ((e.getButtonState() & MotionEvent.BUTTON_SECONDARY) != 0 || (e.getButtonState() & MotionEvent.BUTTON_BACK) != 0) {
                 button = true;
                 secondary = true;
                 action = MotionEvent.ACTION_DOWN;
@@ -93,6 +94,7 @@ public class PointerInputHandler extends GestureDetector.SimpleOnGestureListener
             if (!button) {
                 vncActivity.vncCanvas.processPointerEvent(e, false);
             } else {
+                Log.d(TAG, "onGenericMotionEvent: "+secondary);
                 vncActivity.vncCanvas.processPointerEvent(e, true, secondary);
             }
             vncActivity.vncCanvas.panToMouse();
