@@ -62,6 +62,8 @@ class TerminalActivity : AppCompatActivity() {
         linesView = binding.linesList
         binding.linesList.layoutManager = LinearLayoutManager(this)
         binding.linesList.adapter = adaptor
+        // 把已有的元素列为已加载元素
+        lastUpdate = ShellDaemon.lines.size - 1
 
         handlerID = ShellDaemon.addLineListener {
             val m = Message()
