@@ -43,7 +43,7 @@ val downloadFiles = listOf(
         "$baseURL/lubuntu-desktop.tar.gz",
         "lubuntu.tar.gz"
     ) {
-        val proc = Process("tar", listOf("-xvzf", it.absolutePath))
+        val proc = Process("tar", listOf("-xzf", it.absolutePath))
         proc.chdir = it.parent!!
         proc.useLogger()
         proc.exec()
@@ -142,7 +142,7 @@ class DownloadItemAdaptor(
                     downloader.run()
                     while (!downloader.isFinish) {
                         it.updateView {
-                            it.textView.text ="downloadind... (${item.downloadRate.format(2)}%)"
+                            it.textView.text ="downloading... (${item.downloadRate.format(2)}%)"
                         }
                         Thread.sleep(200)
                     }
