@@ -9,16 +9,16 @@ enum class ErrorCode(val code: Int, val msg: String) {
         return "ErrorCode(code=$code, msg=$msg)"
     }}
 
-open class BaseException(open val errorCode: ErrorCode, cause: Throwable) :
+open class BaseException(open val errorCode: ErrorCode, cause: Throwable?) :
     Exception(errorCode.msg, cause)
 
-open class VncException(override val errorCode: ErrorCode, cause: Throwable) :
+open class VncException(override val errorCode: ErrorCode, cause: Throwable?) :
     BaseException(errorCode, cause)
 
-class ClientInitFailedException(cause: Throwable) :
+class ClientInitFailedException(cause: Throwable?) :
     VncException(ErrorCode.VNC_CLIENT_INIT_FAILED, cause)
 
-class ClientConnectionBreakException(cause: Throwable) :
+class ClientConnectionBreakException(cause: Throwable?) :
     VncException(ErrorCode.VNC_CONN_TO_CLIENT_BREAK, cause)
 
 

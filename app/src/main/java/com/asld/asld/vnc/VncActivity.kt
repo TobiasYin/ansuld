@@ -108,14 +108,18 @@ class VncActivity : AppCompatActivity() {
         val conn = VNCConn()
         conn.setHandler(handler)
         // add conn to canvas
-        vncPresentation.show()
-        vncCanvas = vncPresentation.getVncCanvas()
-        vncCanvas.initializeVncCanvas(this, inputHandler, conn)
-        // add canvas to conn. be sure to call this before init!
-        conn.setCanvas(vncCanvas)
-        // the actual connection init
-        conn.init(connection) {}
-        initializedClient = true
+        runOnUiThread {
+            vncPresentation.show()
+            vncCanvas = vncPresentation.getVncCanvas()
+            vncCanvas.initializeVncCanvas(this, inputHandler, conn)
+            // add canvas to conn. be sure to call this before init!
+            conn.setCanvas(vncCanvas)
+            // the actual connection init
+            conn.init(connection) {}
+
+            initializedClient = true
+        }
+
 
     }
 
@@ -173,7 +177,7 @@ class VncActivity : AppCompatActivity() {
 //        conn.address = "192.168.2.129"
         conn.id = 0 // is new!!
         try {
-            conn.port = 5901
+            conn.port = port
         } catch (nfe: NumberFormatException) {
         }
         conn.userName = "root"

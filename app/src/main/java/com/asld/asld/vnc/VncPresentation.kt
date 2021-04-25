@@ -6,13 +6,12 @@ import android.os.Bundle
 import android.util.Log
 import android.view.Display
 import android.view.View
-import android.view.WindowManager
 import com.asld.asld.R
 
 class VncPresentation(context: Context, display: Display) : Presentation(context, display) {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.vnc_canvas)
+        setContentView(R.layout.vnc_presentation)
         Log.d("pre", "$window")
 //        // hide title bar, status bar
 //        window?.setFlags(

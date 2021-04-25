@@ -4,6 +4,7 @@ import android.util.Log
 import java.io.*
 import java.util.*
 import java.util.concurrent.Semaphore
+import java.util.concurrent.TimeUnit
 import kotlin.collections.ArrayList
 import kotlin.collections.HashMap
 import kotlin.concurrent.thread
@@ -41,14 +42,12 @@ class Process(
             }
 
             Thread {
-                val acc = p.sem.tryAcquire()
                 p.status = ProcessUtil.waitPid(p.pid)
                 p.isEnd = true
                 synchronized(runningProcess) {
                     runningProcess.remove(p.pid)
                 }
-                if (acc)
-                    p.sem.release()
+                p.sem.release()
                 p.closeStreams()
                 Log.d(TAG, "Process [${p.path}|${p.pid}] end status:  ${p.status}")
 
@@ -114,6 +113,7 @@ class Process(
         if (pid != -1) {
             throw ProcessHasBeenExecException()
         }
+        sem.acquire()
         Log.d(PTAG, "process exec: $path ${argv.joinToString(" ")}")
         val fds = Fds()
         val arrArgv = Array(argv.size) { argv[it] }
@@ -160,10 +160,17 @@ class Process(
         Process("kill", listOf("-9", pid.toString())).exec()
     }
 
-    fun waitProcess() {
+    fun waitProcess(timeout: Long = -1) {
         if (!hasExec())
             throw ProcessHasNotExecException()
-        sem.acquire()
+        Log.d(PTAG, "waitProcess: isEnd:$isEnd")
+        if (timeout <= 0) {
+            sem.acquire()
+            sem.release()
+        } else {
+            if (sem.tryAcquire(timeout, TimeUnit.MILLISECONDS))
+                sem.release()
+        }
     }
 
 

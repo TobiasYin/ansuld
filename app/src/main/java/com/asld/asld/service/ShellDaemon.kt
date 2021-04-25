@@ -110,13 +110,16 @@ object ShellDaemon {
         proc.stdin.write((cmd + "\n").toByteArray())
     }
 
-    fun execSyncCmd(cmd: String): Int {
+    fun execSyncCmd(cmd: String, timeout: Long = -1): Int {
         checkAndRun()
         val standaloneProc = Process()
         initDaemonProcess(standaloneProc, baseDir, relaDir, false)
-        standaloneProc.argv.addAll(listOf("-c", "\"$cmd\""))
-        standaloneProc.exec()
-        standaloneProc.waitProcess()
+        standaloneProc.apply {
+            argv.addAll(listOf("-c", cmd))
+            useLogger()
+            exec()
+            waitProcess(timeout)
+        }
         return standaloneProc.status
     }
 
@@ -125,7 +128,10 @@ object ShellDaemon {
         killVNC()
         val port = 1
         val res =
-            execSyncCmd("LD_PRELOAD=/lib/aarch64-linux-gnu/libgcc_s.so.1 vncserver :$port -localhost no -geometry ${resolution.x}x${resolution.y}")
+            execSyncCmd(
+                "LD_PRELOAD=/lib/aarch64-linux-gnu/libgcc_s.so.1 vncserver :$port -localhost no -geometry ${resolution.x}x${resolution.y}",
+                2000
+            )
         if (res != 0 && res != -1) {
             throw Exception(res.toString())
         }
@@ -134,6 +140,8 @@ object ShellDaemon {
 
     fun killVNC() {
         execSyncCmd("vncserver -kill :1")
+        execSyncCmd("rm -rf /tmp/.X11-unix/X1")
+        execSyncCmd("rm -rf /tmp/.X1-lock")
     }
 
 
@@ -162,8 +170,7 @@ object ShellDaemon {
         proc: Process,
         baseDir: String,
         relaDir: String,
-        login: Boolean = true,
-        cmd: String = ""
+        login: Boolean = true
     ) {
         proc.path = "$baseDir/proot"
         proc.chdir = baseDir
