@@ -88,15 +88,15 @@ object ShellDaemon {
     }
 
     private fun addLine(line: Line) {
-        synchronized(this) {
+        synchronized(lines) {
             line.lineCount = lines.size
             lines.add(line)
-            if (line.type == Line.LineTypeInput) {
-                history.add(line)
-            }
-            lineListener.forEach {
-                it.value(line)
-            }
+        }
+        if (line.type == Line.LineTypeInput) {
+            history.add(line)
+        }
+        lineListener.forEach {
+            it.value(line)
         }
 
     }

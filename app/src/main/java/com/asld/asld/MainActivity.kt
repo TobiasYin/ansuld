@@ -11,6 +11,25 @@ import com.asld.asld.vnc.VncActivity
 import com.asld.asld.tools.DownloadManager
 
 class MainActivity : AppCompatActivity() {
+    var checkFiles = hashSetOf("proot", "lubuntu-desktop.tar.gz")
+
+    override fun onStart() {
+        super.onStart()
+        var notExisted = false
+        downloadFiles.forEach {
+            if (checkFiles.contains(it.fileName)) {
+                if (!it.checkStatus(filesDir.absoluteFile)) {
+                    notExisted = true
+                }
+            }
+        }
+        if (notExisted){
+            val intent = Intent(this, DownloadImages::class.java)
+            startActivity(intent)
+        }
+    }
+
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -40,6 +59,7 @@ class MainActivity : AppCompatActivity() {
         }
         DownloadManager.relativeRoot = filesDir.absolutePath
     }
+
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
         // Inflate the menu; this adds items to the action bar if it is present.

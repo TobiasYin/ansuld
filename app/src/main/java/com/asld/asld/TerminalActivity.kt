@@ -23,13 +23,13 @@ const val TAG = "TerminalActivityTAG"
 
 class TerminalActivity : AppCompatActivity() {
 
-    var checkFiles = hashSetOf("proot", "lubuntu-desktop.tar.gz")
 
     var curOffset = 0
     var nowInput = ""
 
     var handlerID = 0
     val adaptor = TerminalItemAdaptor()
+    var lastUpdate = -1
 
     lateinit var linesView: RecyclerView
     val handler = Handler(Looper.getMainLooper()) {
@@ -42,26 +42,16 @@ class TerminalActivity : AppCompatActivity() {
     var err: Thread? = null
 
     fun addLineUpdate(line: Int) {
-        if (line < 0) {
-            return
-        }
         Log.d(TAG, "addLineUpdate: $line")
-        adaptor.notifyItemInserted(line)
-        linesView.scrollToPosition(line)
+        val nowLast = ShellDaemon.lines.size - 1
+        if (nowLast == lastUpdate)
+            return
+        adaptor.notifyItemRangeInserted(lastUpdate + 1, nowLast - lastUpdate)
+        linesView.scrollToPosition(nowLast)
+        lastUpdate = nowLast
     }
 
 
-    override fun onStart() {
-        super.onStart()
-        var notExisted = false
-        downloadFiles.forEach {
-            if (checkFiles.contains(it.fileName)) {
-                if (!it.checkStatus(filesDir.absoluteFile)) {
-                    notExisted = true
-                }
-            }
-        }
-    }
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
