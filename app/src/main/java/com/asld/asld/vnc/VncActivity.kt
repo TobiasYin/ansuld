@@ -82,12 +82,12 @@ class VncActivity : AppCompatActivity() {
             inputHandler = PointerInputHandler(this)
             inputHandler.init()
             //touchpad 范围设定
-            touchPad = findViewById<LinearLayout>(R.id.touch_pad).apply {
-                setOnGenericMotionListener{v,evt->
-                    v.performClick()
-                    inputHandler.onGenericMotionEvent(evt)
-                }
-            }
+//            touchPad = findViewById<LinearLayout>(R.id.touch_pad).apply {
+//                setOnGenericMotionListener{v,evt->
+//                    v.performClick()
+//                    inputHandler.onGenericMotionEvent(evt)
+//                }
+//            }
             ProgressBarDialog.create(this, "Init vnc Server...") {
                 initVncServer()
                 it.updateView { it.textView.text = "Init vnc client..." }
