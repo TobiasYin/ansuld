@@ -1,7 +1,7 @@
 package com.asld.asld
 
+import android.content.Context
 import android.graphics.Color
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
@@ -11,6 +11,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
+import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.asld.asld.databinding.ActivityTernimalBinding
@@ -20,7 +21,11 @@ import java.util.*
 
 const val TAG = "TerminalActivityTAG"
 
-
+class CustomLinearLayoutManager(context: Context) : LinearLayoutManager(context) {
+    override fun supportsPredictiveItemAnimations(): Boolean {
+        return false
+    }
+}
 class TerminalActivity : AppCompatActivity() {
 
     var curOffset = 0
@@ -60,7 +65,7 @@ class TerminalActivity : AppCompatActivity() {
         val binding = ActivityTernimalBinding.inflate(layoutInflater)
         setContentView(binding.root)
         linesView = binding.linesList
-        binding.linesList.layoutManager = LinearLayoutManager(this)
+        binding.linesList.layoutManager = CustomLinearLayoutManager(this)
         binding.linesList.adapter = adaptor
         // 把已有的元素列为已加载元素
         lastUpdate = ShellDaemon.lines.size - 1
