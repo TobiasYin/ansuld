@@ -253,6 +253,10 @@ class VncActivity : AppCompatActivity() {
                     or View.SYSTEM_UI_FLAG_FULLSCREEN)
     }
 
+    override fun onTouchEvent(event: MotionEvent?): Boolean {
+        return inputHandler.onGenericMotionEvent(event)
+    }
+
     override fun onGenericMotionEvent(event: MotionEvent?): Boolean {
         return inputHandler.onGenericMotionEvent(event)
     }

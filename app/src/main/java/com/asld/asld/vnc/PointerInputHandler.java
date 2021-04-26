@@ -57,7 +57,6 @@ public class PointerInputHandler extends GestureDetector.SimpleOnGestureListener
      * @return
      */
     public boolean onGenericMotionEvent(MotionEvent e) {
-        //todo 按下拖动时间传送
         int action = MotionEvent.ACTION_MASK;
         boolean button = false;
         boolean secondary = false;

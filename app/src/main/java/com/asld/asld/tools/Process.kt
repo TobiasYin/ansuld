@@ -163,7 +163,6 @@ class Process(
     fun waitProcess(timeout: Long = -1) {
         if (!hasExec())
             throw ProcessHasNotExecException()
-        Log.d(PTAG, "waitProcess: isEnd:$isEnd")
         if (timeout <= 0) {
             sem.acquire()
             sem.release()
@@ -171,6 +170,7 @@ class Process(
             if (sem.tryAcquire(timeout, TimeUnit.MILLISECONDS))
                 sem.release()
         }
+        Log.d(PTAG, "waitProcess[$pid]: isEnd:$isEnd status:$status")
     }
 
 
