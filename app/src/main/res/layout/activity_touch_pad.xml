@@ -17,7 +17,6 @@
             android:id="@+id/vnc_toolbar"
             android:layout_width="match_parent"
             android:layout_height="?attr/actionBarSize"
-            android:background="?attr/colorPrimary"
             android:gravity="top"
             app:popupTheme="@style/Theme.AnSuLD.PopupOverlay"/>
 
@@ -27,8 +26,8 @@
         android:id="@+id/touch_pad"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:background="@color/purple_500"
         android:gravity="center"
+        android:background="@color/holdOnDark"
         android:orientation="vertical"
         tools:context=".vnc.VncActivity">
 
@@ -36,10 +35,9 @@
             android:id="@+id/wait_text"
             android:layout_width="200dp"
             android:layout_height="wrap_content"
-            android:background="@color/white"
             android:text="Touch Pad"
+            android:textColor="@color/holdOnGrey"
             android:textAlignment="center"
-            android:textColor="@color/purple_200"
             android:textSize="24sp" />
     </LinearLayout>
 </LinearLayout>
