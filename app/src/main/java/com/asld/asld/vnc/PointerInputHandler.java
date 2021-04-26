@@ -68,6 +68,9 @@ public class PointerInputHandler extends GestureDetector.SimpleOnGestureListener
 
         e = vncActivity.vncCanvas.changeTouchCoordinatesToFullFrame(e);
 
+        if (e.getActionMasked() == MotionEvent.ACTION_HOVER_ENTER){
+            e.setAction(MotionEvent.ACTION_UP);
+        }
         //Translate the event into onTouchEvent type language
         if (e.getButtonState() != 0) {
             if ((e.getButtonState() & MotionEvent.BUTTON_PRIMARY) != 0) {
@@ -117,7 +120,7 @@ public class PointerInputHandler extends GestureDetector.SimpleOnGestureListener
         }
 
 
-        Log.d(TAG, "Input: touch normal: x:" + e.getX() + " y:" + e.getY() + " action:" + e.getAction());
+        Log.d(TAG, "Input: touch normal: x:" + e.getX() + " y:" + e.getY() + " action:" + e.getAction() + " event:" + e);
 
         return true;
     }
