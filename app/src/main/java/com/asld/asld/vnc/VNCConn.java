@@ -261,6 +261,7 @@ public class VNCConn {
                 }
             } catch (VncException e) {
                 // 失败交给activity处理
+                Log.d("VNCException", "run: $s");
                 Message msg = new Message();
                 msg.obj = e.getErrorCode();
                 handler.sendMessage(msg);
