@@ -14,6 +14,7 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
+import android.annotation.SuppressLint;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -23,6 +24,7 @@ import android.util.Log;
 import android.view.KeyEvent;
 
 import androidx.annotation.Keep;
+import androidx.annotation.NonNull;
 
 import com.asld.asld.exception.ClientConnectionBreakException;
 import com.asld.asld.exception.ClientInitFailedException;
@@ -131,12 +133,31 @@ public class VNCConn {
             int y;
             int mask;
             int modifiers;
+
+            @Override
+            public String toString() {
+                return "PointerEvent{" +
+                        "x=" + x +
+                        ", y=" + y +
+                        ", mask=" + mask +
+                        ", modifiers=" + modifiers +
+                        '}';
+            }
         }
 
         private class KeyboardEvent {
             int keyCode;
             int metaState;
             boolean down;
+
+            @Override
+            public String toString() {
+                return "KeyboardEvent{" +
+                        "keyCode=" + keyCode +
+                        ", metaState=" + metaState +
+                        ", down=" + down +
+                        '}';
+            }
         }
 
         private class FullFramebufferUpdateRequest {
@@ -238,12 +259,12 @@ public class VNCConn {
                         throw new ClientConnectionBreakException(null);
                     }
                 }
-            }catch(VncException e){
+            } catch (VncException e) {
                 // 失败交给activity处理
                 Message msg = new Message();
                 msg.obj = e.getErrorCode();
                 handler.sendMessage(msg);
-            }finally{
+            } finally {
                 // we might get here when maintainConnection is set to false or when an exception was thrown
                 lockFramebuffer(); // make sure the native texture drawing is not accessing something invalid
                 rfbShutdown();
@@ -274,11 +295,11 @@ public class VNCConn {
                 OutputEvent ev;
                 while ((ev = outputEventQueue.poll()) != null) {
                     if (ev.pointer != null)
+                        sendPointerEvent(ev.pointer);
                         Log.d(TAG, String.format("sendPointerEvent, %s", ev.pointer));
-                    sendPointerEvent(ev.pointer);
                     if (ev.key != null)
                         sendKeyEvent(ev.key);
-                    Log.d(TAG, String.format("sendkeyEvent, %s", ev.key));
+                        Log.d(TAG, String.format("sendkeyEvent, %s", ev.key));
                     if (ev.ffur != null)
                         try {
                             // bitmapData.writeFullUpdateRequest(ev.ffur.incremental);
@@ -293,6 +314,7 @@ public class VNCConn {
                         }
                     if (ev.cuttext != null)
                         sendCutText(ev.cuttext.text);
+                        Log.d(TAG, "sendCutText: " + ev.cuttext);
                 }
 
                 // at this point, queue is empty, wait for input instead of hogging CPU
@@ -398,7 +420,8 @@ public class VNCConn {
 
     /**
      * Create a view showing a VNC connection
-     * @param bean Connection settings
+     *
+     * @param bean     Connection settings
      * @param setModes Callback to run on UI thread after connection is set up
      */
     public void init(ConnectionBean bean, final Runnable setModes) {
@@ -453,6 +476,7 @@ public class VNCConn {
     /**
      * Set/unset the canvas for this connection.
      * Unset canvas when keeping the VNCConn across application restarts to avoid memleaks.
+     *
      * @param c
      */
     public void setCanvas(VncCanvas c) {
@@ -503,6 +527,7 @@ public class VNCConn {
 
     /**
      * queue key event for sending
+     *
      * @param keyCode
      * @param evt
      * @param sendDirectly send key event directly without doing local->rfbKeySym translation
@@ -520,6 +545,7 @@ public class VNCConn {
                         evt.getCharacters().codePointAt(0),
                         evt.getMetaState(),
                         true);
+                Log.d(TAG, "sendOutputKeyEvent: " + down.toString());
                 outputEventQueue.add(down);
 
                 OutputEvent up = new OutputEvent(

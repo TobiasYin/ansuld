@@ -3,6 +3,7 @@ package com.asld.asld.vnc;
 import android.util.Log;
 import android.view.GestureDetector;
 import android.view.InputDevice;
+import android.view.KeyEvent;
 import android.view.MotionEvent;
 
 /**
@@ -121,5 +122,10 @@ public class PointerInputHandler extends GestureDetector.SimpleOnGestureListener
         return true;
     }
 
-
+    /**
+     * 外接设备：键盘
+     */
+//    public boolean onKeyEvent(KeyEvent e){
+//        vncActivity.vncCanvas.vncConn.sendKeyEvent()
+//    }
 }

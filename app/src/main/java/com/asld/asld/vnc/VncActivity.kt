@@ -37,12 +37,11 @@ class VncActivity : AppCompatActivity() {
     private var initializedServer = false
     private var initializedClient = false
     private lateinit var mClipboardManager: ClipboardManager
-    lateinit var inputHandler: PointerInputHandler
+    private lateinit var inputHandler: PointerInputHandler
     private lateinit var vncPresentation: VncPresentation
     lateinit var touchPad: LinearLayout
-    lateinit var appBar: Toolbar
+    private lateinit var appBar: Toolbar
 
-    private var isTitleBarVisible = true
     private val handler = object : Handler(Looper.getMainLooper()) {
         //todo test error situation
         override fun handleMessage(msg: Message) {
@@ -226,32 +225,34 @@ class VncActivity : AppCompatActivity() {
         return conn
     }
 
-    // hide systemUI
-//    override fun onWindowFocusChanged(hasFocus: Boolean) {
-//        super.onWindowFocusChanged(hasFocus)
-//        if (hasFocus) {
-////            hideSystemUI()
-//            supportActionBar?.let {
-//                it.hide()
-//                Log.d(TAG, "onWindowFocusChanged: hideAppBar")
-//            }
-//
-//        }
-//    }
-
-    private fun hideSystemUI() {
-        // For "lean back" mode, remove SYSTEM_UI_FLAG_IMMERSIVE.
-        // Or for "sticky immersive," replace it with SYSTEM_UI_FLAG_IMMERSIVE_STICKY
-        val decorView = window.decorView
-        decorView.systemUiVisibility =
-            (View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY // Set the content to appear under the system bars so that the
-                    // content doesn't resize when the system bars hide and show.
-                    or View.SYSTEM_UI_FLAG_LAYOUT_STABLE
-                    or View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
-                    or View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN // Hide the nav bar and status bar
-                    or View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
-                    or View.SYSTEM_UI_FLAG_FULLSCREEN)
+    /**
+     * when use finger to back send keycode_back to hide appbar
+     */
+    override fun onKeyDown(keyCode: Int, event: KeyEvent?): Boolean {
+        if (keyCode == KeyEvent.KEYCODE_BACK) {
+//            changeAppBarVisibility()
+//            Log.d(TAG, "onKeyDown: changeAppBarVisibility")
+            return true
+        }
+        Log.d(TAG, "onKeyDown: keyCode:$keyCode, $event")
+        vncCanvas.vncConn.sendKeyEvent(keyCode, event, false)
+        return false
     }
+    /**
+     * when use finger to back send keycode_back to hide appbar
+     */
+    override fun onKeyUp(keyCode: Int, event: KeyEvent?): Boolean {
+        if (keyCode == KeyEvent.KEYCODE_BACK) {
+            changeAppBarVisibility()
+            Log.d(TAG, "onKeyDown: changeAppBarVisibility")
+            return true
+        }
+        Log.d(TAG, "onKeyDown: keyCode:$keyCode, $event")
+        vncCanvas.vncConn.sendKeyEvent(keyCode, event, false)
+        return false
+    }
+
+
 
     override fun onTouchEvent(event: MotionEvent?): Boolean {
         return inputHandler.onGenericMotionEvent(event)
@@ -261,8 +262,8 @@ class VncActivity : AppCompatActivity() {
         return inputHandler.onGenericMotionEvent(event)
     }
 
-
     override fun onResume() {
+        Log.d(TAG, "onResume: ")
         super.onResume()
         if (initializedClient) {
             vncCanvas.enableRepaints()
@@ -281,7 +282,13 @@ class VncActivity : AppCompatActivity() {
         }
     }
 
+    override fun onStart() {
+        Log.d(TAG, "onStart: ")
+        super.onStart()
+    }
+
     override fun onPause() {
+        Log.d(TAG, "onPause: ")
         super.onPause()
         // needed for the GLSurfaceView
         if (initializedClient) {
@@ -295,15 +302,17 @@ class VncActivity : AppCompatActivity() {
     }
 
     override fun onStop() {
+        Log.d(TAG, "onStop: ")
         super.onStop()
         if (initializedClient) {
             vncCanvas.disableRepaints()
-            vncPresentation.hide()
+//            vncPresentation.hide()
         }
 
     }
 
     override fun onDestroy() {
+        Log.d(TAG, "onDestroy: ")
         super.onDestroy()
         endVncServer()
         endVncClient()
@@ -325,9 +334,6 @@ class VncActivity : AppCompatActivity() {
         }
     }
 
-    //todo 返回键处理
-    override fun onBackPressed() {}
-
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
         menuInflater.inflate(R.menu.menu_vnc, menu)
         return true
@@ -340,10 +346,6 @@ class VncActivity : AppCompatActivity() {
             }
         }
         return true
-    }
-
-    override fun onTouchEvent(event: MotionEvent?): Boolean {
-        return super.onTouchEvent(event)
     }
 
     private fun copyTomClipboardManager(content: CharSequence?) {
