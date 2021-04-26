@@ -199,6 +199,8 @@ object ShellDaemon {
                 "PATH=/usr/local/sbin:/usr/local/bin:/bin:/usr/bin:/sbin:/usr/sbin:/usr/games:/usr/local/games",
                 "TERM=\$TERM",
                 "LANG=C.UTF-8",
+                "MOZ_FAKE_NO_SANDBOX=1",
+                "SHELL=/bin/bash",
                 "/bin/bash"
             )
         )
