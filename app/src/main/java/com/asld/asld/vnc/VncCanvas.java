@@ -545,9 +545,10 @@ public class VncCanvas extends GLSurfaceView {
 	}
 
 	void reDraw() {
+		Log.d(TAG, "call canvas redraw");
+		Log.d(TAG, String.format("reDraw: %d, %d", (repaintsEnabled?1:0), vncConn.rfbClient));
 
 		if (repaintsEnabled && vncConn.rfbClient != 0) {
-
 			// request a redraw from GL thread
 			requestRender();
 
