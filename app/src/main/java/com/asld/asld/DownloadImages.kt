@@ -48,11 +48,7 @@ val downloadFiles = listOf(
         proc.useLogger()
         proc.exec()
         proc.waitProcess()
-    },
-    DownloadItem(
-        "$baseURL/fserver",
-        "fserver"
-    )
+    }
 )
 
 
@@ -119,7 +115,7 @@ class DownloadItemAdaptor(
         holder.downloadStatus.text = "Status: " +
                 when {
                     item.downloading ->
-                        "Downloading (${item.downloadRate.format(2)}%)"
+                        "Downloading..."
                     item.backProcessing ->
                         "Downloaded, Extracting..."
                     item.err->
@@ -143,8 +139,10 @@ class DownloadItemAdaptor(
                     updateHandler.sendMessage(m)
                 }
                 try {
+                    sendUpdateMessage()
                     downloader.run()
                     while (!downloader.isFinish) {
+                        item.downloadRate = downloader.getProgress() * 100
                         it.updateView {
                             it.textView.text ="downloading... (${item.downloadRate.format(2)}%)"
                         }
