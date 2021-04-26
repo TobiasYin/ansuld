@@ -35,10 +35,9 @@
             android:name=".vnc.VncActivity"
             android:configChanges="orientation|keyboardHidden|screenSize"
             android:label="@string/title_activity_vnc"
-            android:screenOrientation="landscape"
-            android:theme="@style/Theme.AnSuLD.Fullscreen" />
+            android:screenOrientation="landscape" />
         <activity android:name=".TerminalActivity" />
-        <activity android:name=".DownloadImages"/>
+        <activity android:name=".DownloadImages" />
         <activity android:name=".OriginShellActivity" />
         <activity android:name=".FilesDebuggerActivity" />
         <activity

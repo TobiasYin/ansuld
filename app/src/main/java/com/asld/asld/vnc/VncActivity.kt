@@ -1,14 +1,19 @@
 package com.asld.asld.vnc
 
 import android.annotation.SuppressLint
+import android.content.ClipData
 import android.content.ClipboardManager
 import android.content.Context
 import android.graphics.Point
 import android.hardware.display.DisplayManager
 import android.media.MediaRouter
-import android.os.*
+import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
+import android.os.Message
 import android.util.Log
 import android.view.*
+import android.widget.Button
 import android.widget.LinearLayout
 import androidx.appcompat.app.AppCompatActivity
 import com.asld.asld.R
@@ -34,6 +39,8 @@ class VncActivity : AppCompatActivity() {
     lateinit var inputHandler: PointerInputHandler
     private lateinit var vncPresentation: VncPresentation
     lateinit var touchPad: LinearLayout
+    lateinit var backButton: Button
+    private var isTitleBarVisible = true
     private val handler = object : Handler(Looper.getMainLooper()) {
         //todo test error situation
         override fun handleMessage(msg: Message) {
@@ -57,6 +64,7 @@ class VncActivity : AppCompatActivity() {
         setContentView(R.layout.activity_touch_pad)
         // set the second screen
         touchPad = findViewById(R.id.touch_pad)
+        backButton = findViewById(R.id.back_button)
 
         Log.d("vnc", "begin")
         if (!chooseDisplay()) {
@@ -220,10 +228,16 @@ class VncActivity : AppCompatActivity() {
     override fun onWindowFocusChanged(hasFocus: Boolean) {
         super.onWindowFocusChanged(hasFocus)
         if (hasFocus) {
-            hideSystemUI()
+//            hideSystemUI()
         }
     }
 
+    fun changeTitleBar(){
+
+        if(isTitleBarVisible){
+            window.addFlags(WindowManager.LayoutParams.FLAG_FORCE_NOT_FULLSCREEN)
+        }
+    }
     private fun hideSystemUI() {
         // For "lean back" mode, remove SYSTEM_UI_FLAG_IMMERSIVE.
         // Or for "sticky immersive," replace it with SYSTEM_UI_FLAG_IMMERSIVE_STICKY
@@ -242,14 +256,6 @@ class VncActivity : AppCompatActivity() {
         return inputHandler.onGenericMotionEvent(event)
     }
 
-    override fun onStop() {
-        super.onStop()
-        if (initializedClient) {
-            vncCanvas.disableRepaints()
-            vncPresentation.hide()
-        }
-
-    }
 
     override fun onResume() {
         super.onResume()
@@ -257,21 +263,17 @@ class VncActivity : AppCompatActivity() {
             vncCanvas.enableRepaints()
             vncPresentation.show()
             //todo show不成功
-        }
-    }
+            // get Android clipboard contents
 
-
-    fun onBackPressedReal() {
-        super.onBackPressed()
-        endVncServer()
-        endVncClient()
-        if (initializedClient) {
-            vncPresentation.dismiss()
+            // get Android clipboard contents
+            if (mClipboardManager.hasPrimaryClip()) {
+                try {
+                    vncCanvas.vncConn.sendCutText(mClipboardManager.primaryClip!!.getItemAt(0).text.toString())
+                } catch (e: NullPointerException) {
+                    //unused
+                }
+            }
         }
-        finish()
-    }
-//todo 返回键处理
-    override fun onBackPressed() {
     }
 
     override fun onPause() {
@@ -282,14 +284,66 @@ class VncActivity : AppCompatActivity() {
 
             // get VNC cuttext and post to Android
             if (vncCanvas.vncConn.cutText != null) {
-                try {
-                    mClipboardManager.text = vncCanvas.vncConn.cutText
-                } catch (e: Exception) {
-                    //unused
-                }
+                copyTomClipboardManager(vncCanvas.vncConn.cutText)
             }
         }
     }
+    override fun onStop() {
+        super.onStop()
+        if (initializedClient) {
+            vncCanvas.disableRepaints()
+            vncPresentation.hide()
+        }
+
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        endVncServer()
+        endVncClient()
+        if (initializedClient) {
+            vncPresentation.dismiss()
+        }
+        finish()
+    }
+
+
+    //todo 返回键处理
+    override fun onBackPressed() {
+    }
+
+    override fun onCreateOptionsMenu(menu: Menu?): Boolean {
+        menuInflater.inflate(R.menu.menu_vnc, menu)
+        return true
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        when(item.itemId){
+            R.id.back_button -> {
+                finish()
+            }
+        }
+        return true
+    }
+
+    override fun onTouchEvent(event: MotionEvent?): Boolean {
+
+        return super.onTouchEvent(event)
+    }
+
+    private fun copyTomClipboardManager(content: CharSequence?) {
+        mClipboardManager.setPrimaryClip(
+            ClipData.newPlainText(
+                null,
+                content
+            )
+        ) //参数一：标签，可为空，参数二：要复制到剪贴板的文本
+        if (mClipboardManager.hasPrimaryClip()) {
+            mClipboardManager.primaryClip!!.getItemAt(0).text
+        }
+    }
+
+
 
     companion object {
         /**
