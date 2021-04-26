@@ -110,6 +110,17 @@ object ShellDaemon {
         proc.stdin.write((cmd + "\n").toByteArray())
     }
 
+    fun execAsyncSyncCmd(cmd: String): Process {
+        checkAndRun()
+        val standaloneProc = Process()
+        initDaemonProcess(standaloneProc, baseDir, relaDir, false)
+        standaloneProc.apply {
+            argv.addAll(listOf("-c", cmd))
+            exec()
+        }
+        return standaloneProc
+    }
+
     fun execSyncCmd(cmd: String, timeout: Long = -1): Int {
         checkAndRun()
         val standaloneProc = Process()
@@ -123,10 +134,25 @@ object ShellDaemon {
         return standaloneProc.status
     }
 
+    fun checkVNC(): Boolean {
+        val proc = execAsyncSyncCmd("vncservce")
+        val s = Scanner(proc.stdout)
+        while (s.hasNextLine()) {
+            val line = s.nextLine()
+            if (line.contains(":1") && line.contains("5901")) {
+                return true
+            }
+        }
+        return false
+    }
+
 
     fun startVNC(resolution: Point): Int {
-        killVNC()
         val port = 1
+        val resPort = 5900 + port
+        if (checkVNC())
+            return resPort
+        killVNC()
         val res =
             execSyncCmd(
                 "LD_PRELOAD=/lib/aarch64-linux-gnu/libgcc_s.so.1 vncserver :$port -localhost no -geometry ${resolution.x}x${resolution.y}",
@@ -135,7 +161,7 @@ object ShellDaemon {
         if (res != 0 && res != -1) {
             throw Exception(res.toString())
         }
-        return 5900 + port
+        return resPort
     }
 
     fun killVNC() {
