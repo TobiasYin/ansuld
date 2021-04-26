@@ -215,8 +215,10 @@ public class VncCanvas extends GLSurfaceView {
 				 * is smaller than our viewer window.
 				 *
 				 */
-				mTexCrop[0] = Math.max(absoluteXPosition, 0); // don't let this be <0
-				mTexCrop[1] = absoluteYPosition >= 0 ? (int)(absoluteYPosition + VncCanvas.this.getHeight() / getScale()) : vncConn.getFramebufferHeight();
+//				mTexCrop[0] = Math.max(absoluteXPosition, 0); // don't let this be <0
+				mTexCrop[0] = 0;// don't let this be <0
+				mTexCrop[1] = vncConn.getFramebufferHeight();
+//				mTexCrop[1] = absoluteYPosition >= 0 ? (int)(absoluteYPosition + VncCanvas.this.getHeight() / getScale()) : vncConn.getFramebufferHeight();
 				mTexCrop[2] = (int) (VncCanvas.this.getWidth() < vncConn.getFramebufferWidth()*getScale() ? VncCanvas.this.getWidth() / getScale() : vncConn.getFramebufferWidth());
 				mTexCrop[3] = (int) -(VncCanvas.this.getHeight() < vncConn.getFramebufferHeight()*getScale() ? VncCanvas.this.getHeight() / getScale() : vncConn.getFramebufferHeight());
 
@@ -278,10 +280,11 @@ public class VncCanvas extends GLSurfaceView {
 	/**
 	 * Create a view showing a VNC connection
 	 */
-	void initializeVncCanvas(VncActivity a, PointerInputHandler inputHandler, VNCConn conn) {
+	void initializeVncCanvas(VncActivity a, PointerInputHandler inputHandler, VNCConn conn, Float scale) {
 		activity = a;
 		this.inputHandler = inputHandler;
 		vncConn = conn;
+		this.scale = scale;
 	}
 
 	/**
@@ -452,6 +455,7 @@ public class VncCanvas extends GLSurfaceView {
 				newX = 0;
 		}
 		if ( newX != absoluteXPosition ) {
+			Log.d(TAG, "panToMouse: updateAbsoluteX:"+newX);
 			absoluteXPosition = newX;
 			panned = true;
 		}
@@ -468,6 +472,7 @@ public class VncCanvas extends GLSurfaceView {
 				newY = 0;
 		}
 		if ( newY != absoluteYPosition ) {
+			Log.d(TAG, "panToMouse: updateAbsoluteY:"+newY);
 			absoluteYPosition = newY;
 			panned = true;
 		}

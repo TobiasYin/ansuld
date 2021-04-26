@@ -13,7 +13,6 @@ import android.os.Looper
 import android.os.Message
 import android.util.Log
 import android.view.*
-import android.widget.Button
 import android.widget.LinearLayout
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
@@ -41,7 +40,8 @@ class VncActivity : AppCompatActivity() {
     private lateinit var vncPresentation: VncPresentation
     lateinit var touchPad: LinearLayout
     private lateinit var appBar: Toolbar
-
+    // if display's resolution is bigger than max, scale it to full the screen
+    private var scale: Float = 1f
     private val handler = object : Handler(Looper.getMainLooper()) {
         //todo test error situation
         override fun handleMessage(msg: Message) {
@@ -66,9 +66,9 @@ class VncActivity : AppCompatActivity() {
         setSupportActionBar(appBar)
         // set the second screen
 
-        Log.d("vnc", "begin")
+        Log.d(TAG, "begin")
         if (!chooseDisplay()) {
-            Log.d("vnc", "no display")
+            Log.d(TAG, "no display")
             val dialog = ProgressBarDialog.create(this, "Failed to find a second display!").apply {
                 setCancelable(true)
                 setOnCancelListener {
@@ -129,7 +129,7 @@ class VncActivity : AppCompatActivity() {
             vncPresentation.show()
             // todo canvas scale
             vncCanvas = vncPresentation.getVncCanvas()
-            vncCanvas.initializeVncCanvas(this, inputHandler, conn)
+            vncCanvas.initializeVncCanvas(this, inputHandler, conn, scale)
             // add canvas to conn. be sure to call this before init!
             conn.setCanvas(vncCanvas)
             // the actual connection init
@@ -155,7 +155,7 @@ class VncActivity : AppCompatActivity() {
             (getSystemService(Context.MEDIA_ROUTER_SERVICE) as MediaRouter).getSelectedRoute(
                 2
             )
-        Log.d("vnc", route.toString())
+        Log.d(TAG, route.toString())
         if (route != null) {
             val presentationDisplay = route.presentationDisplay
 
@@ -167,9 +167,9 @@ class VncActivity : AppCompatActivity() {
                 val point = Point()
                 presentationDisplay.getRealSize(point)
                 Log.d(TAG, "chooseDisplay: $point")
-                resolution = buildScaleBy(point)
-
-                Log.d("vnc", "${resolution.x}x${resolution.y}")
+                resolution = buildResolution(point)
+                scale = min(point.x.toFloat() / resolution.x, point.y.toFloat() / resolution.y)
+                Log.d(TAG, "realResolution:$resolution, scale:$scale")
                 vncPresentation = VncPresentation(this, presentationDisplay)
                 return true
             }
@@ -188,10 +188,11 @@ class VncActivity : AppCompatActivity() {
         return null
     }
 
-    private fun buildScaleBy(point: Point): Point {
-        var width = min(point.x, R.integer.max_resolution_width)
-        var height = min(point.y, R.integer.max_resolution_height)
-        val ratio = (point.y.toFloat()) / point.x
+    private fun buildResolution(point: Point): Point {
+        // 直接使用R.integer.将会获取id值，一个大整数
+        var width = min(point.x, resources.getInteger(R.integer.max_resolution_width))
+        var height = min(point.y, resources.getInteger(R.integer.max_resolution_height))
+        val ratio = point.y.toFloat() / point.x
         if (width * ratio > height) {
             width = (height / ratio).toInt()
         } else {
@@ -246,6 +247,7 @@ class VncActivity : AppCompatActivity() {
         vncCanvas.vncConn.sendKeyEvent(keyCode, event, false)
         return false
     }
+
     /**
      * when use finger to back send keycode_back to hide appbar
      */
@@ -259,7 +261,6 @@ class VncActivity : AppCompatActivity() {
         vncCanvas.vncConn.sendKeyEvent(keyCode, event, false)
         return false
     }
-
 
 
     override fun onTouchEvent(event: MotionEvent?): Boolean {
@@ -292,7 +293,7 @@ class VncActivity : AppCompatActivity() {
     override fun onStart() {
         super.onStart()
         Log.d(TAG, "onStart: ")
-        if(initializedClient)
+        if (initializedClient)
             vncPresentation.show()
     }
 
@@ -313,7 +314,7 @@ class VncActivity : AppCompatActivity() {
     override fun onStop() {
         Log.d(TAG, "onStop: ")
         super.onStop()
-        if(initializedClient)
+        if (initializedClient)
             vncPresentation.hide()
     }
 
