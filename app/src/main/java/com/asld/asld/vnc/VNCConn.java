@@ -515,7 +515,6 @@ public class VNCConn {
             synchronized (outputEventQueue) {
                 outputEventQueue.notify();
             }
-            Log.d(TAG, "call canvas redraw");
             canvas.mouseX = x;
             canvas.mouseY = y;
             canvas.reDraw(); // update local pointer position

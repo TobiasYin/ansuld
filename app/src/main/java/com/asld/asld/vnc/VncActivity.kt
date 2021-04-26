@@ -136,6 +136,8 @@ class VncActivity : AppCompatActivity() {
             conn.init(connection) {}
 
             initializedClient = true
+            Log.d(TAG, "isShowing: ${vncPresentation.isShowing}")
+
         }
 
 
@@ -273,11 +275,9 @@ class VncActivity : AppCompatActivity() {
         Log.d(TAG, "onResume: ")
         super.onResume()
         if (initializedClient) {
+            vncCanvas.onResume()
             vncCanvas.enableRepaints()
             vncPresentation.show()
-            //todo show不成功
-            // get Android clipboard contents
-
             // get Android clipboard contents
             if (mClipboardManager.hasPrimaryClip()) {
                 try {
@@ -290,8 +290,10 @@ class VncActivity : AppCompatActivity() {
     }
 
     override fun onStart() {
-        Log.d(TAG, "onStart: ")
         super.onStart()
+        Log.d(TAG, "onStart: ")
+        if(initializedClient)
+            vncPresentation.show()
     }
 
     override fun onPause() {
@@ -300,7 +302,7 @@ class VncActivity : AppCompatActivity() {
         // needed for the GLSurfaceView
         if (initializedClient) {
             vncCanvas.onPause()
-
+            vncCanvas.disableRepaints()
             // get VNC cuttext and post to Android
             if (vncCanvas.vncConn.cutText != null) {
                 copyTomClipboardManager(vncCanvas.vncConn.cutText)
@@ -311,11 +313,8 @@ class VncActivity : AppCompatActivity() {
     override fun onStop() {
         Log.d(TAG, "onStop: ")
         super.onStop()
-        if (initializedClient) {
-            vncCanvas.disableRepaints()
-//            vncPresentation.hide()
-        }
-
+        if(initializedClient)
+            vncPresentation.hide()
     }
 
     override fun onDestroy() {
