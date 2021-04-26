@@ -64,6 +64,7 @@ class VncActivity : AppCompatActivity() {
         setContentView(R.layout.activity_touch_pad)
         appBar = findViewById(R.id.vnc_toolbar)
         setSupportActionBar(appBar)
+        changeAppBarVisibility()
         // set the second screen
 
         Log.d(TAG, "begin")
@@ -127,7 +128,6 @@ class VncActivity : AppCompatActivity() {
         // add conn to canvas
         runOnUiThread {
             vncPresentation.show()
-            // todo canvas scale
             vncCanvas = vncPresentation.getVncCanvas()
             vncCanvas.initializeVncCanvas(this, inputHandler, conn, scale)
             // add canvas to conn. be sure to call this before init!
@@ -269,6 +269,11 @@ class VncActivity : AppCompatActivity() {
 
 
     override fun onGenericMotionEvent(event: MotionEvent?): Boolean {
+        // 鼠标移动自动隐藏appBar
+        supportActionBar?.also{
+            if(supportActionBar!!.isShowing)
+                changeAppBarVisibility()
+        }
         return inputHandler.onGenericMotionEvent(event)
     }
 
