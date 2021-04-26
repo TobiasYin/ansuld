@@ -31,17 +31,17 @@ public class PointerInputHandler extends GestureDetector.SimpleOnGestureListener
         gestures = new GestureDetector(vncActivity, this, null, false); // this is a SDK 8+ feature and apparently needed if targetsdk is set
         gestures.setOnDoubleTapListener(this);
 
-       Log.d(TAG, "MightyInputHandler " + this + " created!");
+        Log.d(TAG, "MightyInputHandler " + this + " created!");
     }
 
 
     public void init() {
-       Log.d(TAG, "MightyInputHandler " + this + " init!");
+        Log.d(TAG, "MightyInputHandler " + this + " init!");
     }
 
     public void shutdown() {
 
-       Log.d(TAG, "MightyInputHandler " + this + " shutdown!");
+        Log.d(TAG, "MightyInputHandler " + this + " shutdown!");
     }
 
 
@@ -74,10 +74,16 @@ public class PointerInputHandler extends GestureDetector.SimpleOnGestureListener
                 button = true;
                 secondary = false;
                 action = MotionEvent.ACTION_DOWN;
-            } else if ((e.getButtonState() & MotionEvent.BUTTON_SECONDARY) != 0 || (e.getButtonState() & MotionEvent.BUTTON_BACK) != 0) {
+            } else if ((e.getButtonState() & MotionEvent.BUTTON_SECONDARY) != 0 || ((e.getButtonState() & MotionEvent.BUTTON_BACK) != 0) && e.getDeviceId() != -1) {
+                // colorOS，修改了鼠标右键为back
                 button = true;
                 secondary = true;
                 action = MotionEvent.ACTION_DOWN;
+            }
+            //handle touch back
+            if((e.getButtonState() & MotionEvent.BUTTON_BACK)!=0 && e.getDeviceId() == -1){
+                vncActivity.changeAppBarVisibility();
+                return true;
             }
             if (e.getAction() == MotionEvent.ACTION_MOVE) {
                 action = MotionEvent.ACTION_MOVE;
@@ -94,7 +100,7 @@ public class PointerInputHandler extends GestureDetector.SimpleOnGestureListener
             if (!button) {
                 vncActivity.vncCanvas.processPointerEvent(e, false);
             } else {
-                Log.d(TAG, "onGenericMotionEvent: "+secondary);
+                Log.d(TAG, "onGenericMotionEvent: " + secondary);
                 vncActivity.vncCanvas.processPointerEvent(e, true, secondary);
             }
             vncActivity.vncCanvas.panToMouse();
@@ -102,16 +108,16 @@ public class PointerInputHandler extends GestureDetector.SimpleOnGestureListener
 
         if (e.getAction() == MotionEvent.ACTION_SCROLL) {
             if (e.getAxisValue(MotionEvent.AXIS_VSCROLL) < 0.0f) {
-               Log.d(TAG, "Input: scroll down");
+                Log.d(TAG, "Input: scroll down");
                 vncActivity.vncCanvas.vncConn.sendPointerEvent(vncActivity.vncCanvas.mouseX, vncActivity.vncCanvas.mouseY, e.getMetaState(), VNCConn.MOUSE_BUTTON_SCROLL_DOWN);
             } else {
-               Log.d(TAG, "Input: scroll up");
+                Log.d(TAG, "Input: scroll up");
                 vncActivity.vncCanvas.vncConn.sendPointerEvent(vncActivity.vncCanvas.mouseX, vncActivity.vncCanvas.mouseY, e.getMetaState(), VNCConn.MOUSE_BUTTON_SCROLL_UP);
             }
         }
 
 
-       Log.d(TAG, "Input: touch normal: x:" + e.getX() + " y:" + e.getY() + " action:" + e.getAction());
+        Log.d(TAG, "Input: touch normal: x:" + e.getX() + " y:" + e.getY() + " action:" + e.getAction());
 
         return true;
     }

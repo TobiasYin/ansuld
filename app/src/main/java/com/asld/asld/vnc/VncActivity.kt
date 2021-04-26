@@ -16,6 +16,7 @@ import android.view.*
 import android.widget.Button
 import android.widget.LinearLayout
 import androidx.appcompat.app.AppCompatActivity
+import androidx.appcompat.widget.Toolbar
 import com.asld.asld.R
 import com.asld.asld.exception.ErrorCode
 import com.asld.asld.service.ShellDaemon
@@ -39,7 +40,8 @@ class VncActivity : AppCompatActivity() {
     lateinit var inputHandler: PointerInputHandler
     private lateinit var vncPresentation: VncPresentation
     lateinit var touchPad: LinearLayout
-    lateinit var backButton: Button
+    lateinit var appBar: Toolbar
+
     private var isTitleBarVisible = true
     private val handler = object : Handler(Looper.getMainLooper()) {
         //todo test error situation
@@ -60,11 +62,11 @@ class VncActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         //todo appbar affect height
-//        requestWindowFeature(Window.FEATURE_NO_TITLE)
         setContentView(R.layout.activity_touch_pad)
+        appBar = findViewById(R.id.vnc_toolbar)
+        setSupportActionBar(appBar)
         // set the second screen
         touchPad = findViewById(R.id.touch_pad)
-        backButton = findViewById(R.id.back_button)
 
         Log.d("vnc", "begin")
         if (!chooseDisplay()) {
@@ -225,19 +227,18 @@ class VncActivity : AppCompatActivity() {
     }
 
     // hide systemUI
-    override fun onWindowFocusChanged(hasFocus: Boolean) {
-        super.onWindowFocusChanged(hasFocus)
-        if (hasFocus) {
-//            hideSystemUI()
-        }
-    }
+//    override fun onWindowFocusChanged(hasFocus: Boolean) {
+//        super.onWindowFocusChanged(hasFocus)
+//        if (hasFocus) {
+////            hideSystemUI()
+//            supportActionBar?.let {
+//                it.hide()
+//                Log.d(TAG, "onWindowFocusChanged: hideAppBar")
+//            }
+//
+//        }
+//    }
 
-    fun changeTitleBar(){
-
-        if(isTitleBarVisible){
-            window.addFlags(WindowManager.LayoutParams.FLAG_FORCE_NOT_FULLSCREEN)
-        }
-    }
     private fun hideSystemUI() {
         // For "lean back" mode, remove SYSTEM_UI_FLAG_IMMERSIVE.
         // Or for "sticky immersive," replace it with SYSTEM_UI_FLAG_IMMERSIVE_STICKY
@@ -288,6 +289,7 @@ class VncActivity : AppCompatActivity() {
             }
         }
     }
+
     override fun onStop() {
         super.onStop()
         if (initializedClient) {
@@ -307,10 +309,20 @@ class VncActivity : AppCompatActivity() {
         finish()
     }
 
+    fun changeAppBarVisibility() {
+        if (supportActionBar!!.isShowing) {
+            supportActionBar!!.hide()
+            window.addFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN)
+            Log.d(TAG, "onWindowFocusChanged: hideAppBar")
+        } else {
+            supportActionBar!!.show()
+            window.clearFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN)
+            Log.d(TAG, "onWindowFocusChanged: showAppBar")
+        }
+    }
 
     //todo 返回键处理
-    override fun onBackPressed() {
-    }
+    override fun onBackPressed() {}
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
         menuInflater.inflate(R.menu.menu_vnc, menu)
@@ -318,7 +330,7 @@ class VncActivity : AppCompatActivity() {
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        when(item.itemId){
+        when (item.itemId) {
             R.id.back_button -> {
                 finish()
             }
@@ -327,7 +339,6 @@ class VncActivity : AppCompatActivity() {
     }
 
     override fun onTouchEvent(event: MotionEvent?): Boolean {
-
         return super.onTouchEvent(event)
     }
 
@@ -342,7 +353,6 @@ class VncActivity : AppCompatActivity() {
             mClipboardManager.primaryClip!!.getItemAt(0).text
         }
     }
-
 
 
     companion object {

@@ -30,12 +30,14 @@
         android:networkSecurityConfig="@xml/network_security_config"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
-        android:theme="@style/Theme.AnSuLD">
+        android:theme="@style/Theme.AnSuLD"
+        >
         <activity
             android:name=".vnc.VncActivity"
             android:configChanges="orientation|keyboardHidden|screenSize"
             android:label="@string/title_activity_vnc"
-            android:screenOrientation="landscape" />
+            android:screenOrientation="landscape"
+            android:theme="@style/Theme.AnSuLD.NoActionBar"/>
         <activity android:name=".TerminalActivity" />
         <activity android:name=".DownloadImages" />
         <activity android:name=".OriginShellActivity" />
