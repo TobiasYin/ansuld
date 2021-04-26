@@ -82,7 +82,8 @@ class VncActivity : AppCompatActivity() {
             inputHandler = PointerInputHandler(this)
             inputHandler.init()
             //touchpad 范围设定
-//            touchPad = findViewById<LinearLayout>(R.id.touch_pad).apply {
+            touchPad = findViewById<LinearLayout>(R.id.touch_pad)
+//                .apply {
 //                setOnGenericMotionListener{v,evt->
 //                    v.performClick()
 //                    inputHandler.onGenericMotionEvent(evt)
