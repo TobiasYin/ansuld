@@ -86,6 +86,7 @@ public class VncCanvas extends GLSurfaceView {
 	//whether to do pointer highlighting
 	boolean doPointerHighLight = true;
 
+	private Matrix pointerTransMatrix;
 	float scale = 1;
 	private float getScale(){
 	    return scale;
@@ -285,6 +286,8 @@ public class VncCanvas extends GLSurfaceView {
 		this.inputHandler = inputHandler;
 		vncConn = conn;
 		this.scale = scale;
+		pointerTransMatrix = new Matrix();
+		pointerTransMatrix.setScale((float)getWidth()/activity.touchPad.getWidth(), (float)getHeight()/activity.touchPad.getHeight());
 	}
 
 	/**
@@ -646,9 +649,8 @@ public class VncCanvas extends GLSurfaceView {
 	 * @return true if event was actually sent
 	 */
 	public boolean processPointerEvent(MotionEvent evt,boolean mouseIsDown,boolean useRightButton) {
-		Matrix matrix = new Matrix();
-		matrix.setScale((float)vncConn.getFramebufferWidth()/activity.touchPad.getWidth(), (float)vncConn.getFramebufferHeight()/activity.touchPad.getHeight());
-		evt.transform(matrix);
+		// map pointer position from touch pad to display screen
+		evt.transform(pointerTransMatrix);
 		try {
 			int action = evt.getAction();
 			 if (action == MotionEvent.ACTION_DOWN || (mouseIsDown && action == MotionEvent.ACTION_MOVE)) {

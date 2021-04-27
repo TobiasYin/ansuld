@@ -8,4 +8,9 @@
         android:orderInCategory="100"
         android:title="Back"
         app:showAsAction="never" />
+    <item
+        android:id="@+id/kill_backend"
+        android:orderInCategory="100"
+        android:title="Kill backend"
+        app:showAsAction="never" />
 </menu>

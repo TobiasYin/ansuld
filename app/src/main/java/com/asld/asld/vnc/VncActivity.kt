@@ -51,6 +51,7 @@ class VncActivity : AppCompatActivity() {
                 ErrorCode.VNC_CONN_TO_CLIENT_BREAK -> {
                     vncCanvas.vncConn.shutdown()
                     initVncClient()
+                    initVncServer()
                 }
                 ErrorCode.VNC_CONN_TO_SERVER_BREAK -> initVncServer()
             }
@@ -101,6 +102,7 @@ class VncActivity : AppCompatActivity() {
     }
 
     private fun initVncServer() {
+        //todo 启动失败处理
         port = ShellDaemon.startVNC(resolution)
         initializedServer = true
     }
@@ -326,9 +328,9 @@ class VncActivity : AppCompatActivity() {
     override fun onDestroy() {
         Log.d(TAG, "onDestroy: ")
         super.onDestroy()
-        endVncServer()
-        endVncClient()
+        // only cut vnc client, keep server alive
         if (initializedClient) {
+            endVncClient()
             vncPresentation.dismiss()
         }
         finish()
@@ -354,6 +356,10 @@ class VncActivity : AppCompatActivity() {
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         when (item.itemId) {
             R.id.back_button -> {
+                finish()
+            }
+            R.id.kill_backend -> {
+                endVncServer()
                 finish()
             }
         }
