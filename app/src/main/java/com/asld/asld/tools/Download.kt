@@ -12,6 +12,7 @@ import kotlin.collections.ArrayList
 
 const val TAG = "Download_UTIL"
 const val RETRY_TIME = 10
+const val PART_SIZE = 4 * 1024 * 1024
 
 object DownloadManager {
     lateinit var relativeRoot: String

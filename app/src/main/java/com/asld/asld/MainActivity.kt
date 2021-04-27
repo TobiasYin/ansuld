@@ -14,25 +14,40 @@ import com.asld.asld.tools.DownloadManager
 import com.asld.asld.tools.Process
 
 class MainActivity : AppCompatActivity() {
-    var checkFiles = hashSetOf("proot", "lubuntu-desktop.tar.gz")
+    var checkFiles = hashMapOf(Pair("proot", false), Pair("lubuntu", false))
 
     override fun onStart() {
         super.onStart()
-        var notExisted = false
         downloadFiles.forEach {
-            if (checkFiles.contains(it.fileName)) {
-                if (!it.checkStatus(filesDir.absoluteFile)) {
-                    notExisted = true
+            for (k in checkFiles) {
+                if (k.value)
+                    continue
+                if (it.fileName.contains(k.key)) {
+                    if (it.checkStatus(filesDir)) {
+                        k.setValue(true)
+                    }
                 }
             }
         }
-        if (notExisted){
+        var notExisted = false
+        for (k in checkFiles) {
+            if (!k.value) {
+                notExisted = true
+                break
+            }
+        }
+        if (notExisted) {
             val intent = Intent(this, DownloadImages::class.java)
             startActivity(intent)
-            Toast.makeText(this, "Please download: ${checkFiles.joinToString(",")} before start!", Toast.LENGTH_SHORT).show()
+            Toast.makeText(
+                this,
+                "Please download: ${
+                    checkFiles.filter { !it.value }.map { it.key }.joinToString(",")
+                } before start!",
+                Toast.LENGTH_SHORT
+            ).show()
         }
     }
-
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
