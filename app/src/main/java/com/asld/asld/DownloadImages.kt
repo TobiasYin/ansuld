@@ -2,7 +2,6 @@ package com.asld.asld
 
 import android.annotation.SuppressLint
 import android.content.Context
-import android.graphics.Color
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.os.Handler
@@ -10,10 +9,7 @@ import android.os.Looper
 import android.os.Message
 import android.view.*
 import android.widget.Button
-import android.widget.LinearLayout
-import android.widget.ProgressBar
 import android.widget.TextView
-import androidx.appcompat.app.AlertDialog
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.asld.asld.databinding.ActivityDownloadImagesBinding
@@ -21,36 +17,98 @@ import com.asld.asld.tools.Downloader
 import java.io.File
 import com.asld.asld.tools.Process
 import com.asld.asld.tools.ProgressBarDialog
-import kotlin.concurrent.thread
+import java.io.FileOutputStream
+import java.util.*
 
 
 val baseURL = "http://192.168.2.190:8088"
 
+fun checkSystemExist(item: DownloadItem, baseDir: File, relaDir: String): Boolean {
+    val sysFile = File(baseDir, "system")
+    if (!sysFile.exists())
+        return false
+    val s = Scanner(sysFile)
+    if (s.hasNextLine()) {
+        val line = s.nextLine()
+        if (line != item.fileName) {
+            return false
+        }
+        return File("${baseDir.absolutePath}/${relaDir}/bin/bash").exists()
+    }
+    return false
+}
+
+fun systemBackProcess(item: DownloadItem, tarPack: File, relaDir: String, tarExtraArgs: List<String> = listOf()) {
+    Process("rm", listOf("-rf", relaDir)).apply {
+        chdir = tarPack.parent!!
+        useLogger()
+        exec()
+        waitProcess()
+    }
+    Process("rm", listOf("-rf", "system")).apply {
+        chdir = tarPack.parent!!
+        useLogger()
+        exec()
+        waitProcess()
+    }
+    Process("mkdir", listOf(relaDir)).apply{
+        chdir = tarPack.parent!!
+        useLogger()
+        exec()
+        waitProcess()
+    }
+    val tarArgs = arrayListOf("-xzf", tarPack.absolutePath)
+    if (tarExtraArgs.isNotEmpty()){
+        tarArgs.addAll(tarExtraArgs)
+    }
+    Process("tar", tarArgs).apply {
+        chdir = tarPack.parent!!
+        useLogger()
+        exec()
+        waitProcess()
+    }
+    //写入文件名
+    val os = FileOutputStream(File(tarPack.parent!!, "system"))
+    os.write(item.fileName.toByteArray())
+    os.close()
+    Process("rm", listOf("-rf", tarPack.absolutePath)).apply {
+        chdir = tarPack.parent!!
+        useLogger()
+        exec()
+        waitProcess()
+    }
+}
+
 val downloadFiles = listOf(
     DownloadItem(
         "$baseURL/proot-termux-src/proot.arm-64",
-        "proot"
-    ),
-    DownloadItem(
-        "$baseURL/hello",
-        "hello"
-    ),
-    DownloadItem(
-        "$baseURL/fserver",
-        "fserver"
+        "proot",
+        "启动子系统的必要依赖"
     ),
     DownloadItem(
         "$baseURL/lubuntu-desktop.tar.gz",
-        "lubuntu.tar.gz"
-    ) {
-        val proc = Process("tar", listOf("-xzf", it.absolutePath))
-        proc.chdir = it.parent!!
-        proc.useLogger()
-        proc.exec()
-        proc.waitProcess()
-    }
+        "lubuntu.tar.gz",
+        "精简版的系统镜像，可从多个镜像中选择一个",
+        { item, file ->
+            systemBackProcess(item, file, "lubuntu")
+        }, { item, baseDir ->
+            checkSystemExist(item, baseDir, "lubuntu")
+        }),
+    DownloadItem(
+        "$baseURL/lubuntu-fullv.tar.gz",
+        "lubuntu-full.tar.gz",
+        "完整版系统，附带常用办公软件、浏览器、编程工具，可从多个镜像中选择一个",
+        { item, file ->
+            systemBackProcess(item, file, "lubuntu", listOf("-C", "lubuntu"))
+        }, { item, baseDir ->
+            checkSystemExist(item, baseDir, "lubuntu")
+        }),
+    DownloadItem(
+        "$baseURL/fserver",
+        "fserver",
+        "文件服务器，开启文件服务器后可以从http://ip:8088访问此应用的文件"
+    )
 )
-
 
 
 class DownloadImages : AppCompatActivity() {
@@ -74,14 +132,23 @@ class DownloadImages : AppCompatActivity() {
     }
 }
 
-class DownloadItem(val url: String, val fileName: String, val backProcess: (f: File) -> Unit = {}) {
+class DownloadItem(
+    val url: String,
+    val fileName: String,
+    val desc: String,
+    val backProcess: ((f: DownloadItem, File) -> Unit)? = null,
+    val checker: ((DownloadItem, File) -> Boolean)? = null
+) {
     var downloading = false
     var downloadRate = 0.0f
     var backProcessing = false
     var err = false
 
-    fun checkStatus(filesDir: File): Boolean =
-        File(filesDir, fileName).exists()
+    fun checkStatus(filesDir: File): Boolean {
+        if (checker != null)
+            return checker.invoke(this, filesDir)
+        return File(filesDir, fileName).exists()
+    }
 
 }
 
@@ -97,6 +164,7 @@ class DownloadItemAdaptor(
         val downloadButton: Button = view.findViewById(R.id.download_button)
         val downloadTitle: TextView = view.findViewById(R.id.download_title)
         val downloadStatus: TextView = view.findViewById(R.id.download_status)
+        val downloadDesc: TextView = view.findViewById(R.id.download_desc)
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ItemViewHolder {
@@ -112,13 +180,14 @@ class DownloadItemAdaptor(
         val item = items[position]
         holder.downloadTitle.text = item.fileName
         holder.downloadButton.text = "Download"
+        holder.downloadDesc.text = item.desc
         holder.downloadStatus.text = "Status: " +
                 when {
                     item.downloading ->
                         "Downloading..."
                     item.backProcessing ->
                         "Downloaded, Extracting..."
-                    item.err->
+                    item.err ->
                         "Download Error, Please Try again!"
                     item.checkStatus(baseDir) ->
                         "Existing"
@@ -144,20 +213,20 @@ class DownloadItemAdaptor(
                     while (!downloader.isFinish) {
                         item.downloadRate = downloader.getProgress() * 100
                         it.updateView {
-                            it.textView.text ="downloading... (${item.downloadRate.format(2)}%)"
+                            it.textView.text = "downloading... (${item.downloadRate.format(2)}%)"
                         }
                         Thread.sleep(200)
                     }
                     item.downloading = false
                     item.backProcessing = true
                     it.updateView {
-                        it.textView.text ="downloaded, extracting..."
+                        it.textView.text = "downloaded, extracting..."
                     }
                     sendUpdateMessage()
-                    item.backProcess(File(baseDir, item.fileName))
+                    item.backProcess?.invoke(item, File(baseDir, item.fileName))
                     item.backProcessing = false
                     sendUpdateMessage()
-                }catch (e: Exception){
+                } catch (e: Exception) {
                     item.downloading = false
                     item.err = true
                     sendUpdateMessage()

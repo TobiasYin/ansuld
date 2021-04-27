@@ -9,9 +9,11 @@ import java.lang.Exception
 import java.time.ZonedDateTime
 import java.time.format.DateTimeFormatter
 import kotlin.collections.ArrayList
+import kotlin.math.min
 
 const val TAG = "Download_UTIL"
 const val RETRY_TIME = 10
+const val PART_SIZE = 4 * 1024 * 1024
 
 object DownloadManager {
     lateinit var relativeRoot: String
@@ -25,6 +27,7 @@ class Downloader(
     inner class Partition(val start: Long, val end: Long, val partID: Int, val PartVersion: Long?) {
         var retryTime = 0
         var nowAt: Long = start
+        fun isEnd(): Boolean = nowAt >= end
 
         override fun toString(): String {
             return "start: $start end: $end nowAt: $nowAt id: $partID ver: $PartVersion rt: $retryTime"
@@ -123,7 +126,7 @@ class Downloader(
         repeat(partitions) {
             val end = (if (it == partitions - 1) contentLength else (partSize) * (it + 1)) - 1
             partStatus.add(Partition(partSize * it, end, it, lastModified))
-           Log.d(TAG, "partition: $it ${partStatus[it]}")
+            Log.d(TAG, "partition: $it ${partStatus[it]}")
         }
     }
 
@@ -156,7 +159,7 @@ class Downloader(
         }
     }
 
-    private fun partReqFail(part: Partition, e: IOException) {
+    private fun partReqFail(part: Partition, e: Exception) {
         part.retryTime += 1
         Log.e(
             TAG,
@@ -222,9 +225,10 @@ class Downloader(
     }
 
     private fun requestPartition(part: Partition) {
-       Log.d(TAG, "call requestPartition , part: ${part.partID}")
+        val end = min(part.nowAt + PART_SIZE, part.end)
+        Log.d(TAG, "call requestPartition , part: ${part.partID}, range: [${part.nowAt}-${end}]")
         val req = Request.Builder()
-            .url(url).addHeader("Range", "bytes=${part.nowAt}-${part.end}").get().build()
+            .url(url).addHeader("Range", "bytes=${part.nowAt}-${end}").get().build()
         val call = client.newCall(req)
         call.enqueue(object : Callback {
             override fun onFailure(call: Call, e: IOException) {
@@ -232,12 +236,20 @@ class Downloader(
             }
 
             override fun onResponse(call: Call, response: Response) {
+                try {
+                    resp(call, response)
+                } catch (e: Exception) {
+                    partReqFail(part, e)
+                }
+            }
+
+            fun resp(call: Call, response: Response) {
                 val modified = getLastModifiedFromHeader(response)
                 if (!checkAndHandleTime(modified)) {
                     return
                 }
                 val retry = { info: String ->
-                   Log.d(TAG, "Retry call!, part:${part.partID}, info: $info")
+                    Log.d(TAG, "Retry call!, part:${part.partID}, info: $info")
                     lastModified = 0
                     cancelAndRetry()
                 }
@@ -335,7 +347,10 @@ class Downloader(
                     return
                 }
                 writeToFile(data, partEnd, part)
-                checkIfDown()
+                if (!part.isEnd())
+                    requestPartition(part)
+                else
+                    checkIfDown()
             }
         })
         synchronized(calls) {
