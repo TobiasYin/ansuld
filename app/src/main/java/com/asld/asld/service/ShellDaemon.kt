@@ -139,7 +139,7 @@ object ShellDaemon {
         val s = Scanner(proc.stdout)
         while (s.hasNextLine()) {
             val line = s.nextLine()
-            if (line.contains(":1") && line.contains("5901")) {
+            if (line.contains(":1") && line.contains("5901")&&!line.contains("stale")) {
                 return true
             }
         }

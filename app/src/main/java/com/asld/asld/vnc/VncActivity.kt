@@ -83,26 +83,20 @@ class VncActivity : AppCompatActivity() {
     }
 
     private fun fullRoute() {
-        ProgressBarDialog.create(this, "Init environments") {
-            it.updateView { it.textView.text = "Search for avaliable displays" }
-            if (!chooseDisplay()) {
-                runOnUiThread {
-                    AlertDialog.Builder(it.context).apply {
-                        setCancelable(true)
-                        setTitle("ERROR")
-                        setMessage(ErrorCode.VNC_DISPLAY_NOT_FOUND.msg)
-                        setPositiveButton("Retry"){_,_->
-                            this@VncActivity.fullRoute()
-                        }
-                        setNegativeButton("Cancel") { _, _ ->
-                            this@VncActivity.finish()
-                        }
-                    }
+        if (!chooseDisplay()) {
+            AlertDialog.Builder(this).apply {
+                setCancelable(true)
+                setTitle("ERROR")
+                setMessage(ErrorCode.VNC_DISPLAY_NOT_FOUND.msg)
+                setPositiveButton("Retry") { _, _ ->
+                    fullRoute()
                 }
-//                it.updateView { it.textView.text = "Failed to find a second display!" }
-//                it.setCancelable(true)
-            } else {
-                it.updateView { it.textView.text = "Init vnc server" }
+                setNegativeButton("Cancel") { _, _ ->
+                    finish()
+                }
+            }.create().show()
+        } else {
+            ProgressBarDialog.create(this, "Init vnc server") {
                 initVncServer()
                 it.updateView { it.textView.text = "Init vnc client..." }
                 initVncClient()
@@ -119,6 +113,7 @@ class VncActivity : AppCompatActivity() {
 
     private fun endVncServer() {
         if (initializedServer) {
+            Log.d(TAG, "endVncServer: ")
             ShellDaemon.killVNC()
             initializedServer = false
         }
@@ -368,8 +363,11 @@ class VncActivity : AppCompatActivity() {
                 finish()
             }
             R.id.kill_backend -> {
-                endVncServer()
-                finish()
+                ProgressBarDialog.create(this, "Clean Environments..."){
+                    endVncClient()
+                    endVncServer()
+                    finish()
+                }
             }
         }
         return true
