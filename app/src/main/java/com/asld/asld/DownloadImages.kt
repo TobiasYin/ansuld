@@ -38,7 +38,7 @@ fun checkSystemExist(item: DownloadItem, baseDir: File, relaDir: String): Boolea
     return false
 }
 
-fun systemBackProcess(item: DownloadItem, tarPack: File, relaDir: String) {
+fun systemBackProcess(item: DownloadItem, tarPack: File, relaDir: String, tarExtraArgs: List<String> = listOf()) {
     Process("rm", listOf("-rf", relaDir)).apply {
         chdir = tarPack.parent!!
         useLogger()
@@ -51,7 +51,17 @@ fun systemBackProcess(item: DownloadItem, tarPack: File, relaDir: String) {
         exec()
         waitProcess()
     }
-    Process("tar", listOf("-xzf", tarPack.absolutePath)).apply {
+    Process("mkdir", listOf(relaDir)).apply{
+        chdir = tarPack.parent!!
+        useLogger()
+        exec()
+        waitProcess()
+    }
+    val tarArgs = arrayListOf("-xzf", tarPack.absolutePath)
+    if (tarExtraArgs.isNotEmpty()){
+        tarArgs.addAll(tarExtraArgs)
+    }
+    Process("tar", tarArgs).apply {
         chdir = tarPack.parent!!
         useLogger()
         exec()
@@ -89,7 +99,7 @@ val downloadFiles = listOf(
         "lubuntu-full.tar.gz",
         "完整版系统，附带常用办公软件、浏览器、编程工具，可从多个镜像中选择一个",
         { item, file ->
-            systemBackProcess(item, file, "lubuntu")
+            systemBackProcess(item, file, "lubuntu", listOf("-C", "lubuntu"))
         }, { item, baseDir ->
             checkSystemExist(item, baseDir, "lubuntu")
         }),
