@@ -286,8 +286,6 @@ public class VncCanvas extends GLSurfaceView {
 		this.inputHandler = inputHandler;
 		vncConn = conn;
 		this.scale = scale;
-		pointerTransMatrix = new Matrix();
-		pointerTransMatrix.setScale((float)getWidth()/activity.touchPad.getWidth(), (float)getHeight()/activity.touchPad.getHeight());
 	}
 
 	/**
@@ -650,6 +648,10 @@ public class VncCanvas extends GLSurfaceView {
 	 */
 	public boolean processPointerEvent(MotionEvent evt,boolean mouseIsDown,boolean useRightButton) {
 		// map pointer position from touch pad to display screen
+		if(pointerTransMatrix == null){
+			pointerTransMatrix = new Matrix();
+			pointerTransMatrix.setScale((float)getWidth()/activity.touchPad.getWidth(), (float)getHeight()/activity.touchPad.getHeight());
+		}
 		evt.transform(pointerTransMatrix);
 		try {
 			int action = evt.getAction();

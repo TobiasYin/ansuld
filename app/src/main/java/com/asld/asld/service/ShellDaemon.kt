@@ -135,7 +135,7 @@ object ShellDaemon {
     }
 
     fun checkVNC(): Boolean {
-        val proc = execAsyncSyncCmd("vncservce")
+        val proc = execAsyncSyncCmd("vncserver -list")
         val s = Scanner(proc.stdout)
         while (s.hasNextLine()) {
             val line = s.nextLine()

@@ -4,6 +4,7 @@ import android.annotation.SuppressLint
 import android.content.ClipData
 import android.content.ClipboardManager
 import android.content.Context
+import android.content.DialogInterface
 import android.graphics.Point
 import android.hardware.display.DisplayManager
 import android.media.MediaRouter
@@ -14,6 +15,7 @@ import android.os.Message
 import android.util.Log
 import android.view.*
 import android.widget.LinearLayout
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
 import com.asld.asld.R
@@ -40,6 +42,8 @@ class VncActivity : AppCompatActivity() {
     private lateinit var vncPresentation: VncPresentation
     lateinit var touchPad: LinearLayout
     private lateinit var appBar: Toolbar
+    private var isDisplayFound = false
+
     // if display's resolution is bigger than max, scale it to full the screen
     private var scale: Float = 1f
     private val handler = object : Handler(Looper.getMainLooper()) {
@@ -66,39 +70,45 @@ class VncActivity : AppCompatActivity() {
         appBar = findViewById(R.id.vnc_toolbar)
         setSupportActionBar(appBar)
         changeAppBarVisibility()
+
         // set the second screen
 
         Log.d(TAG, "begin")
-        if (!chooseDisplay()) {
-            Log.d(TAG, "no display")
-            val dialog = ProgressBarDialog.create(this, "Failed to find a second display!").apply {
-                setCancelable(true)
-                setOnCancelListener {
-                    finish()
-                }
-            }
-//            Toast.makeText(this, "Failed to find a second display!", Toast.LENGTH_LONG)
-        } else {
 
-            mClipboardManager = getSystemService(CLIPBOARD_SERVICE) as ClipboardManager
-            inputHandler = PointerInputHandler(this)
-            inputHandler.init()
-            //touchpad 范围设定
-            touchPad = findViewById<LinearLayout>(R.id.touch_pad)
-//                .apply {
-//                setOnGenericMotionListener{v,evt->
-//                    v.performClick()
-//                    inputHandler.onGenericMotionEvent(evt)
-//                }
-//            }
-            ProgressBarDialog.create(this, "Init vnc Server...") {
+        mClipboardManager = getSystemService(CLIPBOARD_SERVICE) as ClipboardManager
+        inputHandler = PointerInputHandler(this)
+        inputHandler.init()
+        touchPad = findViewById(R.id.touch_pad)
+        fullRoute()
+    }
+
+    private fun fullRoute() {
+        ProgressBarDialog.create(this, "Init environments") {
+            it.updateView { it.textView.text = "Search for avaliable displays" }
+            if (!chooseDisplay()) {
+                runOnUiThread {
+                    AlertDialog.Builder(it.context).apply {
+                        setCancelable(true)
+                        setTitle("ERROR")
+                        setMessage(ErrorCode.VNC_DISPLAY_NOT_FOUND.msg)
+                        setPositiveButton("Retry"){_,_->
+                            this@VncActivity.fullRoute()
+                        }
+                        setNegativeButton("Cancel") { _, _ ->
+                            this@VncActivity.finish()
+                        }
+                    }
+                }
+//                it.updateView { it.textView.text = "Failed to find a second display!" }
+//                it.setCancelable(true)
+            } else {
+                it.updateView { it.textView.text = "Init vnc server" }
                 initVncServer()
                 it.updateView { it.textView.text = "Init vnc client..." }
                 initVncClient()
-                // 自动cancel
+                it.updateView { it.textView.text = "Finish initiation" }
             }
         }
-
     }
 
     private fun initVncServer() {
@@ -158,25 +168,24 @@ class VncActivity : AppCompatActivity() {
                 2
             )
         Log.d(TAG, route.toString())
-        if (route != null) {
+        if (route != null && route.presentationDisplay != null) {
             val presentationDisplay = route.presentationDisplay
-
-            if (presentationDisplay != null) {
-                Log.d(
-                    TAG,
-                    "chooseDisplay: height(${presentationDisplay}), width(${presentationDisplay.width})"
-                )
-                val point = Point()
-                presentationDisplay.getRealSize(point)
-                Log.d(TAG, "chooseDisplay: $point")
-                resolution = buildResolution(point)
-                scale = min(point.x.toFloat() / resolution.x, point.y.toFloat() / resolution.y)
-                Log.d(TAG, "realResolution:$resolution, scale:$scale")
-                vncPresentation = VncPresentation(this, presentationDisplay)
-                return true
-            }
+            Log.d(
+                TAG,
+                "chooseDisplay: height(${presentationDisplay}), width(${presentationDisplay.width})"
+            )
+            val point = Point()
+            presentationDisplay.getRealSize(point)
+            Log.d(TAG, "chooseDisplay: $point")
+            resolution = buildResolution(point)
+            scale = min(point.x.toFloat() / resolution.x, point.y.toFloat() / resolution.y)
+            Log.d(TAG, "realResolution:$resolution, scale:$scale")
+            vncPresentation = VncPresentation(this, presentationDisplay, handler)
+            return true
+        } else {
+            Log.d(TAG, "No display found")
+            return false
         }
-        return false
     }
 
     private fun getMainDisplay(): Display? {
@@ -272,8 +281,8 @@ class VncActivity : AppCompatActivity() {
 
     override fun onGenericMotionEvent(event: MotionEvent?): Boolean {
         // 鼠标移动自动隐藏appBar
-        supportActionBar?.also{
-            if(supportActionBar!!.isShowing)
+        supportActionBar?.also {
+            if (supportActionBar!!.isShowing)
                 changeAppBarVisibility()
         }
         return inputHandler.onGenericMotionEvent(event)
