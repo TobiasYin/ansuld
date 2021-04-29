@@ -1,23 +1,40 @@
 package com.asld.asld
 
 import android.content.Intent
-import android.graphics.Point
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import android.view.Menu
 import android.view.MenuItem
 import android.widget.Toast
+import androidx.core.app.ActivityCompat
+import androidx.core.content.ContextCompat
 import com.asld.asld.databinding.ActivityMainBinding
 import com.asld.asld.service.ShellDaemon
 import com.asld.asld.vnc.VncActivity
 import com.asld.asld.tools.DownloadManager
 import com.asld.asld.tools.Process
+import android.Manifest
+import android.content.pm.PackageManager
+import android.util.Log
 
 class MainActivity : AppCompatActivity() {
     var checkFiles = hashMapOf(Pair("proot", false), Pair("lubuntu", false))
 
     override fun onStart() {
         super.onStart()
+
+        if (ContextCompat.checkSelfPermission(
+                this,
+                Manifest.permission.WRITE_EXTERNAL_STORAGE
+            ) != PackageManager.PERMISSION_GRANTED
+        ) {
+            ActivityCompat.requestPermissions(
+                this,
+                listOf(Manifest.permission.WRITE_EXTERNAL_STORAGE).toTypedArray(),
+                1
+            )
+        }
+
         downloadFiles.forEach {
             for (k in checkFiles) {
                 if (k.value)

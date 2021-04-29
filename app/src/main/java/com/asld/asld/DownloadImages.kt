@@ -38,7 +38,12 @@ fun checkSystemExist(item: DownloadItem, baseDir: File, relaDir: String): Boolea
     return false
 }
 
-fun systemBackProcess(item: DownloadItem, tarPack: File, relaDir: String, tarExtraArgs: List<String> = listOf()) {
+fun systemBackProcess(
+    item: DownloadItem,
+    tarPack: File,
+    relaDir: String,
+    tarExtraArgs: List<String> = listOf()
+) {
     Process("rm", listOf("-rf", relaDir)).apply {
         chdir = tarPack.parent!!
         useLogger()
@@ -51,14 +56,14 @@ fun systemBackProcess(item: DownloadItem, tarPack: File, relaDir: String, tarExt
         exec()
         waitProcess()
     }
-    Process("mkdir", listOf(relaDir)).apply{
+    Process("mkdir", listOf(relaDir)).apply {
         chdir = tarPack.parent!!
         useLogger()
         exec()
         waitProcess()
     }
     val tarArgs = arrayListOf("-xzf", tarPack.absolutePath)
-    if (tarExtraArgs.isNotEmpty()){
+    if (tarExtraArgs.isNotEmpty()) {
         tarArgs.addAll(tarExtraArgs)
     }
     Process("tar", tarArgs).apply {
@@ -176,7 +181,8 @@ class DownloadItemAdaptor(
 
 
     @SuppressLint("SetTextI18n")
-    override fun onBindViewHolder(holder: ItemViewHolder, position: Int) {
+    override fun onBindViewHolder(holder: ItemViewHolder, p: Int) {
+        val position = holder.adapterPosition
         val item = items[position]
         holder.downloadTitle.text = item.fileName
         holder.downloadButton.text = "Download"
