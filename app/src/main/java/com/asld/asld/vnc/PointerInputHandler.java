@@ -106,7 +106,6 @@ public class PointerInputHandler extends GestureDetector.SimpleOnGestureListener
                 Log.d(TAG, "onGenericMotionEvent: " + secondary);
                 vncActivity.vncCanvas.processPointerEvent(e, true, secondary);
             }
-            vncActivity.vncCanvas.panToMouse();
         }
 
         if (e.getAction() == MotionEvent.ACTION_SCROLL) {
@@ -124,11 +123,4 @@ public class PointerInputHandler extends GestureDetector.SimpleOnGestureListener
 
         return true;
     }
-
-    /**
-     * 外接设备：键盘
-     */
-//    public boolean onKeyEvent(KeyEvent e){
-//        vncActivity.vncCanvas.vncConn.sendKeyEvent()
-//    }
 }

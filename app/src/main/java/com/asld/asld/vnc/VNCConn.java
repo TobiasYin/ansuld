@@ -185,11 +185,6 @@ public class VNCConn {
 
         private Runnable setModes;
 
-
-        //    	public ServerToClientThread(ProgressDialog pd, Runnable setModes) {
-//    		this.pd = pd;
-//    		this.setModes = setModes;
-//    	}
         public ServerToClientThread(Runnable setModes) {
             this.setModes = setModes;
         }
@@ -518,8 +513,6 @@ public class VNCConn {
             canvas.mouseX = x;
             canvas.mouseY = y;
             canvas.reDraw(); // update local pointer position
-            canvas.panToMouse();
-
             return true;
         } else
             return false;

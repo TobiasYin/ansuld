@@ -22,6 +22,8 @@ import com.asld.asld.R
 import com.asld.asld.exception.ErrorCode
 import com.asld.asld.service.ShellDaemon
 import com.asld.asld.tools.ProgressBarDialog
+import java.lang.Thread.sleep
+import kotlin.concurrent.thread
 import kotlin.math.min
 
 
@@ -32,6 +34,7 @@ import kotlin.math.min
 class VncActivity : AppCompatActivity() {
     private val TAG = "VncActivity"
     lateinit var vncCanvas: VncCanvas
+    lateinit var vncConn: VNCConn
     private lateinit var connection: ConnectionBean
     private lateinit var resolution: Point
     var port = 5900
@@ -42,7 +45,7 @@ class VncActivity : AppCompatActivity() {
     private lateinit var vncPresentation: VncPresentation
     lateinit var touchPad: LinearLayout
     private lateinit var appBar: Toolbar
-    private var isDisplayFound = false
+    private var presentationDismiss = false
 
     // if display's resolution is bigger than max, scale it to full the screen
     private var scale: Float = 1f
@@ -83,6 +86,10 @@ class VncActivity : AppCompatActivity() {
     }
 
     private fun fullRoute() {
+        // initialize tags
+        presentationDismiss = false
+        initializedClient = false
+        initializedServer = false
         if (!chooseDisplay()) {
             AlertDialog.Builder(this).apply {
                 setCancelable(true)
@@ -136,7 +143,7 @@ class VncActivity : AppCompatActivity() {
         runOnUiThread {
             vncPresentation.show()
             vncCanvas = vncPresentation.getVncCanvas()
-            vncCanvas.initializeVncCanvas(this, inputHandler, conn, scale)
+            vncCanvas.initializeVncCanvas(this, conn, scale)
             // add canvas to conn. be sure to call this before init!
             conn.setCanvas(vncCanvas)
             // the actual connection init
@@ -175,7 +182,12 @@ class VncActivity : AppCompatActivity() {
             resolution = buildResolution(point)
             scale = min(point.x.toFloat() / resolution.x, point.y.toFloat() / resolution.y)
             Log.d(TAG, "realResolution:$resolution, scale:$scale")
-            vncPresentation = VncPresentation(this, presentationDisplay, handler)
+            vncPresentation = VncPresentation(this, presentationDisplay, handler).apply {
+                setOnDismissListener {
+                    Log.d("VncPresentation", "ondismiss: ")
+                    presentationDismiss = true
+                }
+            }
             return true
         } else {
             Log.d(TAG, "No display found")
@@ -208,18 +220,6 @@ class VncActivity : AppCompatActivity() {
 
     }
 
-    private fun buildScaleByRatio(point: Point, ratio: Float): Point {
-        var width = point.x
-        var height = point.y
-        if (width * ratio > height) {
-            width = (height / ratio).toInt()
-        } else {
-            height = (width * ratio).toInt()
-        }
-        return Point(width, height)
-
-    }
-
     private fun defaultConnectionBean(port: Int): ConnectionBean {
         val conn = ConnectionBean()
 
@@ -241,9 +241,10 @@ class VncActivity : AppCompatActivity() {
     }
 
     /**
-     * when use finger to back send keycode_back to hide appbar
+     * KeyBoard
      */
     override fun onKeyDown(keyCode: Int, event: KeyEvent?): Boolean {
+        // when use finger to back send keycode_back to hide appbar
         if (keyCode == KeyEvent.KEYCODE_BACK) {
 //            changeAppBarVisibility()
 //            Log.d(TAG, "onKeyDown: changeAppBarVisibility")
@@ -255,9 +256,10 @@ class VncActivity : AppCompatActivity() {
     }
 
     /**
-     * when use finger to back send keycode_back to hide appbar
+     * KeyBoard
      */
     override fun onKeyUp(keyCode: Int, event: KeyEvent?): Boolean {
+        // when use finger to back send keycode_back to hide appbar
         if (keyCode == KeyEvent.KEYCODE_BACK) {
             changeAppBarVisibility()
             Log.d(TAG, "onKeyDown: changeAppBarVisibility")
@@ -286,7 +288,15 @@ class VncActivity : AppCompatActivity() {
     override fun onResume() {
         Log.d(TAG, "onResume: ")
         super.onResume()
-        if (initializedClient) {
+        if (presentationDismiss) {
+            Log.d(TAG, "onResume: put up")
+            thread {
+                sleep(200)
+                runOnUiThread {
+                    fullRoute()
+                }
+            }
+        } else if (initializedClient) {
             vncCanvas.onResume()
             vncCanvas.enableRepaints()
             vncPresentation.show()
@@ -363,7 +373,7 @@ class VncActivity : AppCompatActivity() {
                 finish()
             }
             R.id.kill_backend -> {
-                ProgressBarDialog.create(this, "Clean Environments..."){
+                ProgressBarDialog.create(this, "Clean Environments...") {
                     endVncClient()
                     endVncServer()
                     finish()
