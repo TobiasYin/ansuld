@@ -266,8 +266,8 @@ stdfd create_process(startProcessArgs args) {
 //                      args.args[i]);
 //        }
         // never return
-        // if go hear, exec error, exit with res status
-        exit(res);
+        // if go hear, exec error, exit with errno status
+        exit(errno);
     }
     close(in.read);
     close(out.write);

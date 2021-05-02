@@ -1,0 +1,621 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Diagram>
+  <ID>JAVA</ID>
+  <OriginalElement>/Users/tobias/projects/ansuld/app/src/main/java/com/asld/asld</OriginalElement>
+  <nodes>
+    <node x="1553.6504370553962" y="80.0">com.asld.asld.tools.Fds</node>
+    <node x="1080.6504370553962" y="644.0">com.asld.asld.TerminalActivity</node>
+    <node x="131.125" y="510.0">com.asld.asld.DownloadItemAdaptor</node>
+    <node x="1007.6504370553962" y="172.0">com.asld.asld.tools.ProcessHasBeenExecException</node>
+    <node x="65.25" y="388.0">com.asld.asld.tools.Downloader</node>
+    <node x="571.1504370553962" y="172.0">com.asld.asld.tools.CreateProcessException</node>
+    <node x="1946.552445901019" y="388.0">com.asld.asld.vnc.VncCanvas</node>
+    <node x="1900.0918269230765" y="0.0">com.asld.asld.vnc.COLORMODEL</node>
+    <node x="2036.5888565389919" y="172.0">com.asld.asld.vnc.VNCConn</node>
+    <node x="1848.227360132319" y="274.0">com.asld.asld.vnc.PointerInputHandler</node>
+    <node x="902.4004370553962" y="274.0">com.asld.asld.tools.Process</node>
+    <node x="1686.0350524400114" y="80.0">com.asld.asld.vnc.ConnectionBean</node>
+    <node x="809.6504370553962" y="510.0">com.asld.asld.CustomLinearLayoutManager</node>
+    <node x="0.0" y="274.0">com.asld.asld.tools.DownloadManager</node>
+    <node x="715.1504370553962" y="80.0">com.asld.asld.tools.CreateProcessArgs</node>
+    <node x="925.9004370553962" y="388.0">com.asld.asld.service.ShellDaemon</node>
+    <node x="1098.6504370553962" y="510.0">com.asld.asld.TerminalItemAdaptor</node>
+    <node x="1310.6504370553962" y="172.0">com.asld.asld.tools.ProcessHasNotExecException</node>
+    <node x="850.6504370553962" y="172.0">com.asld.asld.tools.ProcessUtil</node>
+    <node x="1904.4737983257678" y="510.0">com.asld.asld.vnc.VncPresentation</node>
+    <node x="225.25" y="388.0">com.asld.asld.DownloadItem</node>
+    <node x="695.9316870553962" y="274.0">com.asld.asld.service.Line</node>
+    <node x="494.9941870553962" y="510.0">com.asld.asld.OriginShellActivity</node>
+    <node x="487.40581128563474" y="388.0">com.asld.asld.OriginTerminalItemAdaptor</node>
+    <node x="2038.8975865318253" y="736.0">com.asld.asld.vnc.VNCConnService</node>
+    <node x="728.1504370553962" y="736.0">com.asld.asld.MainActivity</node>
+    <node x="1826.914860132319" y="644.0">com.asld.asld.vnc.VncActivity</node>
+    <node x="662.8437499999999" y="0.0">com.asld.asld.tools.EnvItem</node>
+    <node x="157.83837576976134" y="644.0">com.asld.asld.DownloadImages</node>
+  </nodes>
+  <notes />
+  <edges>
+    <edge source="com.asld.asld.DownloadImages" target="com.asld.asld.DownloadItemAdaptor" relationship="TO_ONE">
+      <point x="44.5" y="-15.0" />
+      <point x="291.33837576976134" y="622.0" />
+      <point x="293.125" y="622.0" />
+      <point x="54.0" y="15.0" />
+    </edge>
+    <edge source="com.asld.asld.OriginShellActivity" target="com.asld.asld.tools.Process" relationship="TO_ONE">
+      <point x="58.125" y="-15.0" />
+      <point x="646.1191870553962" y="469.0" />
+      <point x="879.4004370553962" y="469.0" />
+      <point x="879.4004370553962" y="346.0" />
+      <point x="952.4004370553962" y="346.0" />
+      <point x="952.4004370553962" y="326.0" />
+      <point x="930.1504370553962" y="326.0" />
+      <point x="-27.75" y="15.0" />
+    </edge>
+    <edge source="com.asld.asld.OriginShellActivity" target="com.asld.asld.service.Line" relationship="TO_ONE">
+      <point x="11.625" y="-15.0" />
+      <point x="599.6191870553962" y="449.0" />
+      <point x="745.9058112856347" y="449.0" />
+      <point x="745.9058112856347" y="356.0" />
+      <point x="787.6661060180759" y="356.0" />
+      <point x="787.6661060180759" y="346.0" />
+      <point x="758.1816870553962" y="346.0" />
+      <point x="20.75" y="15.0" />
+    </edge>
+    <edge source="com.asld.asld.vnc.VNCConnService" target="com.asld.asld.vnc.VNCConn" relationship="DEPENDENCY">
+      <point x="0.0" y="-15.0" />
+      <point x="2128.3975865318253" y="715.0" />
+      <point x="2177.089772289907" y="715.0" />
+      <point x="2177.089772289907" y="253.0" />
+      <point x="2114.088856538992" y="253.0" />
+      <point x="15.5" y="15.0" />
+    </edge>
+    <edge source="com.asld.asld.tools.Process" target="com.asld.asld.tools.ProcessUtil" relationship="DEPENDENCY">
+      <point x="-6.9375" y="-15.0" />
+      <point x="950.9629370553962" y="223.0" />
+      <point x="918.6504370553962" y="223.0" />
+      <point x="0.0" y="15.0" />
+    </edge>
+    <edge source="com.asld.asld.vnc.VncPresentation" target="com.asld.asld.vnc.VncCanvas" relationship="DEPENDENCY">
+      <point x="0.0" y="-15.0" />
+      <point x="1990.9737983257678" y="489.0" />
+      <point x="1997.177445901019" y="489.0" />
+      <point x="-16.875" y="15.0" />
+    </edge>
+    <edge source="com.asld.asld.vnc.VNCConn" target="com.asld.asld.vnc.COLORMODEL" relationship="TO_ONE">
+      <point x="46.5" y="-15.0" />
+      <point x="2145.088856538992" y="151.0" />
+      <point x="2135.088856538992" y="151.0" />
+      <point x="2135.088856538992" y="50.0" />
+      <point x="2020.8418269230765" y="50.0" />
+      <point x="40.25" y="15.0" />
+    </edge>
+    <edge source="com.asld.asld.vnc.VncActivity" target="com.asld.asld.vnc.VncCanvas" relationship="DEPENDENCY">
+      <point x="31.153846153846246" y="-15.0" />
+      <point x="1925.5687062861653" y="592.0" />
+      <point x="2087.973798325768" y="592.0" />
+      <point x="2087.973798325768" y="489.0" />
+      <point x="1997.177445901019" y="489.0" />
+      <point x="-16.875" y="15.0" />
+    </edge>
+    <edge source="com.asld.asld.vnc.VncCanvas" target="com.asld.asld.vnc.VncActivity" relationship="DEPENDENCY">
+      <point x="16.875" y="15.0" />
+      <point x="2030.927445901019" y="479.0" />
+      <point x="2098.973798325768" y="479.0" />
+      <point x="2098.973798325768" y="592.0" />
+      <point x="2105.177445901019" y="592.0" />
+      <point x="2105.177445901019" y="622.0" />
+      <point x="1935.9533216707805" y="622.0" />
+      <point x="41.53846153846149" y="-15.0" />
+    </edge>
+    <edge source="com.asld.asld.tools.ProcessUtil" target="com.asld.asld.tools.EnvItem" relationship="DEPENDENCY">
+      <point x="0.0" y="-15.0" />
+      <point x="918.6504370553962" y="60.0" />
+      <point x="896.8437499999999" y="60.0" />
+      <point x="896.8437499999999" y="50.0" />
+      <point x="745.3437499999999" y="50.0" />
+      <point x="27.5" y="15.0" />
+    </edge>
+    <edge source="com.asld.asld.vnc.VNCConn" target="com.asld.asld.vnc.ConnectionBean" relationship="TO_ONE">
+      <point x="-15.5" y="-15.0" />
+      <point x="2083.088856538992" y="141.0" />
+      <point x="1777.227360132319" y="141.0" />
+      <point x="1777.227360132319" y="131.0" />
+      <point x="1815.0350524400114" y="131.0" />
+      <point x="43.0" y="15.0" />
+    </edge>
+    <edge source="com.asld.asld.OriginShellActivity" target="com.asld.asld.tools.EnvItem" relationship="CREATE">
+      <point x="-81.375" y="-15.0" />
+      <point x="506.6191870553962" y="489.0" />
+      <point x="392.7499999999999" y="489.0" />
+      <point x="392.7499999999999" y="60.0" />
+      <point x="896.8437499999999" y="60.0" />
+      <point x="896.8437499999999" y="50.0" />
+      <point x="745.3437499999999" y="50.0" />
+      <point x="27.5" y="15.0" />
+    </edge>
+    <edge source="com.asld.asld.MainActivity" target="com.asld.asld.DownloadImages" relationship="DEPENDENCY">
+      <point x="-40.57142857142867" y="-15.0" />
+      <point x="758.5790084839675" y="705.0" />
+      <point x="246.83837576976134" y="705.0" />
+      <point x="0.0" y="15.0" />
+    </edge>
+    <edge source="com.asld.asld.OriginShellActivity" target="com.asld.asld.OriginTerminalItemAdaptor" relationship="TO_ONE">
+      <point x="-11.625" y="-15.0" />
+      <point x="576.3691870553962" y="439.0" />
+      <point x="673.4058112856347" y="439.0" />
+      <point x="62.0" y="15.0" />
+    </edge>
+    <edge source="com.asld.asld.OriginShellActivity" target="com.asld.asld.tools.Process" relationship="CREATE">
+      <point x="81.375" y="-15.0" />
+      <point x="669.3691870553962" y="479.0" />
+      <point x="890.4004370553962" y="479.0" />
+      <point x="890.4004370553962" y="336.0" />
+      <point x="963.4004370553962" y="336.0" />
+      <point x="963.4004370553962" y="326.0" />
+      <point x="985.6504370553962" y="326.0" />
+      <point x="27.75" y="15.0" />
+    </edge>
+    <edge source="com.asld.asld.OriginShellActivity" target="com.asld.asld.service.Line" relationship="CREATE">
+      <point x="-58.125" y="-15.0" />
+      <point x="529.8691870553962" y="479.0" />
+      <point x="476.90581128563474" y="479.0" />
+      <point x="476.90581128563474" y="366.0" />
+      <point x="728.9030810373201" y="366.0" />
+      <point x="728.9030810373201" y="346.0" />
+      <point x="716.6816870553962" y="346.0" />
+      <point x="-20.75" y="15.0" />
+    </edge>
+    <edge source="com.asld.asld.tools.Process" target="com.asld.asld.tools.ProcessHasNotExecException" relationship="CREATE">
+      <point x="34.6875" y="-15.0" />
+      <point x="992.5879370553962" y="243.0" />
+      <point x="1446.6504370553962" y="243.0" />
+      <point x="0.0" y="15.0" />
+    </edge>
+    <edge source="com.asld.asld.tools.Downloader" target="com.asld.asld.tools.DownloadManager" relationship="DEPENDENCY">
+      <point x="0.0" y="-15.0" />
+      <point x="135.25" y="366.0" />
+      <point x="95.0" y="366.0" />
+      <point x="0.0" y="15.0" />
+    </edge>
+    <edge source="com.asld.asld.vnc.VNCConn" target="com.asld.asld.vnc.COLORMODEL" relationship="DEPENDENCY">
+      <point x="15.5" y="-15.0" />
+      <point x="2114.088856538992" y="151.0" />
+      <point x="2124.088856538992" y="151.0" />
+      <point x="2124.088856538992" y="60.0" />
+      <point x="1774.0245192307689" y="60.0" />
+      <point x="1774.0245192307689" y="50.0" />
+      <point x="1940.3418269230765" y="50.0" />
+      <point x="-40.25" y="15.0" />
+    </edge>
+    <edge source="com.asld.asld.DownloadImages" target="com.asld.asld.DownloadItemAdaptor" relationship="CREATE">
+      <point x="-44.5" y="-15.0" />
+      <point x="202.33837576976134" y="622.0" />
+      <point x="185.125" y="622.0" />
+      <point x="-54.0" y="15.0" />
+    </edge>
+    <edge source="com.asld.asld.MainActivity" target="com.asld.asld.OriginShellActivity" relationship="DEPENDENCY">
+      <point x="-20.28571428571422" y="-15.0" />
+      <point x="778.864722769682" y="695.0" />
+      <point x="587.9941870553962" y="695.0" />
+      <point x="0.0" y="15.0" />
+    </edge>
+    <edge source="com.asld.asld.vnc.VNCConnService" target="com.asld.asld.vnc.VNCConn" relationship="TO_MANY">
+      <point x="59.666666666666515" y="-15.0" />
+      <point x="2188.089772289907" y="243.0" />
+      <point x="2178.5398580586075" y="243.0" />
+      <point x="2178.5398580586075" y="233.0" />
+      <point x="2145.088856538992" y="233.0" />
+      <point x="46.5" y="15.0" />
+    </edge>
+    <edge source="com.asld.asld.TerminalItemAdaptor" target="com.asld.asld.service.ShellDaemon" relationship="DEPENDENCY">
+      <point x="0.0" y="-15.0" />
+      <point x="1201.6504370553962" y="489.0" />
+      <point x="1000.4004370553962" y="489.0" />
+      <point x="0.0" y="15.0" />
+    </edge>
+    <edge source="com.asld.asld.vnc.VncCanvas" target="com.asld.asld.vnc.PointerInputHandler" relationship="TO_ONE">
+      <point x="-11.25" y="-15.0" />
+      <point x="2002.802445901019" y="356.0" />
+      <point x="1972.602360132319" y="356.0" />
+      <point x="24.875" y="15.0" />
+    </edge>
+    <edge source="com.asld.asld.service.ShellDaemon" target="com.asld.asld.service.Line" relationship="TO_MANY">
+      <point x="-29.799999999999955" y="-15.0" />
+      <point x="970.6004370553962" y="356.0" />
+      <point x="787.6661060180759" y="356.0" />
+      <point x="787.6661060180759" y="346.0" />
+      <point x="758.1816870553962" y="346.0" />
+      <point x="20.75" y="15.0" />
+    </edge>
+    <edge source="com.asld.asld.tools.Process" target="com.asld.asld.tools.EnvItem" relationship="DEPENDENCY">
+      <point x="6.9375" y="-15.0" />
+      <point x="964.8379370553962" y="223.0" />
+      <point x="997.1504370553962" y="223.0" />
+      <point x="997.1504370553962" y="60.0" />
+      <point x="896.8437499999999" y="60.0" />
+      <point x="896.8437499999999" y="50.0" />
+      <point x="745.3437499999999" y="50.0" />
+      <point x="27.5" y="15.0" />
+    </edge>
+    <edge source="com.asld.asld.TerminalActivity" target="com.asld.asld.CustomLinearLayoutManager" relationship="CREATE">
+      <point x="-63.375" y="-15.0" />
+      <point x="1101.7754370553962" y="622.0" />
+      <point x="943.6504370553962" y="622.0" />
+      <point x="0.0" y="15.0" />
+    </edge>
+    <edge source="com.asld.asld.MainActivity" target="com.asld.asld.tools.DownloadManager" relationship="DEPENDENCY">
+      <point x="-60.85714285714289" y="-15.0" />
+      <point x="738.2932941982533" y="715.0" />
+      <point x="54.75" y="715.0" />
+      <point x="54.75" y="366.0" />
+      <point x="95.0" y="366.0" />
+      <point x="0.0" y="15.0" />
+    </edge>
+    <edge source="com.asld.asld.DownloadItemAdaptor" target="com.asld.asld.DownloadItem" relationship="TO_MANY">
+      <point x="72.0" y="-15.0" />
+      <point x="311.125" y="489.0" />
+      <point x="343.0" y="489.0" />
+      <point x="39.25" y="15.0" />
+    </edge>
+    <edge source="com.asld.asld.OriginShellActivity" target="com.asld.asld.service.Line" relationship="TO_MANY">
+      <point x="34.875" y="-15.0" />
+      <point x="622.8691870553962" y="459.0" />
+      <point x="855.4316870553962" y="459.0" />
+      <point x="855.4316870553962" y="356.0" />
+      <point x="787.6661060180759" y="356.0" />
+      <point x="787.6661060180759" y="346.0" />
+      <point x="758.1816870553962" y="346.0" />
+      <point x="20.75" y="15.0" />
+    </edge>
+    <edge source="com.asld.asld.vnc.ConnectionBean" target="com.asld.asld.vnc.COLORMODEL" relationship="DEPENDENCY">
+      <point x="0.0" y="-15.0" />
+      <point x="1772.0350524400114" y="60.0" />
+      <point x="1774.0245192307689" y="60.0" />
+      <point x="1774.0245192307689" y="50.0" />
+      <point x="1940.3418269230765" y="50.0" />
+      <point x="-40.25" y="15.0" />
+    </edge>
+    <edge source="com.asld.asld.vnc.VncActivity" target="com.asld.asld.vnc.COLORMODEL" relationship="DEPENDENCY">
+      <point x="-51.92307692307713" y="-15.0" />
+      <point x="1842.491783209242" y="602.0" />
+      <point x="1675.5350524400114" y="602.0" />
+      <point x="1675.5350524400114" y="60.0" />
+      <point x="1774.0245192307689" y="60.0" />
+      <point x="1774.0245192307689" y="50.0" />
+      <point x="1940.3418269230765" y="50.0" />
+      <point x="-40.25" y="15.0" />
+    </edge>
+    <edge source="com.asld.asld.tools.Process" target="com.asld.asld.tools.CreateProcessArgs" relationship="CREATE">
+      <point x="-20.8125" y="-15.0" />
+      <point x="937.0879370553962" y="233.0" />
+      <point x="811.6504370553962" y="233.0" />
+      <point x="0.0" y="15.0" />
+    </edge>
+    <edge source="com.asld.asld.tools.CreateProcessArgs" target="com.asld.asld.tools.EnvItem" relationship="DEPENDENCY">
+      <point x="1.1368683772161603E-13" y="-15.0" />
+      <point x="811.6504370553963" y="60.0" />
+      <point x="896.8437499999999" y="60.0" />
+      <point x="896.8437499999999" y="50.0" />
+      <point x="745.3437499999999" y="50.0" />
+      <point x="27.5" y="15.0" />
+    </edge>
+    <edge source="com.asld.asld.vnc.VncActivity" target="com.asld.asld.vnc.VNCConn" relationship="CREATE">
+      <point x="62.307692307692434" y="-15.0" />
+      <point x="1956.7225524400114" y="612.0" />
+      <point x="2172.539860132319" y="612.0" />
+      <point x="2172.539860132319" y="253.0" />
+      <point x="2114.088856538992" y="253.0" />
+      <point x="15.5" y="15.0" />
+    </edge>
+    <edge source="com.asld.asld.OriginShellActivity" target="com.asld.asld.OriginTerminalItemAdaptor" relationship="CREATE">
+      <point x="-34.875" y="-15.0" />
+      <point x="553.1191870553962" y="489.0" />
+      <point x="549.4058112856347" y="489.0" />
+      <point x="-62.0" y="15.0" />
+    </edge>
+    <edge source="com.asld.asld.vnc.VncActivity" target="com.asld.asld.vnc.PointerInputHandler" relationship="CREATE">
+      <point x="-20.769230769230944" y="-15.0" />
+      <point x="1873.6456293630881" y="572.0" />
+      <point x="1787.6119755169343" y="572.0" />
+      <point x="1787.6119755169343" y="366.0" />
+      <point x="1816.8388565389919" y="366.0" />
+      <point x="1816.8388565389919" y="326.0" />
+      <point x="1922.852360132319" y="326.0" />
+      <point x="-24.875" y="15.0" />
+    </edge>
+    <edge source="com.asld.asld.vnc.VNCConn" target="com.asld.asld.vnc.ConnectionBean" relationship="DEPENDENCY">
+      <point x="-46.5" y="-15.0" />
+      <point x="2052.088856538992" y="151.0" />
+      <point x="1766.8427447477038" y="151.0" />
+      <point x="1766.8427447477038" y="141.0" />
+      <point x="1729.0350524400114" y="141.0" />
+      <point x="-43.0" y="15.0" />
+    </edge>
+    <edge source="com.asld.asld.tools.Process" target="com.asld.asld.tools.Fds" relationship="CREATE">
+      <point x="48.5625" y="-15.0" />
+      <point x="1006.4629370553962" y="253.0" />
+      <point x="1593.1504370553962" y="253.0" />
+      <point x="0.0" y="15.0" />
+    </edge>
+    <edge source="com.asld.asld.tools.Process" target="com.asld.asld.tools.CreateProcessException" relationship="CREATE">
+      <point x="-34.6875" y="-15.0" />
+      <point x="923.2129370553962" y="243.0" />
+      <point x="686.1504370553962" y="243.0" />
+      <point x="0.0" y="15.0" />
+    </edge>
+    <edge source="com.asld.asld.tools.Process" target="com.asld.asld.tools.ProcessHasBeenExecException" relationship="CREATE">
+      <point x="20.8125" y="-15.0" />
+      <point x="978.7129370553962" y="233.0" />
+      <point x="1149.1504370553962" y="233.0" />
+      <point x="0.0" y="15.0" />
+    </edge>
+    <edge source="com.asld.asld.DownloadItemAdaptor" target="com.asld.asld.tools.Downloader" relationship="CREATE">
+      <point x="-72.0" y="-15.0" />
+      <point x="167.125" y="489.0" />
+      <point x="135.25" y="489.0" />
+      <point x="0.0" y="15.0" />
+    </edge>
+    <edge source="com.asld.asld.vnc.VncActivity" target="com.asld.asld.service.ShellDaemon" relationship="DEPENDENCY">
+      <point x="-62.30769230769238" y="-15.0" />
+      <point x="1832.1071678246267" y="612.0" />
+      <point x="1665.1504370553962" y="612.0" />
+      <point x="1665.1504370553962" y="489.0" />
+      <point x="1000.4004370553962" y="489.0" />
+      <point x="0.0" y="15.0" />
+    </edge>
+    <edge source="com.asld.asld.service.ShellDaemon" target="com.asld.asld.tools.EnvItem" relationship="CREATE">
+      <point x="59.59999999999991" y="-15.0" />
+      <point x="1060.000437055396" y="326.0" />
+      <point x="1643.1504370553962" y="326.0" />
+      <point x="1643.1504370553962" y="60.0" />
+      <point x="896.8437499999999" y="60.0" />
+      <point x="896.8437499999999" y="50.0" />
+      <point x="745.3437499999999" y="50.0" />
+      <point x="27.5" y="15.0" />
+    </edge>
+    <edge source="com.asld.asld.vnc.VncActivity" target="com.asld.asld.vnc.ConnectionBean" relationship="TO_ONE">
+      <point x="-31.15384615384619" y="-15.0" />
+      <point x="1863.2610139784729" y="582.0" />
+      <point x="1777.227360132319" y="582.0" />
+      <point x="1777.227360132319" y="131.0" />
+      <point x="1815.0350524400114" y="131.0" />
+      <point x="43.0" y="15.0" />
+    </edge>
+    <edge source="com.asld.asld.vnc.VncCanvas" target="com.asld.asld.vnc.VNCConn" relationship="TO_ONE">
+      <point x="56.25" y="-15.0" />
+      <point x="2070.302445901019" y="366.0" />
+      <point x="2110.602360132319" y="366.0" />
+      <point x="2110.602360132319" y="243.0" />
+      <point x="2178.5398580586075" y="243.0" />
+      <point x="2178.5398580586075" y="233.0" />
+      <point x="2145.088856538992" y="233.0" />
+      <point x="46.5" y="15.0" />
+    </edge>
+    <edge source="com.asld.asld.vnc.VNCConn" target="com.asld.asld.vnc.VncCanvas" relationship="TO_ONE">
+      <point x="-46.5" y="15.0" />
+      <point x="2052.088856538992" y="243.0" />
+      <point x="1837.727360132319" y="243.0" />
+      <point x="1837.727360132319" y="336.0" />
+      <point x="1980.302445901019" y="336.0" />
+      <point x="-33.75" y="-15.0" />
+    </edge>
+    <edge source="com.asld.asld.tools.ProcessUtil" target="com.asld.asld.tools.Fds" relationship="DEPENDENCY">
+      <point x="45.33333333333326" y="-15.0" />
+      <point x="963.9837703887295" y="151.0" />
+      <point x="1593.1504370553962" y="151.0" />
+      <point x="0.0" y="15.0" />
+    </edge>
+    <edge source="com.asld.asld.MainActivity" target="com.asld.asld.vnc.VncActivity" relationship="DEPENDENCY">
+      <point x="60.85714285714289" y="-15.0" />
+      <point x="860.0075799125391" y="715.0" />
+      <point x="1894.414860132319" y="715.0" />
+      <point x="0.0" y="15.0" />
+    </edge>
+    <edge source="com.asld.asld.vnc.PointerInputHandler" target="com.asld.asld.vnc.VNCConn" relationship="DEPENDENCY">
+      <point x="0.0" y="-15.0" />
+      <point x="1947.727360132319" y="253.0" />
+      <point x="2114.088856538992" y="253.0" />
+      <point x="15.5" y="15.0" />
+    </edge>
+    <edge source="com.asld.asld.OriginTerminalItemAdaptor" target="com.asld.asld.service.Line" relationship="DEPENDENCY">
+      <point x="-62.0" y="-15.0" />
+      <point x="549.4058112856347" y="366.0" />
+      <point x="728.9030810373201" y="366.0" />
+      <point x="728.9030810373201" y="346.0" />
+      <point x="716.6816870553962" y="346.0" />
+      <point x="-20.75" y="15.0" />
+    </edge>
+    <edge source="com.asld.asld.service.ShellDaemon" target="com.asld.asld.tools.Process" relationship="TO_ONE">
+      <point x="0.0" y="-15.0" />
+      <point x="1000.4004370553962" y="346.0" />
+      <point x="952.4004370553962" y="346.0" />
+      <point x="952.4004370553962" y="326.0" />
+      <point x="930.1504370553962" y="326.0" />
+      <point x="-27.75" y="15.0" />
+    </edge>
+    <edge source="com.asld.asld.vnc.PointerInputHandler" target="com.asld.asld.vnc.VncActivity" relationship="DEPENDENCY">
+      <point x="74.625" y="15.0" />
+      <point x="2022.352360132319" y="336.0" />
+      <point x="2151.039860132319" y="336.0" />
+      <point x="2151.039860132319" y="592.0" />
+      <point x="2105.177445901019" y="592.0" />
+      <point x="2105.177445901019" y="622.0" />
+      <point x="1935.9533216707805" y="622.0" />
+      <point x="41.53846153846149" y="-15.0" />
+    </edge>
+    <edge source="com.asld.asld.MainActivity" target="com.asld.asld.tools.Process" relationship="CREATE">
+      <point x="40.57142857142867" y="-15.0" />
+      <point x="839.7218656268249" y="705.0" />
+      <point x="1654.1504370553962" y="705.0" />
+      <point x="1654.1504370553962" y="336.0" />
+      <point x="963.4004370553962" y="336.0" />
+      <point x="963.4004370553962" y="326.0" />
+      <point x="985.6504370553962" y="326.0" />
+      <point x="27.75" y="15.0" />
+    </edge>
+    <edge source="com.asld.asld.service.ShellDaemon" target="com.asld.asld.service.Line" relationship="CREATE">
+      <point x="-59.59999999999991" y="-15.0" />
+      <point x="940.8004370553963" y="366.0" />
+      <point x="728.9030810373201" y="366.0" />
+      <point x="728.9030810373201" y="346.0" />
+      <point x="716.6816870553962" y="346.0" />
+      <point x="-20.75" y="15.0" />
+    </edge>
+    <edge source="com.asld.asld.OriginTerminalItemAdaptor" target="com.asld.asld.service.Line" relationship="TO_MANY">
+      <point x="62.0" y="-15.0" />
+      <point x="673.4058112856347" y="356.0" />
+      <point x="787.6661060180759" y="356.0" />
+      <point x="787.6661060180759" y="346.0" />
+      <point x="758.1816870553962" y="346.0" />
+      <point x="20.75" y="15.0" />
+    </edge>
+    <edge source="com.asld.asld.MainActivity" target="com.asld.asld.service.ShellDaemon" relationship="DEPENDENCY">
+      <point x="0.0" y="-15.0" />
+      <point x="799.1504370553962" y="489.0" />
+      <point x="1000.4004370553962" y="489.0" />
+      <point x="0.0" y="15.0" />
+    </edge>
+    <edge source="com.asld.asld.vnc.PointerInputHandler" target="com.asld.asld.vnc.VncActivity" relationship="TO_ONE">
+      <point x="-74.625" y="15.0" />
+      <point x="1873.102360132319" y="346.0" />
+      <point x="1798.6119755169343" y="346.0" />
+      <point x="1798.6119755169343" y="622.0" />
+      <point x="1884.0302447477038" y="622.0" />
+      <point x="-10.384615384615245" y="-15.0" />
+    </edge>
+    <edge source="com.asld.asld.vnc.VncActivity" target="com.asld.asld.vnc.PointerInputHandler" relationship="TO_ONE">
+      <point x="0.0" y="-15.0" />
+      <point x="1894.414860132319" y="562.0" />
+      <point x="1872.9112983257678" y="562.0" />
+      <point x="1872.9112983257678" y="356.0" />
+      <point x="1972.602360132319" y="356.0" />
+      <point x="24.875" y="15.0" />
+    </edge>
+    <edge source="com.asld.asld.TerminalActivity" target="com.asld.asld.TerminalItemAdaptor" relationship="CREATE">
+      <point x="63.375" y="-15.0" />
+      <point x="1228.5254370553962" y="622.0" />
+      <point x="1253.1504370553962" y="622.0" />
+      <point x="51.5" y="15.0" />
+    </edge>
+    <edge source="com.asld.asld.vnc.VncActivity" target="com.asld.asld.vnc.ConnectionBean" relationship="CREATE">
+      <point x="-41.53846153846143" y="-15.0" />
+      <point x="1852.8763985938576" y="592.0" />
+      <point x="1766.8427447477038" y="592.0" />
+      <point x="1766.8427447477038" y="141.0" />
+      <point x="1729.0350524400114" y="141.0" />
+      <point x="-43.0" y="15.0" />
+    </edge>
+    <edge source="com.asld.asld.DownloadItemAdaptor" target="com.asld.asld.DownloadItem" relationship="DEPENDENCY">
+      <point x="0.0" y="-15.0" />
+      <point x="239.125" y="489.0" />
+      <point x="264.5" y="489.0" />
+      <point x="-39.25" y="15.0" />
+    </edge>
+    <edge source="com.asld.asld.vnc.VncActivity" target="com.asld.asld.vnc.VncCanvas" relationship="TO_ONE">
+      <point x="51.92307692307719" y="-15.0" />
+      <point x="1946.3379370553962" y="602.0" />
+      <point x="2162.039860132319" y="602.0" />
+      <point x="2162.039860132319" y="469.0" />
+      <point x="2064.677445901019" y="469.0" />
+      <point x="50.625" y="15.0" />
+    </edge>
+    <edge source="com.asld.asld.vnc.VncCanvas" target="com.asld.asld.vnc.VncActivity" relationship="TO_ONE">
+      <point x="-50.625" y="15.0" />
+      <point x="1963.427445901019" y="489.0" />
+      <point x="1798.6119755169343" y="489.0" />
+      <point x="1798.6119755169343" y="622.0" />
+      <point x="1884.0302447477038" y="622.0" />
+      <point x="-10.384615384615245" y="-15.0" />
+    </edge>
+    <edge source="com.asld.asld.vnc.VncActivity" target="com.asld.asld.vnc.VncPresentation" relationship="TO_ONE">
+      <point x="20.769230769230944" y="-15.0" />
+      <point x="1915.18409090155" y="582.0" />
+      <point x="2034.2237983257678" y="582.0" />
+      <point x="43.25" y="15.0" />
+    </edge>
+    <edge source="com.asld.asld.MainActivity" target="com.asld.asld.TerminalActivity" relationship="DEPENDENCY">
+      <point x="20.28571428571422" y="-15.0" />
+      <point x="819.4361513411104" y="695.0" />
+      <point x="1165.1504370553962" y="695.0" />
+      <point x="0.0" y="15.0" />
+    </edge>
+    <edge source="com.asld.asld.vnc.VncCanvas" target="com.asld.asld.vnc.VNCConn" relationship="DEPENDENCY">
+      <point x="33.75" y="-15.0" />
+      <point x="2047.802445901019" y="356.0" />
+      <point x="2099.602360132319" y="356.0" />
+      <point x="2099.602360132319" y="253.0" />
+      <point x="2114.088856538992" y="253.0" />
+      <point x="15.5" y="15.0" />
+    </edge>
+    <edge source="com.asld.asld.vnc.VNCConn" target="com.asld.asld.vnc.VncCanvas" relationship="DEPENDENCY">
+      <point x="-15.5" y="15.0" />
+      <point x="2083.088856538992" y="243.0" />
+      <point x="2071.727360132319" y="243.0" />
+      <point x="2071.727360132319" y="346.0" />
+      <point x="2025.302445901019" y="346.0" />
+      <point x="11.25" y="-15.0" />
+    </edge>
+    <edge source="com.asld.asld.vnc.VNCConnService" target="com.asld.asld.vnc.VncActivity" relationship="DEPENDENCY">
+      <point x="-59.666666666666515" y="-15.0" />
+      <point x="2068.7309198651587" y="715.0" />
+      <point x="1894.414860132319" y="715.0" />
+      <point x="0.0" y="15.0" />
+    </edge>
+    <edge source="com.asld.asld.TerminalActivity" target="com.asld.asld.service.ShellDaemon" relationship="DEPENDENCY">
+      <point x="-21.125" y="-15.0" />
+      <point x="1144.0254370553962" y="612.0" />
+      <point x="1088.1504370553962" y="612.0" />
+      <point x="1088.1504370553962" y="489.0" />
+      <point x="1000.4004370553962" y="489.0" />
+      <point x="0.0" y="15.0" />
+    </edge>
+    <edge source="com.asld.asld.tools.ProcessUtil" target="com.asld.asld.tools.CreateProcessArgs" relationship="DEPENDENCY">
+      <point x="-45.33333333333326" y="-15.0" />
+      <point x="873.3171037220629" y="151.0" />
+      <point x="811.6504370553962" y="151.0" />
+      <point x="0.0" y="15.0" />
+    </edge>
+    <edge source="com.asld.asld.vnc.VncCanvas" target="com.asld.asld.vnc.PointerInputHandler" relationship="DEPENDENCY">
+      <point x="-56.25" y="-15.0" />
+      <point x="1957.802445901019" y="366.0" />
+      <point x="1816.8388565389919" y="366.0" />
+      <point x="1816.8388565389919" y="326.0" />
+      <point x="1922.852360132319" y="326.0" />
+      <point x="-24.875" y="15.0" />
+    </edge>
+    <edge source="com.asld.asld.tools.Process" target="com.asld.asld.tools.EnvItem" relationship="TO_MANY">
+      <point x="-48.5625" y="-15.0" />
+      <point x="909.3379370553962" y="253.0" />
+      <point x="560.6504370553962" y="253.0" />
+      <point x="560.6504370553962" y="50.0" />
+      <point x="690.3437499999999" y="50.0" />
+      <point x="-27.5" y="15.0" />
+    </edge>
+    <edge source="com.asld.asld.TerminalActivity" target="com.asld.asld.TerminalItemAdaptor" relationship="TO_ONE">
+      <point x="21.125" y="-15.0" />
+      <point x="1186.2754370553962" y="622.0" />
+      <point x="1150.1504370553962" y="622.0" />
+      <point x="-51.5" y="15.0" />
+    </edge>
+    <edge source="com.asld.asld.vnc.VncActivity" target="com.asld.asld.vnc.VncPresentation" relationship="CREATE">
+      <point x="10.384615384615245" y="-15.0" />
+      <point x="1904.7994755169343" y="572.0" />
+      <point x="1947.7237983257678" y="572.0" />
+      <point x="-43.25" y="15.0" />
+    </edge>
+    <edge source="com.asld.asld.service.ShellDaemon" target="com.asld.asld.tools.Process" relationship="CREATE">
+      <point x="29.799999999999955" y="-15.0" />
+      <point x="1030.2004370553962" y="336.0" />
+      <point x="963.4004370553962" y="336.0" />
+      <point x="963.4004370553962" y="326.0" />
+      <point x="985.6504370553962" y="326.0" />
+      <point x="27.75" y="15.0" />
+    </edge>
+  </edges>
+  <settings layout="Hierarchic" zoom="0.6246648793565683" showDependencies="true" x="1109.0" y="383.0" />
+  <SelectedNodes />
+  <Categories />
+  <SCOPE>All</SCOPE>
+  <VISIBILITY>private</VISIBILITY>
+</Diagram>
+
