@@ -191,11 +191,12 @@ public class VncCanvas extends GLSurfaceView {
 //				mTexCrop[0] = Math.max(absoluteXPosition, 0); // don't let this be <0
                 mTexCrop[0] = 0;// don't let this be <0
                 mTexCrop[1] = vncConn.getFramebufferHeight();
-//				mTexCrop[1] = absoluteYPosition >= 0 ? (int)(absoluteYPosition + VncCanvas.this.getHeight() / getScale()) : vncConn.getFramebufferHeight();
-                mTexCrop[2] = (int) (VncCanvas.this.getWidth() < vncConn.getFramebufferWidth() * getScale() ? VncCanvas.this.getWidth() / getScale() : vncConn.getFramebufferWidth());
-                mTexCrop[3] = (int) -(VncCanvas.this.getHeight() < vncConn.getFramebufferHeight() * getScale() ? VncCanvas.this.getHeight() / getScale() : vncConn.getFramebufferHeight());
+//                mTexCrop[2] = (int) (VncCanvas.this.getWidth() < vncConn.getFramebufferWidth() * getScale() ? VncCanvas.this.getWidth() / getScale() : vncConn.getFramebufferWidth());
+//                mTexCrop[3] = (int) -(VncCanvas.this.getHeight() < vncConn.getFramebufferHeight() * getScale() ? VncCanvas.this.getHeight() / getScale() : vncConn.getFramebufferHeight());
+                mTexCrop[2] = vncConn.getFramebufferWidth();
+                mTexCrop[3] = -vncConn.getFramebufferHeight();
 
-                Log.d(TAG, "cropRect: u:" + mTexCrop[0] + " v:" + mTexCrop[1] + " w:" + mTexCrop[2] + " h:" + mTexCrop[3] + " absX:" + absoluteXPosition + " absY:" + absoluteYPosition);
+                Log.d(TAG, "cropRect: u:" + mTexCrop[0] + " v:" + mTexCrop[1] + " w:" + mTexCrop[2] + " h:" + mTexCrop[3] + "scale:" + getScale() + "VncHeight:" + VncCanvas.this.getHeight());
 
                 ((GL11) gl).glTexParameteriv(GL10.GL_TEXTURE_2D, GL11Ext.GL_TEXTURE_CROP_RECT_OES, mTexCrop, 0);
 

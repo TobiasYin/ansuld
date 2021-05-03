@@ -14,23 +14,18 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
-import android.annotation.SuppressLint;
-import android.app.ProgressDialog;
+
 import android.content.Context;
-import android.content.DialogInterface;
 import android.os.Handler;
 import android.os.Message;
 import android.util.Log;
 import android.view.KeyEvent;
 
 import androidx.annotation.Keep;
-import androidx.annotation.NonNull;
 
 import com.asld.asld.exception.ClientConnectionBreakException;
 import com.asld.asld.exception.ClientInitFailedException;
-import com.asld.asld.exception.ErrorCode;
 import com.asld.asld.exception.VncException;
-import com.asld.asld.vnc.VNCConnService;
 
 import org.jetbrains.annotations.NotNull;
 
@@ -57,7 +52,6 @@ public class VNCConn {
 
     // Runtime control flags
     private boolean maintainConnection = true;
-    private boolean framebufferUpdatesEnabled = true;
 
     private Lock bitmapDataPixelsLock = new ReentrantLock();
 
@@ -98,8 +92,8 @@ public class VNCConn {
             pointer = new PointerEvent();
             pointer.x = x;
             pointer.y = y;
-            pointer.modifiers = modifiers;
-            pointer.mask = pointerMask;
+            pointer.metaState = modifiers;
+            pointer.buttonMask = pointerMask;
         }
 
         public OutputEvent(int keyCode, int metaState, boolean down) {
@@ -131,16 +125,16 @@ public class VNCConn {
         private class PointerEvent {
             int x;
             int y;
-            int mask;
-            int modifiers;
+            int buttonMask;
+            int metaState;
 
             @Override
             public String toString() {
                 return "PointerEvent{" +
                         "x=" + x +
                         ", y=" + y +
-                        ", mask=" + mask +
-                        ", modifiers=" + modifiers +
+                        ", mask=" + buttonMask +
+                        ", metaState=" + metaState +
                         '}';
             }
         }
@@ -330,7 +324,7 @@ public class VNCConn {
 
 
         private boolean sendPointerEvent(OutputEvent.PointerEvent pe) {
-            return rfbSendPointerEvent(pe.x, pe.y, pe.mask);
+            return rfbSendPointerEvent(pe.x, pe.y, pe.buttonMask);
         }
 
 
@@ -696,35 +690,6 @@ public class VNCConn {
             return true;
         } else
             return false;
-    }
-
-
-    public boolean toggleFramebufferUpdates() {
-        framebufferUpdatesEnabled = !framebufferUpdatesEnabled;
-        rfbSetFramebufferUpdatesEnabled(framebufferUpdatesEnabled);
-        return framebufferUpdatesEnabled;
-    }
-
-
-    void sendFramebufferUpdateRequest(int x, int y, int w, int h, boolean incremental) {
-        if (framebufferUpdatesEnabled) {
-            try {
-                OutputEvent e = new OutputEvent(x, y, w, h, incremental);
-                outputEventQueue.add(e);
-                synchronized (outputEventQueue) {
-                    outputEventQueue.notify();
-                }
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-        }
-    }
-
-
-    public void setColorModel(COLORMODEL cm) {
-        // Only update if color model changes
-        if (colorModel == null || colorModel != cm)
-            pendingColorModel = cm;
     }
 
 

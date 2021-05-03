@@ -12,9 +12,6 @@ import com.asld.asld.R
 import com.asld.asld.exception.ErrorCode
 
 class VncPresentation(context: Context, display: Display, val handler:Handler) : Presentation(context, display) {
-    companion object{
-        var count = 0
-    }
     private val TAG = "VncPresentation"
     init {
         Log.d(TAG, "init: ")
@@ -34,10 +31,6 @@ class VncPresentation(context: Context, display: Display, val handler:Handler) :
     }
 
     override fun onStop() {
-        count += 1
-        if(count == 2){
-            throw Error("onstop")
-        }
         Log.d(TAG, "onStop: ")
         super.onStop()
     }
