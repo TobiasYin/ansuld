@@ -1,6 +1,7 @@
 package com.asld.asld.service
 
 import android.graphics.Point
+import android.os.Environment
 import android.util.Log
 import com.asld.asld.TAG
 import com.asld.asld.tools.EnvItem
@@ -217,6 +218,8 @@ object ShellDaemon {
                 "/proc",
                 "-b",
                 "$relaDir/root:/dev/shm",
+                "-b",
+                "${Environment.getExternalStorageDirectory().path}:/root/sdcard",
                 "-w",
                 "/root",
                 "/usr/bin/env",
