@@ -5,7 +5,8 @@ enum class ErrorCode(val code: Int, val msg: String) {
     VNC_CONN_TO_CLIENT_BREAK(1002, "Lose connection with client..."),
     VNC_CLIENT_INIT_FAILED(1003, "Init client failed"),
     VNC_DISPLAY_CHANGED(1004, "Display down..."),
-    VNC_DISPLAY_NOT_FOUND(1004, "Display not found");
+    VNC_DISPLAY_NOT_FOUND(1004, "Display not found"),
+    PRESENTATION_DISMISS(1005, "Second display dismiss");
 
     override fun toString(): String {
         return "ErrorCode(code=$code, msg=$msg)"

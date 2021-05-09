@@ -36,9 +36,16 @@ class VncPresentation(context: Context, display: Display, val handler:Handler) :
     }
 
     override fun onDisplayRemoved() {
+        Log.d(TAG, "onDisplayRemoved: ")
         val msg = Message()
         msg.obj = ErrorCode.VNC_DISPLAY_CHANGED
         msg.what = display.displayId
         handler.sendMessage(msg)
     }
+
+    override fun onDisplayChanged() {
+        super.onDisplayChanged()
+        Log.d(TAG, "onDisplayChanged: ")
+    }
+
 }
