@@ -5,14 +5,14 @@ import android.content.ClipData
 import android.content.ClipboardManager
 import android.content.Context
 import android.graphics.Point
+import android.graphics.Rect
 import android.hardware.display.DisplayManager
 import android.media.MediaRouter
-import android.os.Bundle
-import android.os.Handler
-import android.os.Looper
-import android.os.Message
+import android.os.*
 import android.util.Log
 import android.view.*
+import android.view.View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
+import android.view.View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
 import android.widget.LinearLayout
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
@@ -61,7 +61,7 @@ class VncActivity : AppCompatActivity() {
                     initVncServer()
                 }
                 ErrorCode.VNC_DISPLAY_CHANGED -> {
-                    if(!handleDisplayRemove) {
+                    if (!handleDisplayRemove) {
                         Log.d(TAG, "handleMessage: display down")
                         handleDisplayRemove = true
                         fullRouteInit()
@@ -80,6 +80,14 @@ class VncActivity : AppCompatActivity() {
         setContentView(R.layout.activity_touch_pad)
         appBar = findViewById(R.id.vnc_toolbar)
         setSupportActionBar(appBar)
+        findViewById<LinearLayout>(R.id.touch_pad_layout).systemUiVisibility =
+            View.SYSTEM_UI_FLAG_FULLSCREEN or
+                    View.SYSTEM_UI_FLAG_HIDE_NAVIGATION or
+                    View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN or
+                    View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION or
+                    View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY or
+                    View.SYSTEM_UI_FLAG_LAYOUT_STABLE or View.SYSTEM_UI_FLAG_IMMERSIVE
+        window.addFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN)
         changeAppBarVisibility()
 
         // set the second screen
@@ -93,6 +101,20 @@ class VncActivity : AppCompatActivity() {
         fullRouteInit()
     }
 
+    private fun updateExclude(){
+        if (Build.VERSION.SDK_INT >= 30) {
+            display?.getSize()?.let {
+                window.systemGestureExclusionRects =
+                    listOf(
+                        Rect(0, 0, 50, it.y),
+                        Rect(it.x - 50, 0, it.x, it.y),
+                        Rect(0, 0, it.x, 50),
+                        Rect(0, it.y - 50, it.x, it.y)
+                    )
+            }
+        }
+    }
+
     private fun fullRouteInit() {
         // initialize tags
         presentationDismiss = false
@@ -100,7 +122,7 @@ class VncActivity : AppCompatActivity() {
         initializedServer = false
         if (!chooseDisplay()) {
             AlertDialog.Builder(this).apply {
-                setCancelable(true)
+                setCancelable(false)
                 setTitle("ERROR")
                 setMessage(ErrorCode.VNC_DISPLAY_NOT_FOUND.msg)
                 setPositiveButton("Retry") { d, _ ->
@@ -274,6 +296,7 @@ class VncActivity : AppCompatActivity() {
         if (keyCode == KeyEvent.KEYCODE_BACK) {
 //            changeAppBarVisibility()
 //            Log.d(TAG, "onKeyDown: changeAppBarVisibility")
+            Log.d(TAG, "onKeyDown: back press")
             return true
         }
         Log.d(TAG, "onKeyDown: keyCode:$keyCode, $event")
@@ -287,8 +310,8 @@ class VncActivity : AppCompatActivity() {
     override fun onKeyUp(keyCode: Int, event: KeyEvent?): Boolean {
         // when use finger to back send keycode_back to hide appbar
         if (keyCode == KeyEvent.KEYCODE_BACK) {
-            changeAppBarVisibility()
-            Log.d(TAG, "onKeyDown: changeAppBarVisibility")
+//            changeAppBarVisibility()
+            Log.d(TAG, "onKeyUp: changeAppBarVisibility")
             return true
         }
         Log.d(TAG, "onKeyDown: keyCode:$keyCode, $event")
@@ -342,6 +365,10 @@ class VncActivity : AppCompatActivity() {
         Log.d(TAG, "onStart: ")
         if (initializedClient)
             vncPresentation.show()
+        thread {
+            Thread.sleep(100)
+            updateExclude()
+        }
     }
 
     override fun onPause() {
@@ -378,11 +405,11 @@ class VncActivity : AppCompatActivity() {
     fun changeAppBarVisibility() {
         if (supportActionBar!!.isShowing) {
             supportActionBar!!.hide()
-            window.addFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN)
+//            window.addFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN)
             Log.d(TAG, "onWindowFocusChanged: hideAppBar")
         } else {
             supportActionBar!!.show()
-            window.clearFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN)
+//            window.clearFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN)
             Log.d(TAG, "onWindowFocusChanged: showAppBar")
         }
     }

@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <style name="Theme.AnSuLD.NoActionBar">
+        <item name="windowActionBar">false</item>
+        <item name="windowNoTitle">true</item>
+        <item name="android:windowLayoutInDisplayCutoutMode">
+            shortEdges
+        </item>
+    </style>
+
+    <style name="Theme.AnSuLD.Fullscreen" parent="Theme.AnSuLD">
+        <item name="android:actionBarStyle">@style/Widget.Theme.AnSuLD.ActionBar.Fullscreen</item>
+        <item name="android:windowActionBarOverlay">true</item>
+        <item name="android:windowBackground">@null</item>
+        <item name="android:windowLayoutInDisplayCutoutMode">
+            shortEdges
+        </item>
+    </style>
+
+    <style name="ThemeOverlay.AnSuLD.FullscreenContainer" parent="">
+        <item name="fullscreenBackgroundColor">@color/light_blue_600</item>
+        <item name="fullscreenTextColor">@color/light_blue_A200</item>
+        <item name="android:windowLayoutInDisplayCutoutMode">
+            shortEdges
+        </item>
+    </style>
+</resources>
