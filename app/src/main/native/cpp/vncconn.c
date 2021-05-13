@@ -372,15 +372,15 @@ JNIEXPORT jboolean JNICALL Java_com_asld_asld_vnc_VNCConn_rfbInit(JNIEnv *env, j
 
     cl->serverPort = port;
     // Support short-form (:0, :1)
-    if(cl->serverPort < 100)
+
+    if(cl->serverPort != -1&&cl->serverPort < 100)
         cl->serverPort += 5900;
 
     if(repeaterId >= 0) {
         cl->destHost = strdup("ID");
         cl->destPort = repeaterId;
     }
-
-    log_obj_tostring(env, obj, ANDROID_LOG_INFO, "rfbInit() about to connect to '%s', port %d, repeaterId %d\n", cl->serverHost, cl->serverPort, cl->destPort);
+    log_obj_tostring(env, obj, ANDROID_LOG_INFO, "rfbInit() about to connect to '%s', port %d, repeaterId %d, destHost:%s\n", cl->serverHost, cl->serverPort, cl->destPort, cl->destHost);
 
     /*
      * Save pointers to the managed VNCConn and env in the rfbClient for use in the onXYZ callbacks.

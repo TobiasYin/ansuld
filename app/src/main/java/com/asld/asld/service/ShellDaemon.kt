@@ -156,9 +156,12 @@ object ShellDaemon {
         killVNC()
         val res =
             execSyncCmd(
-                "LD_PRELOAD=/lib/aarch64-linux-gnu/libgcc_s.so.1 vncserver :$port -localhost no -geometry ${resolution.x}x${resolution.y}",
+//                "LD_PRELOAD=/lib/aarch64-linux-gnu/libgcc_s.so.1 vncserver :$port -useold -localhost no -geometry ${resolution.x}x${resolution.y}",
+                "LD_PRELOAD=/lib/aarch64-linux-gnu/libgcc_s.so.1 /root/tigervncserver :$port -useold -localhost no -geometry ${resolution.x}x${resolution.y}",
+//                "LD_PRELOAD=/lib/aarch64-linux-gnu/libgcc_s.so.1 Xtigervnc :1 -rfbunixpath /tmp/minalSocket -rfbauth /root/.vnc/passwd -geometry ${resolution.x}x${resolution.y}",
                 2000
             )
+        Log.d(TAG, "startVNC: res=$res")
         if (res != 0 && res != -1) {
             throw Exception(res.toString())
         }

@@ -249,7 +249,8 @@ class VncActivity : AppCompatActivity() {
     private fun defaultConnectionBean(port: Int): ConnectionBean {
         val conn = ConnectionBean()
 
-        conn.address = "127.0.0.1"
+//        conn.address = "127.0.0.1"
+        conn.address = "${filesDir.absolutePath}/lubuntu/tmp/minal.socket"
 //        conn.address = "192.168.2.129"
         conn.id = 0 // is new!!
         try {

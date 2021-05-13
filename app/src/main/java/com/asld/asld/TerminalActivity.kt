@@ -14,7 +14,7 @@ import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.asld.asld.databinding.ActivityTernimalBinding
+import com.asld.asld.databinding.ActivityTerminalBinding
 import com.asld.asld.service.Line
 import com.asld.asld.service.ShellDaemon
 import java.util.*
@@ -62,7 +62,7 @@ class TerminalActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        val binding = ActivityTernimalBinding.inflate(layoutInflater)
+        val binding = ActivityTerminalBinding.inflate(layoutInflater)
         setContentView(binding.root)
         linesView = binding.linesList
         binding.linesList.layoutManager = CustomLinearLayoutManager(this)

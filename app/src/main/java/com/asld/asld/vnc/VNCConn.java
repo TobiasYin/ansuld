@@ -215,6 +215,7 @@ public class VNCConn {
 
 
                 int repeaterId = (connSettings.useRepeater && connSettings.repeaterId != null && connSettings.repeaterId.length() > 0) ? Integer.parseInt(connSettings.repeaterId) : -1;
+                Log.d(TAG, "repeaterId:"+repeaterId);
                 lockFramebuffer();
                 if (!rfbInit(connSettings.address, connSettings.port, repeaterId, pendingColorModel.bpp())) {
                     unlockFramebuffer();
