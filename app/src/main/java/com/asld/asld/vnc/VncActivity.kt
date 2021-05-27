@@ -101,7 +101,7 @@ class VncActivity : AppCompatActivity() {
         fullRouteInit()
     }
 
-    private fun updateExclude(){
+    private fun updateExclude() {
         if (Build.VERSION.SDK_INT >= 30) {
             display?.getSize()?.let {
                 window.systemGestureExclusionRects =
@@ -202,39 +202,49 @@ class VncActivity : AppCompatActivity() {
                 2
             )
         Log.d(TAG, route.toString())
-        if (route != null && route.presentationDisplay != null) {
-            val presentationDisplay = route.presentationDisplay
-            Log.d(
-                TAG,
-                "chooseDisplay: height(${presentationDisplay}), width(${presentationDisplay.width})"
-            )
-            val presentationDisplaySize = presentationDisplay.getSize()
-            Log.d(TAG, "chooseDisplay: $presentationDisplaySize")
-            frameBufferSize = buildResolution(presentationDisplaySize)
-            canvasScale = min(
-                presentationDisplaySize.x.toFloat() / frameBufferSize.x,
-                presentationDisplaySize.y.toFloat() / frameBufferSize.y
-            )
-            Log.d(TAG, "frameBufferSize:$frameBufferSize, canvasScale:$canvasScale")
-
-            // 初始化鼠标指针倍数
-            val defaultDisplaySize = windowManager.getDefaultDisplay().getSize()
-            Log.d(TAG, "chooseDisplay: $defaultDisplaySize")
-            inputHandler.setPointerScale(
-                presentationDisplaySize.x.toFloat() / defaultDisplaySize.x,
-                presentationDisplaySize.y.toFloat() / defaultDisplaySize.y
-            )
-            vncPresentation = VncPresentation(this, presentationDisplay, handler).apply {
-                setOnDismissListener {
-                    Log.d("VncPresentation", "ondismiss: ")
-                    presentationDismiss = true
-                }
-            }
-            return true
+        val presentationDisplay = if (route != null && route.presentationDisplay != null) {
+            route.presentationDisplay
         } else {
-            Log.d(TAG, "No display found")
-            return false
+            val dm = getSystemService(Context.DISPLAY_SERVICE) as DisplayManager
+            for (i in dm.displays) {
+                Log.d(TAG, "chooseDisplay: $i")
+            }
+            if (dm.displays.size <= 1) {
+                Log.d(TAG, "No display found")
+                return false
+            } else {
+                // TODO 弹出列表选择指定屏幕
+                dm.displays[1]
+            }
         }
+
+        Log.d(
+            TAG,
+            "chooseDisplay: height(${presentationDisplay}), width(${presentationDisplay.width})"
+        )
+        val presentationDisplaySize = presentationDisplay.getSize()
+        Log.d(TAG, "chooseDisplay: $presentationDisplaySize")
+        frameBufferSize = buildResolution(presentationDisplaySize)
+        canvasScale = min(
+            presentationDisplaySize.x.toFloat() / frameBufferSize.x,
+            presentationDisplaySize.y.toFloat() / frameBufferSize.y
+        )
+        Log.d(TAG, "frameBufferSize:$frameBufferSize, canvasScale:$canvasScale")
+
+        // 初始化鼠标指针倍数
+        val defaultDisplaySize = windowManager.getDefaultDisplay().getSize()
+        Log.d(TAG, "chooseDisplay: $defaultDisplaySize")
+        inputHandler.setPointerScale(
+            presentationDisplaySize.x.toFloat() / defaultDisplaySize.x,
+            presentationDisplaySize.y.toFloat() / defaultDisplaySize.y
+        )
+        vncPresentation = VncPresentation(this, presentationDisplay, handler).apply {
+            setOnDismissListener {
+                Log.d("VncPresentation", "ondismiss: ")
+                presentationDismiss = true
+            }
+        }
+        return true
     }
 
     private fun Display.getSize(): Point {
