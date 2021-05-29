@@ -174,7 +174,7 @@ public class InputHandler extends GestureDetector.SimpleOnGestureListener {
             touchX = event.getX();
             touchY = event.getY();
             event.setLocation(absX, absY);
-            processPointerEvent(event, false, VNCConn.MOUSE_BUTTON_LEFT);
+            processPointerEvent(event, false, 0);
             return true;
         }
         return false;
