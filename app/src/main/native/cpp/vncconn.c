@@ -239,7 +239,7 @@ static rfbCredential *onGetCredential(rfbClient *client, int credentialType)
 
     // Retrieve credentials
     jclass cls = (*env)->GetObjectClass(env, obj);
-    jmethodID mid = (*env)->GetMethodID(env, cls, "onGetUserCredential", "()Lcom/coboltforge/dontmind/multivnc/VNCConn$UserCredential;");
+    jmethodID mid = (*env)->GetMethodID(env, cls, "onGetUserCredential", "()Lorg/coboltforge/dontmind/multivnc/VNCConn$UserCredential;");
     jobject jCredential = (*env)->CallObjectMethod(env, obj, mid);
 
     // Extract username & password
@@ -332,7 +332,7 @@ static jboolean setupClient(JNIEnv *env, jobject obj, jint bytesPerPixel) {
     return JNI_TRUE;
 }
 
-JNIEXPORT void JNICALL Java_com_asld_asld_vnc_VNCConn_rfbShutdown(JNIEnv *env, jobject obj) {
+JNIEXPORT void JNICALL Java_org_minal_minal_vnc_VNCConn_rfbShutdown(JNIEnv *env, jobject obj) {
     rfbClient *cl = getRfbClient(env, obj);
     if(cl) {
         log_obj_tostring(env, obj, ANDROID_LOG_INFO, "rfbShutdown() closing connection");
@@ -349,7 +349,7 @@ JNIEXPORT void JNICALL Java_com_asld_asld_vnc_VNCConn_rfbShutdown(JNIEnv *env, j
     }
 }
 
-JNIEXPORT jboolean JNICALL Java_com_asld_asld_vnc_VNCConn_rfbInit(JNIEnv *env, jobject obj, jstring host, jint port, jint repeaterId, jint bytesPerPixel) {
+JNIEXPORT jboolean JNICALL Java_org_minal_minal_vnc_VNCConn_rfbInit(JNIEnv *env, jobject obj, jstring host, jint port, jint repeaterId, jint bytesPerPixel) {
     log_obj_tostring(env, obj, ANDROID_LOG_INFO, "rfbInit()");
 
     if(!getRfbClient(env, obj))
@@ -399,7 +399,7 @@ JNIEXPORT jboolean JNICALL Java_com_asld_asld_vnc_VNCConn_rfbInit(JNIEnv *env, j
     // if there was an error in alloc_framebuffer(), catch that here
     if(!cl->frameBuffer) {
         log_obj_tostring(env, obj, ANDROID_LOG_ERROR, "rfbInit() failed due to framebuffer NULL");
-        Java_com_asld_asld_vnc_VNCConn_rfbShutdown(env, obj);
+        Java_org_minal_minal_vnc_VNCConn_rfbShutdown(env, obj);
         return JNI_FALSE;
     }
 
@@ -407,7 +407,7 @@ JNIEXPORT jboolean JNICALL Java_com_asld_asld_vnc_VNCConn_rfbInit(JNIEnv *env, j
 }
 
 
-JNIEXPORT jboolean JNICALL Java_com_asld_asld_vnc_VNCConn_rfbProcessServerMessage(JNIEnv *env, jobject obj) {
+JNIEXPORT jboolean JNICALL Java_org_minal_minal_vnc_VNCConn_rfbProcessServerMessage(JNIEnv *env, jobject obj) {
     rfbClient *cl = getRfbClient(env, obj);
 
     if(!cl) {
@@ -436,7 +436,7 @@ JNIEXPORT jboolean JNICALL Java_com_asld_asld_vnc_VNCConn_rfbProcessServerMessag
 
 #pragma clang diagnostic push
 #pragma ide diagnostic ignored "hicpp-signed-bitwise"
-JNIEXPORT jboolean JNICALL Java_com_asld_asld_vnc_VNCConn_rfbSetFramebufferUpdatesEnabled(JNIEnv *env, jobject obj, jboolean enable) {
+JNIEXPORT jboolean JNICALL Java_org_minal_minal_vnc_VNCConn_rfbSetFramebufferUpdatesEnabled(JNIEnv *env, jobject obj, jboolean enable) {
     rfbClient *cl = getRfbClient(env, obj);
     if(cl) {
         log_obj_tostring(env, obj, ANDROID_LOG_INFO, "rfbSetFramebufferUpdatesEnabled() %d", enable);
@@ -456,7 +456,7 @@ JNIEXPORT jboolean JNICALL Java_com_asld_asld_vnc_VNCConn_rfbSetFramebufferUpdat
 }
 #pragma clang diagnostic pop
 
-JNIEXPORT jstring JNICALL Java_com_asld_asld_vnc_VNCConn_rfbGetDesktopName(JNIEnv *env, jobject obj) {
+JNIEXPORT jstring JNICALL Java_org_minal_minal_vnc_VNCConn_rfbGetDesktopName(JNIEnv *env, jobject obj) {
     rfbClient *cl = getRfbClient(env, obj);
     if(cl)
         return (*env)->NewStringUTF(env, cl->desktopName);
@@ -464,7 +464,7 @@ JNIEXPORT jstring JNICALL Java_com_asld_asld_vnc_VNCConn_rfbGetDesktopName(JNIEn
         return NULL;
 }
 
-JNIEXPORT jint JNICALL Java_com_asld_asld_vnc_VNCConn_rfbGetFramebufferWidth(JNIEnv *env, jobject obj) {
+JNIEXPORT jint JNICALL Java_org_minal_minal_vnc_VNCConn_rfbGetFramebufferWidth(JNIEnv *env, jobject obj) {
     rfbClient *cl = getRfbClient(env, obj);
     if(cl)
         return cl->width;
@@ -472,7 +472,7 @@ JNIEXPORT jint JNICALL Java_com_asld_asld_vnc_VNCConn_rfbGetFramebufferWidth(JNI
         return 0;
 }
 
-JNIEXPORT jint JNICALL Java_com_asld_asld_vnc_VNCConn_rfbGetFramebufferHeight(JNIEnv *env, jobject obj) {
+JNIEXPORT jint JNICALL Java_org_minal_minal_vnc_VNCConn_rfbGetFramebufferHeight(JNIEnv *env, jobject obj) {
     rfbClient *cl = getRfbClient(env, obj);
     if(cl)
         return cl->height;
@@ -480,7 +480,7 @@ JNIEXPORT jint JNICALL Java_com_asld_asld_vnc_VNCConn_rfbGetFramebufferHeight(JN
         return 0;
 }
 
-JNIEXPORT jboolean JNICALL Java_com_asld_asld_vnc_VNCConn_rfbSendKeyEvent(JNIEnv *env, jobject obj, jlong keysym, jboolean down) {
+JNIEXPORT jboolean JNICALL Java_org_minal_minal_vnc_VNCConn_rfbSendKeyEvent(JNIEnv *env, jobject obj, jlong keysym, jboolean down) {
     rfbClient *cl = getRfbClient(env, obj);
     if(cl)
         return (jboolean) SendKeyEvent(cl, (uint32_t) keysym, down);
@@ -488,7 +488,7 @@ JNIEXPORT jboolean JNICALL Java_com_asld_asld_vnc_VNCConn_rfbSendKeyEvent(JNIEnv
         return JNI_FALSE;
 }
 
-JNIEXPORT jboolean JNICALL Java_com_asld_asld_vnc_VNCConn_rfbSendPointerEvent(JNIEnv *env, jobject obj, jint x, jint y, jint buttonMask) {
+JNIEXPORT jboolean JNICALL Java_org_minal_minal_vnc_VNCConn_rfbSendPointerEvent(JNIEnv *env, jobject obj, jint x, jint y, jint buttonMask) {
     rfbClient *cl = getRfbClient(env, obj);
     if(cl)
         return (jboolean) SendPointerEvent(cl, x, y, buttonMask);
@@ -496,7 +496,7 @@ JNIEXPORT jboolean JNICALL Java_com_asld_asld_vnc_VNCConn_rfbSendPointerEvent(JN
         return JNI_FALSE;
 }
 
-JNIEXPORT jboolean JNICALL Java_com_asld_asld_vnc_VNCConn_rfbSendClientCutText(JNIEnv *env, jobject obj, jstring text) {
+JNIEXPORT jboolean JNICALL Java_org_minal_minal_vnc_VNCConn_rfbSendClientCutText(JNIEnv *env, jobject obj, jstring text) {
     rfbClient *cl = getRfbClient(env, obj);
     if(cl) {
         const char *cText = (*env)->GetStringUTFChars(env, text, NULL);

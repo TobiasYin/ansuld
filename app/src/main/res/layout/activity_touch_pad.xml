@@ -13,14 +13,14 @@
     <com.google.android.material.appbar.AppBarLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:theme="@style/Theme.AnSuLD.AppBarOverlay">
+        android:theme="@style/Theme.Minal.AppBarOverlay">
 
         <androidx.appcompat.widget.Toolbar
             android:id="@+id/vnc_toolbar"
             android:layout_width="match_parent"
             android:layout_height="?attr/actionBarSize"
             android:gravity="top"
-            app:popupTheme="@style/Theme.AnSuLD.PopupOverlay"/>
+            app:popupTheme="@style/Theme.Minal.PopupOverlay"/>
 
     </com.google.android.material.appbar.AppBarLayout>
 

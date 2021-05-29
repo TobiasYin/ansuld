@@ -4,7 +4,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="?attr/fullscreenBackgroundColor"
-    android:theme="@style/ThemeOverlay.AnSuLD.FullscreenContainer"
+    android:theme="@style/ThemeOverlay.Minal.FullscreenContainer"
     tools:context=".vnc.VncActivity">
 
     <!-- The primary full-screen view. This can be replaced with whatever view
@@ -30,7 +30,7 @@
 
         <LinearLayout
             android:id="@+id/fullscreen_content_controls"
-            style="@style/Widget.Theme.AnSuLD.ButtonBar.Fullscreen"
+            style="@style/Widget.Theme.Minal.ButtonBar.Fullscreen"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_gravity="bottom|center_horizontal"

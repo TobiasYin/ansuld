@@ -22,8 +22,8 @@ add_library(
         ${CMAKE_SOURCE_DIR}/cpp/log.h
         ${CMAKE_SOURCE_DIR}/cpp/create_sub_process.h
         ${CMAKE_SOURCE_DIR}/cpp/create_sub_process.cpp
-        ${CMAKE_SOURCE_DIR}/jni/com_asld_asld_tools_ProcessUtil.h
-        ${CMAKE_SOURCE_DIR}/jni/com_asld_asld_tools_ProcessUtil.cpp
+        ${CMAKE_SOURCE_DIR}/jni/org_minal_minal_tools_ProcessUtil.h
+        ${CMAKE_SOURCE_DIR}/jni/org_minal_minal_tools_ProcessUtil.cpp
 )
 
 target_link_libraries(
