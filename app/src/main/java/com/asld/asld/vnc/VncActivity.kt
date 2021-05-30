@@ -13,6 +13,7 @@ import android.util.Log
 import android.view.*
 import android.view.View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
 import android.view.View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
+import android.widget.Button
 import android.widget.LinearLayout
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
@@ -89,10 +90,26 @@ class VncActivity : AppCompatActivity() {
                     View.SYSTEM_UI_FLAG_LAYOUT_STABLE or View.SYSTEM_UI_FLAG_IMMERSIVE
         window.addFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN)
         changeAppBarVisibility()
+        // 配置返回键
+        val that = this
+        findViewById<Button>(R.id.back).apply {
+            setOnTouchListener{ view, e ->
+                view.performClick()
+                that.finish()
+                true
+            }
+        }
+        findViewById<Button>(R.id.close_all).apply {
+            setOnTouchListener{ view, e ->
+                view.performClick()
+                that.endVncServer()
+                that.finish()
+                true
+            }
+        }
+            // set the second screen
 
-        // set the second screen
-
-        Log.d(TAG, "begin")
+            Log.d(TAG, "begin")
 
         mClipboardManager = getSystemService(CLIPBOARD_SERVICE) as ClipboardManager
         inputHandler = InputHandler(this)
