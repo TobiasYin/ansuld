@@ -289,7 +289,7 @@ class VncActivity : AppCompatActivity() {
         } catch (nfe: NumberFormatException) {
         }
         conn.userName = "root"
-        conn.password = "minalserver"
+        conn.password = "ansuldserver"
 //        conn.password = "qwe123"
         conn.useLocalCursor = true // always enable
 
