@@ -12,7 +12,6 @@ import android.widget.Button
 import android.widget.TextView
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import org.minal.minal.R
 import org.minal.minal.databinding.ActivityDownloadImagesBinding
 import org.minal.minal.tools.Downloader
 import java.io.File
@@ -110,7 +109,7 @@ val downloadFiles = listOf(
             checkSystemExist(item, baseDir, "lubuntu")
         }),
     DownloadItem(
-        "$baseURL/fserver",
+        "$baseURL/fserver_minal",
         "fserver",
         "文件服务器，开启文件服务器后可以从http://ip:8088访问此应用的文件"
     )
