@@ -13,7 +13,9 @@ import android.util.Log
 import android.view.*
 import android.view.View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
 import android.view.View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
+import android.widget.Button
 import android.widget.LinearLayout
+import android.widget.TextView
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
@@ -73,6 +75,17 @@ class VncActivity : AppCompatActivity() {
         }
     }
 
+    private fun isTouchEvent(event: MotionEvent): Boolean {
+        Log.d(
+            TAG, "isTouchEvent: ${
+                event.source == InputDevice.SOURCE_TOUCHSCREEN ||
+                        event.source == InputDevice.SOURCE_TOUCHPAD
+            }"
+        )
+        return event.source == InputDevice.SOURCE_TOUCHSCREEN ||
+                event.source == InputDevice.SOURCE_TOUCHPAD
+    }
+
     @SuppressLint("ShowToast")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -80,16 +93,61 @@ class VncActivity : AppCompatActivity() {
         setContentView(R.layout.activity_touch_pad)
         appBar = findViewById(R.id.vnc_toolbar)
         setSupportActionBar(appBar)
-        findViewById<LinearLayout>(R.id.touch_pad_layout).systemUiVisibility =
-            View.SYSTEM_UI_FLAG_FULLSCREEN or
-                    View.SYSTEM_UI_FLAG_HIDE_NAVIGATION or
-                    View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN or
-                    View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION or
-                    View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY or
-                    View.SYSTEM_UI_FLAG_LAYOUT_STABLE or View.SYSTEM_UI_FLAG_IMMERSIVE
+        touchPad = findViewById<LinearLayout>(R.id.touch_pad_layout).apply {
+            systemUiVisibility =
+                View.SYSTEM_UI_FLAG_FULLSCREEN or
+                        View.SYSTEM_UI_FLAG_HIDE_NAVIGATION or
+                        View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN or
+                        View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION or
+                        View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY or
+                        View.SYSTEM_UI_FLAG_LAYOUT_STABLE or View.SYSTEM_UI_FLAG_IMMERSIVE
+        }
         window.addFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN)
         changeAppBarVisibility()
+        // 配置返回键
+        val that = this
+        val handleTouch = { view: View, f: (View, MotionEvent) -> Unit ->
+            view.setOnTouchListener { v, e ->
+                Log.d(TAG, "onTouch: $e")
+                if (!isTouchEvent(e)) false
+                else {
+                    val location = intArrayOf(0, 0)
+                    view.getLocationInWindow(location)
+                    val h = view.height
+                    val w = view.width
+                    if (!(e.rawX < location[0] || e.rawX > location[0] + w || e.rawY < location[1] || e.rawY > location[1] + h) && e.action == MotionEvent.ACTION_UP) {
+                        v.performClick()
+                        f(v, e)
+                    }
+                    true
+                }
+            }
 
+        }
+        findViewById<TextView>(R.id.back).apply {
+            handleTouch(this) { v, e ->
+                that.finish()
+            }
+        }
+        findViewById<TextView>(R.id.close_all).apply {
+            handleTouch(this) { v, e ->
+                ProgressBarDialog.create(that, "Clean Environments...") {
+                    endVncClient()
+                    vncPresentation.dismiss()
+                    endVncServer()
+                    that.finish()
+                }
+            }
+        }
+
+//        thread{
+//            sleep(5000)
+//            touchPad.requestPointerCapture()
+//            touchPad.setOnCapturedPointerListener{v, e ->
+//                Log.d(TAG, "OnCapturedPointerListener: $e")
+//                true
+//            }
+//        }
         // set the second screen
 
         Log.d(TAG, "begin")

@@ -15,7 +15,7 @@ import org.minal.minal.tools.DownloadManager
 import org.minal.minal.tools.Process
 import android.Manifest
 import android.content.pm.PackageManager
-import org.minal.minal.R
+import org.minal.minal.tools.ProgressBarDialog
 
 class MainActivity : AppCompatActivity() {
     var checkFiles = hashMapOf(Pair("proot", false), Pair("lubuntu", false))
@@ -76,24 +76,24 @@ class MainActivity : AppCompatActivity() {
         Process("${filesDir.absolutePath}/fserver").exec()
         ShellDaemon.init(filesDir.absolutePath, "lubuntu")
 
-        binding.goToTerm.setOnClickListener {
-            val intent = Intent(this, TerminalActivity::class.java)
-            startActivity(intent)
-        }
-
+//        binding.goToTerm.setOnClickListener {
+//            val intent = Intent(this, TerminalActivity::class.java)
+//            startActivity(intent)
+//        }
+//        binding.goToOterm.setOnClickListener {
+//            val intent = Intent(this, OriginShellActivity::class.java)
+//            startActivity(intent)
+//        }
+//        binding.goDownload.setOnClickListener {
+//            val intent = Intent(this, DownloadImages::class.java)
+//            startActivity(intent)
+//        }
 
         binding.goToVnc.setOnClickListener {
             val intent = Intent(this, VncActivity::class.java)
             startActivity(intent)
         }
-        binding.goToOterm.setOnClickListener {
-            val intent = Intent(this, OriginShellActivity::class.java)
-            startActivity(intent)
-        }
-        binding.goDownload.setOnClickListener {
-            val intent = Intent(this, DownloadImages::class.java)
-            startActivity(intent)
-        }
+
         DownloadManager.relativeRoot = filesDir.absolutePath
     }
 
@@ -109,7 +109,27 @@ class MainActivity : AppCompatActivity() {
         // automatically handle clicks on the Home/Up button, so long
         // as you specify a parent activity in AndroidManifest.xml.
         return when (item.itemId) {
-            R.id.action_settings -> true
+            R.id.action_terminal -> {
+                val intent = Intent(this, TerminalActivity::class.java)
+                startActivity(intent)
+                true
+            }
+            R.id.action_naitve_terminal -> {
+                val intent = Intent(this, OriginShellActivity::class.java)
+                startActivity(intent)
+                true
+            }
+            R.id.action_download -> {
+                val intent = Intent(this, DownloadImages::class.java)
+                startActivity(intent)
+                true
+            }
+            R.id.action_shutdown_desktop -> {
+                ProgressBarDialog.create(this, "Shutdown desktop") {
+                    ShellDaemon.killVNC()
+                }
+                true
+            }
             else -> super.onOptionsItemSelected(item)
         }
     }
