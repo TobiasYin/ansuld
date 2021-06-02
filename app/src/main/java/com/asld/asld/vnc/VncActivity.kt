@@ -93,13 +93,15 @@ class VncActivity : AppCompatActivity() {
         setContentView(R.layout.activity_touch_pad)
         appBar = findViewById(R.id.vnc_toolbar)
         setSupportActionBar(appBar)
-        findViewById<LinearLayout>(R.id.touch_pad_layout).systemUiVisibility =
-            View.SYSTEM_UI_FLAG_FULLSCREEN or
-                    View.SYSTEM_UI_FLAG_HIDE_NAVIGATION or
-                    View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN or
-                    View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION or
-                    View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY or
-                    View.SYSTEM_UI_FLAG_LAYOUT_STABLE or View.SYSTEM_UI_FLAG_IMMERSIVE
+        touchPad = findViewById<LinearLayout>(R.id.touch_pad_layout).apply {
+            systemUiVisibility =
+                View.SYSTEM_UI_FLAG_FULLSCREEN or
+                        View.SYSTEM_UI_FLAG_HIDE_NAVIGATION or
+                        View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN or
+                        View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION or
+                        View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY or
+                        View.SYSTEM_UI_FLAG_LAYOUT_STABLE or View.SYSTEM_UI_FLAG_IMMERSIVE
+        }
         window.addFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN)
         changeAppBarVisibility()
         // 配置返回键
@@ -133,6 +135,15 @@ class VncActivity : AppCompatActivity() {
                 that.finish()
             }
         }
+
+//        thread{
+//            sleep(5000)
+//            touchPad.requestPointerCapture()
+//            touchPad.setOnCapturedPointerListener{v, e ->
+//                Log.d(TAG, "OnCapturedPointerListener: $e")
+//                true
+//            }
+//        }
         // set the second screen
 
         Log.d(TAG, "begin")
