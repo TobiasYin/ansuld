@@ -2,9 +2,32 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     tools:context="com.asld.asld.MainActivity">
+<!--    <item-->
+<!--        android:id="@+id/action_settings"-->
+<!--        android:orderInCategory="100"-->
+<!--        android:title="@string/action_settings"-->
+<!--        app:showAsAction="never" />-->
+
+        <item
+            android:id="@+id/action_terminal"
+            android:orderInCategory="100"
+            android:title="Terminal"
+            app:showAsAction="never" />
     <item
-        android:id="@+id/action_settings"
+        android:id="@+id/action_naitve_terminal"
         android:orderInCategory="100"
-        android:title="@string/action_settings"
+        android:title="Native Terminal"
+        app:showAsAction="never" />
+
+    <item
+        android:id="@+id/action_download"
+        android:orderInCategory="100"
+        android:title="Download"
+        app:showAsAction="never" />
+
+    <item
+        android:id="@+id/action_shutdown_desktop"
+        android:orderInCategory="100"
+        android:title="Shutdown Desktop"
         app:showAsAction="never" />
 </menu>

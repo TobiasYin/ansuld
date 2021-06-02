@@ -131,8 +131,12 @@ class VncActivity : AppCompatActivity() {
         }
         findViewById<TextView>(R.id.close_all).apply {
             handleTouch(this) { v, e ->
-                that.endVncServer()
-                that.finish()
+                ProgressBarDialog.create(that, "Clean Environments...") {
+                    endVncClient()
+                    vncPresentation.dismiss()
+                    endVncServer()
+                    that.finish()
+                }
             }
         }
 
