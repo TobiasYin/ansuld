@@ -15,6 +15,7 @@ import android.view.View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
 import android.view.View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
 import android.widget.Button
 import android.widget.LinearLayout
+import android.widget.TextView
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
@@ -74,6 +75,17 @@ class VncActivity : AppCompatActivity() {
         }
     }
 
+    private fun isTouchEvent(event: MotionEvent): Boolean {
+        Log.d(
+            TAG, "isTouchEvent: ${
+                event.source == InputDevice.SOURCE_TOUCHSCREEN ||
+                        event.source == InputDevice.SOURCE_TOUCHPAD
+            }"
+        )
+        return event.source == InputDevice.SOURCE_TOUCHSCREEN ||
+                event.source == InputDevice.SOURCE_TOUCHPAD
+    }
+
     @SuppressLint("ShowToast")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -92,24 +104,38 @@ class VncActivity : AppCompatActivity() {
         changeAppBarVisibility()
         // 配置返回键
         val that = this
-        findViewById<Button>(R.id.back).apply {
-            setOnTouchListener{ view, e ->
-                view.performClick()
+        val handleTouch = { view: View, f: (View, MotionEvent) -> Unit ->
+            view.setOnTouchListener { v, e ->
+                Log.d(TAG, "onTouch: $e")
+                if (!isTouchEvent(e)) false
+                else {
+                    val location = intArrayOf(0, 0)
+                    view.getLocationInWindow(location)
+                    val h = view.height
+                    val w = view.width
+                    if (!(e.rawX < location[0] || e.rawX > location[0] + w || e.rawY < location[1] || e.rawY > location[1] + h) && e.action == MotionEvent.ACTION_UP) {
+                        v.performClick()
+                        f(v, e)
+                    }
+                    true
+                }
+            }
+
+        }
+        findViewById<TextView>(R.id.back).apply {
+            handleTouch(this) { v, e ->
                 that.finish()
-                true
             }
         }
-        findViewById<Button>(R.id.close_all).apply {
-            setOnTouchListener{ view, e ->
-                view.performClick()
+        findViewById<TextView>(R.id.close_all).apply {
+            handleTouch(this) { v, e ->
                 that.endVncServer()
                 that.finish()
-                true
             }
         }
-            // set the second screen
+        // set the second screen
 
-            Log.d(TAG, "begin")
+        Log.d(TAG, "begin")
 
         mClipboardManager = getSystemService(CLIPBOARD_SERVICE) as ClipboardManager
         inputHandler = InputHandler(this)
